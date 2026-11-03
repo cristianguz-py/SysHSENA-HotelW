@@ -1,0 +1,51 @@
+{% extends 'panel/base.html' %}{% load panel_extras %}
+{% block title %}Huéspedes{% endblock %}
+{% block contenido %}
+<div class="pn-titulo">
+    <div>
+        <h1>Perfil de huéspedes</h1>
+        <p>{{ pagina.paginator.count }} huésped{{ pagina.paginator.count|pluralize:",es" }}.</p>
+    </div>
+</div>
+<form class="pn-tarjeta pn-filtros" method="get">
+    <div class="pn-campo" style="flex:1">
+        <label for="q">Nombre, documento o correo</label>
+        <input type="search" id="q" name="q" value="{{ q }}" maxlength="80">
+    </div>
+    <button class="pn-btn" type="submit"><i class="bi bi-search"></i>Buscar</button>
+    <a class="pn-btn pn-btn--claro" href="{% url 'gestion_huespedes' %}">Limpiar</a>
+</form>
+<div class="pn-tabla-wrap">
+    <table class="pn-tabla">
+        <thead>
+            <tr>
+                <th>Huésped</th>
+                <th>Documento</th>
+                <th>Contacto</th>
+                <th>Nacionalidad</th>
+                <th class="num">Reservas</th>
+                <th>Última entrada</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for h in pagina %}
+            <tr>
+                <td><a href="{% url 'gestion_huesped_detalle' h.pk %}"><strong>{{ h.nombres }} {{ h.apellidos }}</strong></a></td>
+                <td>{{ h.get_tipo_documento_display }} {{ h.numero_documento }}</td>
+                <td>{{ h.telefono }}<span class="sub">{{ h.correo }}</span></td>
+                <td>{{ h.nacionalidad }}</td>
+                <td class="num">{{ h.total_reservas }}</td>
+                <td>{{ h.ultima|date:"d/m/Y"|default:"—" }}</td>
+                <td><a class="pn-btn pn-btn--claro pn-btn--sm" href="{% url 'gestion_huesped_detalle' h.pk %}">Ver perfil</a></td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="7" class="pn-vacio">No hay huéspedes con ese criterio.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% include 'panel/_paginas.html' %}
+{% endblock %}

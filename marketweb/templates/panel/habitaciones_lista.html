@@ -1,0 +1,102 @@
+{% extends 'panel/base.html' %}{% load panel_extras %}
+{% block title %}Habitaciones{% endblock %}
+{% block contenido %}
+<div class="pn-titulo">
+    <div>
+        <h1>Habitaciones</h1>
+        <p>Situación para el {{ entrada|date:"d/m/Y" }} → {{ salida|date:"d/m/Y" }}. «Libre» depende de las fechas y de las reservas, no solo del estado de hoy.</p>
+    </div>
+    <a class="pn-btn" href="{% url 'gestion_habitacion_nueva' %}"><i class="bi bi-plus-lg"></i>Nueva habitación</a>
+</div>
+
+<form class="pn-tarjeta pn-filtros" method="get">
+    <div class="pn-campo">
+        <label for="q">Número</label>
+        <input type="search" id="q" name="q" value="{{ q }}" maxlength="20">
+    </div>
+    <div class="pn-campo">
+        <label for="tipo">Tipo</label>
+        <select id="tipo" name="tipo">
+            <option value="">Todos</option>
+            {% for t in tipos %}
+            <option value="{{ t.pk }}" {% if tipo == t.pk|stringformat:"d" %}selected{% endif %}>{{ t.nombre }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="pn-campo">
+        <label for="situacion">Situación</label>
+        <select id="situacion" name="situacion">
+            <option value="">Todas</option>
+            {% for k, t in situaciones %}
+            <option value="{{ k }}" {% if situacion == k %}selected{% endif %}>{{ t }} ({% for kk, n in conteo.items %}{% if kk == k %}{{ n }}{% endif %}{% endfor %})</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="pn-campo">
+        <label for="entrada">Entrada</label>
+        <input type="date" id="entrada" name="entrada" value="{{ entrada|date:'Y-m-d' }}">
+    </div>
+    <div class="pn-campo">
+        <label for="salida">Salida</label>
+        <input type="date" id="salida" name="salida" value="{{ salida|date:'Y-m-d' }}">
+    </div>
+    <button class="pn-btn" type="submit"><i class="bi bi-funnel"></i>Aplicar</button>
+    <a class="pn-btn pn-btn--claro" href="{% url 'gestion_habitaciones' %}">Limpiar</a>
+</form>
+
+<div class="pn-tabla-wrap">
+    <table class="pn-tabla">
+        <thead>
+            <tr>
+                <th>Hab.</th>
+                <th>Piso</th>
+                <th>Tipo</th>
+                <th class="num">Capacidad</th>
+                <th class="num">Precio / noche</th>
+                <th>Situación</th>
+                <th>Estado operativo</th>
+                <th>Reserva en esas fechas</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for h in pagina %}
+            <tr>
+                <td><a href="{% url 'gestion_habitacion_detalle' h.pk %}"><strong>{{ h.numero }}</strong></a>{% if not h.activa %} <span class="et et--inactivo">Inactiva</span>{% endif %}</td>
+                <td>{{ h.piso }}</td>
+                <td>{{ h.tipo.nombre }}</td>
+                <td class="num">{{ h.tipo.capacidad }}</td>
+                <td class="num">{{ h.tipo.precio_noche|cop }}</td>
+                <td><span class="et et--{{ h.estado_periodo }}">{{ h.estado_periodo_texto }}</span></td>
+                <td>{{ h.get_estado_display }}</td>
+                <td>{% if h.reserva_periodo %}<a href="{% url 'gestion_reserva_detalle' h.reserva_periodo.pk %}">{{ h.reserva_periodo.pk|codigo_reserva }}</a><span class="sub">{{ h.reserva_periodo.huesped.nombres }} {{ h.reserva_periodo.huesped.apellidos }}</span>{% else %}—{% endif %}</td>
+                <td>
+                    <div class="pn-acciones">
+                        <a class="pn-btn pn-btn--claro pn-btn--sm" href="{% url 'gestion_habitacion_detalle' h.pk %}">Ver</a>
+                        <a class="pn-btn pn-btn--claro pn-btn--sm" href="{% url 'gestion_habitacion_editar' h.pk %}">Editar</a>
+                    </div>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="9" class="pn-vacio">No hay habitaciones con estos filtros.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% include 'panel/_paginas.html' %}
+
+<section class="pn-tarjeta" style="margin-top:1.2rem">
+    <h2>Tipos de habitación</h2>
+    <p class="pn-ayuda">La capacidad y el precio se definen por tipo. Un cambio de precio afecta a los cálculos futuros (incluido el check-out de estancias en curso), no al valor ya guardado en reservas confirmadas.</p>
+    <ul class="pn-lista">
+        {% for t in tipos_resumen %}
+        <li>
+            <span><strong>{{ t.nombre }}</strong> · {{ t.n }} habitaci{{ t.n|pluralize:"ón,ones" }} · máx. {{ t.capacidad }} · {{ t.precio_noche|cop }} por noche</span>
+            <a class="pn-btn pn-btn--claro pn-btn--sm" href="{% url 'gestion_tipo_editar' t.pk %}">Editar tipo</a>
+        </li>
+        {% endfor %}
+    </ul>
+</section>
+{% endblock %}

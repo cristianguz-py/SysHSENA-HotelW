@@ -1,0 +1,49 @@
+{% load static %}{% load panel_extras %}<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Factura {{ factura.numero_dian }} · Hotel W</title>
+    <style>
+        body { font-family: "Jost", "Helvetica Neue", Arial, sans-serif; background: #F6F1E9; color: #1C1A17; margin: 0; padding: 2rem 1rem; }
+        .hoja { max-width: 760px; margin: 0 auto; background: #fff; border: 1px solid rgba(10,10,10,.12); border-radius: 12px; padding: 2rem 2.2rem; }
+        h1 { font-family: "Cormorant Garamond", Georgia, serif; font-size: 2rem; margin: 0; letter-spacing: .08em; }
+        .cab { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; border-bottom: 2px solid #0A0A0A; padding-bottom: 1rem; margin-bottom: 1.2rem; }
+        .cab small { color: #6F6B64; display: block; }
+        table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
+        th { text-align: left; background: #F0E9DD; font-size: .75rem; text-transform: uppercase; letter-spacing: .07em; padding: .5rem .6rem; }
+        td { padding: .5rem .6rem; border-top: 1px solid rgba(10,10,10,.1); }
+        .num { text-align: right; white-space: nowrap; }
+        .total td { font-weight: 600; font-size: 1.05rem; border-top: 2px solid #0A0A0A; }
+        .nota { color: #6F6B64; font-size: .82rem; }
+        .acciones { max-width: 760px; margin: 0 auto 1rem; display: flex; gap: .6rem; }
+        .acciones a { color: #0A0A0A; }
+        @media print { .acciones { display: none; } body { background: #fff; padding: 0; } .hoja { border: 0; } }
+    </style>
+</head>
+<body>
+<p class="acciones"><a href="{% url 'reserva_detalle' reserva.pk %}">← Volver a la reserva</a> · Para guardar como PDF usa «Imprimir» del navegador.</p>
+<main class="hoja">
+    <div class="cab">
+        <div><h1>HOTEL W</h1><small>Riohacha · La Guajira</small></div>
+        <div style="text-align:right"><strong>Factura {{ factura.numero_dian }}</strong><small>Emitida el {{ factura.fecha_emision|date:"d/m/Y H:i" }}</small><small>Reserva {{ reserva.pk|codigo_reserva }}</small></div>
+    </div>
+    <p><strong>{{ reserva.huesped.nombres }} {{ reserva.huesped.apellidos }}</strong><br>
+        {{ reserva.huesped.get_tipo_documento_display }} {{ reserva.huesped.numero_documento }}<br>{{ reserva.huesped.correo }}</p>
+    <table>
+        <thead><tr><th>Concepto</th><th class="num">Valor</th></tr></thead>
+        <tbody>
+            <tr><td>Alojamiento · Habitación {{ reserva.habitacion.numero }} ({{ reserva.habitacion.tipo.nombre }}) · {{ reserva.fecha_entrada|date:"d/m/Y" }} → {{ reserva.fecha_salida|date:"d/m/Y" }} · {{ reserva.calcular_noches }} noche{{ reserva.calcular_noches|pluralize }}</td><td class="num">{{ reserva.calcular_alojamiento|cop }}</td></tr>
+            {% for s in reserva.servicios.all %}<tr><td>{{ s.cantidad }} × {{ s.servicio.nombre }}</td><td class="num">{{ s.subtotal|cop }}</td></tr>{% endfor %}
+            {% if reserva.cargo_tardio %}<tr><td>Cargo por salida tardía</td><td class="num">{{ reserva.cargo_tardio|cop }}</td></tr>{% endif %}
+        </tbody>
+        <tfoot>
+            <tr><td class="num">Subtotal</td><td class="num">{{ factura.subtotal|cop }}</td></tr>
+            <tr><td class="num">IVA {% if factura.exento_iva %}(exento: huésped extranjero){% else %}(19 %){% endif %}</td><td class="num">{{ factura.iva|cop }}</td></tr>
+            <tr class="total"><td class="num">Total</td><td class="num">{{ factura.total|cop }}</td></tr>
+        </tfoot>
+    </table>
+    <p class="nota">Documento de comprobación interna de Hotel W. El número corresponde a la serie de pruebas del sistema.</p>
+</main>
+</body>
+</html>

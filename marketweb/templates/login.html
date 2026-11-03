@@ -1,0 +1,122 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0c0b0a">
+    <title>Hotel W — Iniciar Sesión</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="{% static 'css/login.css' %}">
+    <link rel="stylesheet" href="{% static 'css/registro.css' %}">
+    
+</head>
+<body>
+
+    <!-- Fondo: se configura en static/css/login.css (bloque ★, variable --fondo-hotel) -->
+    <div class="fondo" aria-hidden="true"></div>
+    <div class="fondo-overlay" aria-hidden="true"></div>
+
+    <!-- Botón flotante elegante para volver al inicio de forma segura -->
+    <a href="{% url 'home' %}" class="btn-volver-flotante" aria-label="Volver al inicio">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M19 12H5M12 19l-7-7 7-7"/>
+        </svg>
+        <span>Volver</span>
+    </a>
+
+    <main class="pagina">
+
+        <!-- Marca -->
+        <header class="marca">
+            <span class="marca__logo">
+                <img src="{% static 'img/logohotelw.jpg' %}" alt="Logo Hotel W">
+            </span>
+            <h1 class="marca__nombre">Hotel W</h1>
+            <span class="marca__regla" aria-hidden="true"></span>
+            <p class="marca__lema">Sistema de gestión hotelera</p>
+            <p class="marca__lugar">Riohacha, La Guajira</p>
+        </header>
+
+        <!-- Formulario -->
+        <section class="panel" aria-labelledby="titulo-login">
+            <h2 class="panel__titulo" id="titulo-login">Bienvenido</h2>
+            <p class="panel__texto">Ingresa con tu nombre o correo electrónico para continuar.</p>
+
+            <!-- Mensajes de Notificación -->
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="aviso aviso--{{ message.tags|default:'error' }}" role="alert">
+                        <span class="aviso__texto">{{ message }}</span>
+                        <button type="button" class="aviso__cerrar" aria-label="Cerrar mensaje">&times;</button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <!-- Búsqueda de disponibilidad pendiente (viene del formulario de la página de inicio) -->
+            {% if busqueda %}
+                <div class="aviso aviso--info" role="status">
+                    <span class="aviso__texto">
+                        Para consultar la disponibilidad y continuar con tu reserva, inicia sesión o crea una cuenta.
+                        Tu búsqueda quedó guardada: {{ busqueda.tipo.nombre }}, del {{ busqueda.llegada|date:"d/m/Y" }} al {{ busqueda.salida|date:"d/m/Y" }}.
+                    </span>
+                </div>
+            {% endif %}
+
+            <form method="POST" action="{% url 'login' %}" id="form-login">
+                {% csrf_token %}
+
+                <div class="campo">
+                    <label for="identificador" class="campo__etiqueta">Nombre o correo electrónico</label>
+                    <div class="campo__control">
+                        <svg class="campo__icono" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <circle cx="12" cy="8" r="4"/>
+                            <path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/>
+                        </svg>
+                        <input type="text" class="campo__input" id="identificador" name="identificador" required maxlength="254" value="{{ identificador|default:'' }}" autocomplete="username">
+                    </div>
+                </div>
+
+                <div class="campo">
+                    <label for="contrasena" class="campo__etiqueta">Contraseña</label>
+                    <div class="campo__control">
+                        <svg class="campo__icono" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <rect x="4" y="10" width="16" height="11" rx="2"/>
+                            <path d="M8 10V7a4 4 0 0 1 8 0v3"/>
+                        </svg>
+                        <input type="password" class="campo__input" id="contrasena" name="contrasena" required autocomplete="current-password">
+                        <button type="button" class="campo__ojo" id="ver-contrasena" aria-label="Mostrar contraseña" aria-pressed="false">
+                            <svg class="ojo-abierto" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/>
+                                <circle cx="12" cy="12" r="3"/>
+                            </svg>
+                            <svg class="ojo-cerrado" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <path d="M3 3l18 18"/>
+                                <path d="M10.6 5.1A10 10 0 0 1 12 5c6.4 0 10 7 10 7a17 17 0 0 1-3.2 4.2M6.6 6.6A17 17 0 0 0 2 12s3.6 7 10 7a9.8 9.8 0 0 0 4.2-.9"/>
+                                <path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <button type="submit" class="boton" id="boton-login">
+                    <span class="boton__texto">Iniciar sesión</span>
+                    <span class="boton__spinner" aria-hidden="true"></span>
+                </button>
+            </form>
+
+            <p class="panel__enlace">¿No tienes una cuenta? <a href="{% url 'registro' %}">Regístrate</a></p>
+
+            <div class="panel__pie">
+                Acceso para huéspedes y personal del hotel
+            </div>
+        </section>
+
+    </main>
+
+</body>
+</html>

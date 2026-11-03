@@ -1,0 +1,33 @@
+{% extends 'Wbar/base_gestion.html' %}
+{% block title %}{{ titulo }}{% endblock %}
+{% block contenido %}
+<div class="pn-titulo">
+    <h1>{{ titulo }}</h1>
+</div>
+
+<section class="pn-tarjeta">
+    <form method="post" {% if multipart %}enctype="multipart/form-data"{% endif %} class="pn-formulario" novalidate>
+        {% csrf_token %}
+        
+        {% if form.non_field_errors %}
+        <div class="pn-ancho">{{ form.non_field_errors }}</div>
+        {% endif %}
+        
+        {% for campo in form %}
+        {% include 'panel/_campo.html' with campo=campo ancho=campo.field.widget.input_type %}
+        {% endfor %}
+        
+        {% if objeto and objeto.imagen %}
+        <div class="pn-ancho">
+            <span class="pn-ayuda">Fotografía actual:</span><br>
+            <img class="wb-foto-mini" style="width:120px;height:120px" src="{{ objeto.imagen.url }}" alt="">
+        </div>
+        {% endif %}
+        
+        <div class="pn-ancho pn-acciones">
+            <button class="pn-btn" type="submit">Guardar</button>
+            <a class="pn-btn pn-btn--claro" href="{% url volver %}">Cancelar</a>
+        </div>
+    </form>
+</section>
+{% endblock %}

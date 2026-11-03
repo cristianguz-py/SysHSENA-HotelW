@@ -1,0 +1,9 @@
+<div class="pn-campo {% if ancho %}pn-ancho{% endif %}">
+    {% if campo.field.widget.input_type == 'checkbox' %}
+    <label class="pn-check" for="{{ campo.id_for_label }}">{{ campo }} {{ campo.label }}</label>
+    {% else %}
+    <label for="{{ campo.id_for_label }}">{{ campo.label }}</label>{{ campo }}
+    {% endif %}
+    {% for e in campo.errors %}<span class="pn-error">{{ e }}</span>{% endfor %}
+    {% if campo.help_text %}<span class="pn-ayuda">{{ campo.help_text }}</span>{% endif %}
+</div>

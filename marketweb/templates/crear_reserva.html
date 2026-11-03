@@ -1,0 +1,324 @@
+{% load static %}
+
+{% include 'inc/header.html' %}
+
+<!-- Estilos: dashboard.css + reservas.css -->
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+<link rel="stylesheet" href="{% static 'css/reservas.css' %}">
+
+<div class="hw-dash hw-res">
+
+    <!-- 1. ENCABEZADO DE LA PÁGINA -->
+    <section class="hw-hero">
+        <div class="hw-hero__bg" aria-hidden="true"></div>
+
+        <div class="hw-wrap hw-hero__inner">
+            <div class="hw-hero__main hw-reveal" style="--d:0">
+                <p class="hw-eyebrow">
+                    <span>Reservas</span>
+                    <span class="hw-eyebrow__linea" aria-hidden="true"></span>
+                    <span>Nueva reserva</span>
+                </p>
+
+                <h1 class="hw-hero__nombre">Registrar Reserva</h1>
+                <p class="hw-hero__texto">Registra al huésped, elige las fechas y el tipo de habitación: solo verás las habitaciones libres para ese período.</p>
+            </div>
+
+            <div class="hw-hero__lado hw-reveal" style="--d:2">
+                <a href="{% url 'disponibilidad' %}" class="hw-btn hw-btn--fantasma">
+                    <i class="bi bi-arrow-left"></i>
+                    Volver a Disponibilidad
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <div class="hw-wrap">
+
+        {% if errores_negocio or form.errors %}
+        <div class="hw-alerta hw-alerta--error hw-reveal" style="--d:1" role="alert">
+            <i class="bi bi-exclamation-triangle" aria-hidden="true"></i>
+            <div>
+                <p class="hw-alerta__titulo">No se pudo crear la reserva</p>
+                <ul class="hw-alerta__lista">
+                    {% for e in errores_negocio %}<li>{{ e }}</li>{% endfor %}
+                    {% if form.errors and not errores_negocio %}<li>Revisa los campos marcados en rojo.</li>{% endif %}
+                </ul>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="hw-res__grid">
+
+            <!-- 2. FORMULARIO -->
+            <div class="hw-panel hw-reveal" style="--d:2">
+
+                <form method="POST" action="{% if habitacion_inicial %}{% url 'crear_reserva' habitacion_inicial.id %}{% else %}{% url 'crear_reserva' %}{% endif %}"
+                      class="needs-validation" novalidate id="form-reserva">
+                    {% csrf_token %}
+
+                    <!-- Paso 1: huésped -->
+                    <section class="hw-paso" aria-labelledby="t-huesped">
+                        <header class="hw-paso__cab">
+                            <span class="hw-paso__num" aria-hidden="true">01</span>
+                            <div>
+                                <h2 class="hw-paso__titulo" id="t-huesped">Huésped principal</h2>
+                                <p class="hw-paso__sub">Busca por documento: si ya existe, se reutiliza su registro.</p>
+                            </div>
+                        </header>
+
+                        <div class="hw-campos hw-campos--doc">
+                            <div class="hw-campo{% if form.tipo_documento.errors %} hw-campo--error{% endif %}">
+                                <label class="hw-campo__label" for="tipo_documento">Tipo de documento <span class="hw-campo__req" aria-hidden="true">*</span></label>
+                                <div class="hw-campo__control hw-campo__control--select">
+                                    <select name="tipo_documento" id="tipo_documento" class="hw-campo__input hw-campo__input--select" required>
+                                        {% for valor, etiqueta in tipos_documento %}
+                                        <option value="{{ valor }}" {% if form.tipo_documento.value == valor %}selected{% endif %}>{{ etiqueta }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                {% for e in form.tipo_documento.errors %}<p class="hw-campo__error">{{ e }}</p>{% endfor %}
+                            </div>
+
+                            <div class="hw-campo{% if form.numero_documento.errors %} hw-campo--error{% endif %}">
+                                <label class="hw-campo__label" for="numero_documento">Número de documento <span class="hw-campo__req" aria-hidden="true">*</span></label>
+                                <div class="hw-campo__control">
+                                    <input type="text" name="numero_documento" id="numero_documento" maxlength="30"
+                                           class="hw-campo__input" required placeholder="Ej: 1082300123"
+                                           value="{{ form.numero_documento.value|default_if_none:'' }}">
+                                    <!-- Botón de búsqueda directa mediante servidor (GET) -->
+                                    <button class="hw-campo__btn" type="submit" formaction="{% url 'crear_reserva' %}" formmethod="get" title="Buscar huésped registrado">
+                                        <i class="bi bi-search"></i>
+                                    </button>
+                                </div>
+                                {% for e in form.numero_documento.errors %}<p class="hw-campo__error">{{ e }}</p>{% endfor %}
+                                {% if huesped_encontrado %}
+                                    <p class="text-success small mt-1"><i class="bi bi-check-circle-fill"></i> Huésped encontrado: datos precargados.</p>
+                                {% else %}
+                                    <p class="hw-campo__hint">Ingresa el documento y presiona la lupa para consultar datos guardados.</p>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="hw-campos">
+                            <div class="hw-campo{% if form.nombres.errors %} hw-campo--error{% endif %}">
+                                <label class="hw-campo__label" for="nombres">Nombres <span class="hw-campo__req" aria-hidden="true">*</span></label>
+                                <div class="hw-campo__control">
+                                    <input type="text" name="nombres" id="nombres" maxlength="80" class="hw-campo__input" required
+                                           value="{{ form.nombres.value|default_if_none:'' }}">
+                                </div>
+                                {% for e in form.nombres.errors %}<p class="hw-campo__error">{{ e }}</p>{% endfor %}
+                            </div>
+
+                            <div class="hw-campo{% if form.apellidos.errors %} hw-campo--error{% endif %}">
+                                <label class="hw-campo__label" for="apellidos">Apellidos <span class="hw-campo__req" aria-hidden="true">*</span></label>
+                                <div class="hw-campo__control">
+                                    <input type="text" name="apellidos" id="apellidos" maxlength="80" class="hw-campo__input" required
+                                           value="{{ form.apellidos.value|default_if_none:'' }}">
+                                </div>
+                                {% for e in form.apellidos.errors %}<p class="hw-campo__error">{{ e }}</p>{% endfor %}
+                            </div>
+
+                            <div class="hw-campo{% if form.telefono.errors %} hw-campo--error{% endif %}">
+                                <label class="hw-campo__label" for="telefono">Teléfono / WhatsApp <span class="hw-campo__req" aria-hidden="true">*</span></label>
+                                <div class="hw-campo__control">
+                                    <input type="text" name="telefono" id="telefono" maxlength="20" class="hw-campo__input" required
+                                           placeholder="+57 300 000 0000" value="{{ form.telefono.value|default_if_none:'' }}">
+                                </div>
+                                {% for e in form.telefono.errors %}<p class="hw-campo__error">{{ e }}</p>{% endfor %}
+                            </div>
+
+                            <div class="hw-campo{% if form.correo.errors %} hw-campo--error{% endif %}">
+                                <label class="hw-campo__label" for="correo">Correo electrónico <span class="hw-campo__req" aria-hidden="true">*</span></label>
+                                <div class="hw-campo__control">
+                                    <input type="email" name="correo" id="correo" class="hw-campo__input" required
+                                           placeholder="cliente@correo.com" value="{{ form.correo.value|default_if_none:'' }}">
+                                </div>
+                                {% for e in form.correo.errors %}<p class="hw-campo__error">{{ e }}</p>{% endfor %}
+                            </div>
+
+                            <div class="hw-campo{% if form.nacionalidad.errors %} hw-campo--error{% endif %}">
+                                <label class="hw-campo__label" for="nacionalidad">Nacionalidad <span class="hw-campo__req" aria-hidden="true">*</span></label>
+                                <div class="hw-campo__control">
+                                    <input type="text" name="nacionalidad" id="nacionalidad" maxlength="50" class="hw-campo__input" required
+                                           value="{{ form.nacionalidad.value|default_if_none:'Colombiana' }}">
+                                </div>
+                                {% for e in form.nacionalidad.errors %}<p class="hw-campo__error">{{ e }}</p>{% endfor %}
+                            </div>
+
+                            <div class="hw-campo">
+                                <span class="hw-campo__label" aria-hidden="true">Tratamiento fiscal</span>
+                                <label class="hw-interruptor" for="es_extranjero">
+                                    <input class="hw-interruptor__input" type="checkbox" id="es_extranjero" name="es_extranjero"
+                                           {% if form.es_extranjero.value %}checked{% endif %}>
+                                    <span class="hw-interruptor__texto">
+                                        ¿Es huésped extranjero?
+                                        <small>Exento de IVA (DIAN)</small>
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Paso 2: fechas -->
+                    <section class="hw-paso" aria-labelledby="t-fechas">
+                        <header class="hw-paso__cab">
+                            <span class="hw-paso__num" aria-hidden="true">02</span>
+                            <div>
+                                <h2 class="hw-paso__titulo" id="t-fechas">Fechas de la estancia</h2>
+                                <p class="hw-paso__sub">La disponibilidad se consulta con estas fechas.</p>
+                            </div>
+                        </header>
+
+                        <div class="hw-campos">
+                            <div class="hw-campo{% if form.fecha_entrada.errors %} hw-campo--error{% endif %}">
+                                <label class="hw-campo__label" for="fecha_entrada"><i class="bi bi-calendar-event"></i> Fecha de entrada <span class="hw-campo__req" aria-hidden="true">*</span></label>
+                                <div class="hw-campo__control">
+                                    <input type="date" name="fecha_entrada" id="fecha_entrada" min="{{ hoy }}" class="hw-campo__input" required
+                                           value="{{ form.fecha_entrada.value|default_if_none:'' }}">
+                                </div>
+                                {% for e in form.fecha_entrada.errors %}<p class="hw-campo__error">{{ e }}</p>{% endfor %}
+                            </div>
+
+                            <div class="hw-campo{% if form.fecha_salida.errors %} hw-campo--error{% endif %}">
+                                <label class="hw-campo__label" for="fecha_salida"><i class="bi bi-calendar-check"></i> Fecha de salida <span class="hw-campo__req" aria-hidden="true">*</span></label>
+                                <div class="hw-campo__control">
+                                    <input type="date" name="fecha_salida" id="fecha_salida" min="{{ hoy }}" class="hw-campo__input" required
+                                           value="{{ form.fecha_salida.value|default_if_none:'' }}">
+                                </div>
+                                {% for e in form.fecha_salida.errors %}<p class="hw-campo__error">{{ e }}</p>{% endfor %}
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Paso 3: habitación -->
+                    <section class="hw-paso" aria-labelledby="t-habitacion">
+                        <header class="hw-paso__cab">
+                            <span class="hw-paso__num" aria-hidden="true">03</span>
+                            <div>
+                                <h2 class="hw-paso__titulo" id="t-habitacion">Habitación y huéspedes</h2>
+                                <p class="hw-paso__sub">El precio es por habitación, no por persona.</p>
+                            </div>
+                        </header>
+
+                        <div class="hw-campos">
+                            <div class="hw-campo hw-campo--ancho{% if form.tipo_habitacion.errors %} hw-campo--error{% endif %}">
+                                <label class="hw-campo__label" for="tipo_habitacion"><i class="bi bi-door-open"></i> Tipo de habitación <span class="hw-campo__req" aria-hidden="true">*</span></label>
+                                <div class="hw-campo__control hw-campo__control--select">
+                                    <select name="tipo_habitacion" id="tipo_habitacion" class="hw-campo__input hw-campo__input--select" required>
+                                        <option value="">Selecciona un tipo…</option>
+                                        {% for t in tipos %}
+                                        <option value="{{ t.pk }}" {% if form.tipo_habitacion.value|stringformat:"s" == t.pk|stringformat:"s" or tipo_seleccionado.pk == t.pk %}selected{% endif %}>
+                                            {{ t.nombre }} — hasta {{ t.capacidad }} huéspedes — ${{ t.precio_noche|floatformat:"0g" }} / noche
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                {% for e in form.tipo_habitacion.errors %}<p class="hw-campo__error">{{ e }}</p>{% endfor %}
+                            </div>
+
+                            <div class="hw-campo hw-campo--ancho">
+                                <span class="hw-campo__label" id="lbl-habitaciones"><i class="bi bi-grid-3x3-gap"></i> Habitaciones disponibles <span class="hw-campo__req" aria-hidden="true">*</span></span>
+                                
+                                <div class="hw-opciones mt-2">
+                                    {% if habitaciones_disponibles %}
+                                        {% for hab in habitaciones_disponibles %}
+                                            <label class="hw-opcion">
+                                                <input type="radio" name="habitacion" value="{{ hab.pk }}" {% if form.habitacion.value|stringformat:"s" == hab.pk|stringformat:"s" or forloop.first %}checked{% endif %}>
+                                                <span>Hab. {{ hab.numero }} (Piso {{ hab.piso }})</span>
+                                            </label>
+                                        {% endfor %}
+                                    {% else %}
+                                        <p class="hw-estado hw-estado--neutro">No hay habitaciones disponibles para los criterios seleccionados.</p>
+                                    {% endif %}
+                                </div>
+                                {% for e in form.habitacion.errors %}<p class="hw-campo__error">{{ e }}</p>{% endfor %}
+                            </div>
+
+                            <div class="hw-campo{% if form.num_huespedes.errors %} hw-campo--error{% endif %}">
+                                <label class="hw-campo__label" for="num_huespedes"><i class="bi bi-people"></i> Número de huéspedes (total) <span class="hw-campo__req" aria-hidden="true">*</span></label>
+                                <div class="hw-campo__control">
+                                    <input type="number" name="num_huespedes" id="num_huespedes" min="1" class="hw-campo__input" required
+                                           value="{{ form.num_huespedes.value|default_if_none:'1' }}">
+                                </div>
+                                {% for e in form.num_huespedes.errors %}<p class="hw-campo__error">{{ e }}</p>{% endfor %}
+                            </div>
+
+                            <div class="hw-campo{% if form.canal_reserva.errors %} hw-campo--error{% endif %}">
+                                <label class="hw-campo__label" for="canal_reserva"><i class="bi bi-diagram-3"></i> Canal de origen</label>
+                                <div class="hw-campo__control hw-campo__control--select">
+                                    <select name="canal_reserva" id="canal_reserva" class="hw-campo__input hw-campo__input--select">
+                                        {% for valor, etiqueta in canales %}
+                                        <option value="{{ valor }}" {% if form.canal_reserva.value == valor %}selected{% endif %}>{{ etiqueta }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                {% for e in form.canal_reserva.errors %}<p class="hw-campo__error">{{ e }}</p>{% endfor %}
+                            </div>
+                        </div>
+                    </section>
+
+                </form>
+            </div>
+
+            <!-- 3. RESUMEN DINÁMICO DESDE EL SERVIDOR (DJANGO) -->
+            <aside class="hw-res__lateral hw-reveal" style="--d:3" aria-label="Resumen de la reserva">
+                <div class="hw-panel hw-resumen">
+                    <h2 class="hw-resumen__titulo">Resumen de la reserva</h2>
+
+                    <dl class="hw-resumen__lista">
+                        <div class="hw-resumen__fila">
+                            <dt>Habitación</dt>
+                            <dd>{% if habitacion_inicial %}{{ habitacion_inicial.numero }}{% elif form.habitacion.value %}Hab. {{ form.habitacion.value }}{% else %}Seleccionada{% endif %}</dd>
+                        </div>
+                        <div class="hw-resumen__fila">
+                            <dt>Tipo</dt>
+                            <dd>{{ tipo_seleccionado.nombre|default:"—" }}</dd>
+                        </div>
+                        <div class="hw-resumen__fila">
+                            <dt>Huéspedes</dt>
+                            <dd>{{ form.num_huespedes.value|default:"1" }}</dd>
+                        </div>
+                        <div class="hw-resumen__fila">
+                            <dt>Entrada</dt>
+                            <dd>{{ form.fecha_entrada.value|default:"—" }}</dd>
+                        </div>
+                        <div class="hw-resumen__fila">
+                            <dt>Salida</dt>
+                            <dd>{{ form.fecha_salida.value|default:"—" }}</dd>
+                        </div>
+                        <div class="hw-resumen__fila">
+                            <dt>Noches</dt>
+                            <dd>{{ noches|default:"0" }}</dd>
+                        </div>
+                        <div class="hw-resumen__fila">
+                            <dt>Precio por noche</dt>
+                            <dd>${{ precio_noche|floatformat:"0g" }}</dd>
+                        </div>
+                        <div class="hw-resumen__fila">
+                            <dt>Alojamiento</dt>
+                            <dd>${{ alojamiento|floatformat:"0g" }}</dd>
+                        </div>
+                    </dl>
+
+                    <p class="hw-resumen__total">
+                        <span>Total estimado</span>
+                        <span class="hw-resumen__total-valor">${{ alojamiento|floatformat:"0g" }} COP</span>
+                    </p>
+
+                    <button type="submit" form="form-reserva" class="hw-btn hw-btn--primario hw-btn--grande">
+                        <i class="bi bi-check-circle"></i>
+                        Crear Reserva
+                    </button>
+
+                    <p class="hw-resumen__nota">
+                        El valor definitivo lo calcula el servidor al guardar. Servicios adicionales y cargos por salida tardía se liquidan en el check-out.
+                    </p>
+                </div>
+            </aside>
+
+        </div>
+    </div>
+</div>
+
+{% include 'inc/footer.html' %}

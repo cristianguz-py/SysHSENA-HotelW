@@ -1,0 +1,102 @@
+{% load static %}<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0A0A0A">
+    <title>Hotel W — Configuración</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/home.css' %}">
+    <link rel="stylesheet" href="{% static 'css/cuenta.css' %}">
+</head>
+<body>
+
+    <style>
+        /* 1. Forzamos el fondo en el body desde el HEAD con propiedades separadas y !important */
+        body {
+            margin: 0 !important;
+            min-height: 100vh !important;
+            background-color: #0A0A0A !important;
+            background-image: linear-gradient(rgba(10, 10, 10, 0.75), rgba(10, 10, 10, 0.75)), url("{% static 'img/Hotel W 7.webp' %}") !important;
+            background-size: cover !important;
+            background-position: center !important;
+            background-repeat: no-repeat !important;
+            background-attachment: fixed !important;
+        }
+
+        /* 2. Aseguramos que los contenedores de texto dejen ver el fondo si venían con color sólido */
+        .cpag {
+            background: transparent !important;
+        }
+    </style>  
+
+<header class="cnav">
+    <a href="{% url 'home' %}" class="nav__brand">HOTEL W</a>
+    <nav class="cnav__menu" aria-label="Principal">
+        <a href="{% url 'home' %}">Inicio</a>
+        {% if request.session.usuario_rol == 'CLIENTE' %}
+            <a href="{% url 'mis_reservas' %}">Mis reservas</a>
+        {% elif request.session.usuario_id %}
+            <a href="{% url 'inicio' %}">Panel</a>
+        {% endif %}
+        {% if request.session.usuario_id %}
+        <details class="cuenta-menu">
+            <summary class="btn btn--sm">{{ request.session.usuario_nombre|default:"Mi cuenta" }}</summary>
+            <div class="cuenta-menu__panel">
+                <a href="{% url 'cuenta' %}">Configuración</a>
+                {% if request.session.usuario_rol == 'CLIENTE' %}<a href="{% url 'mis_reservas' %}">Mis reservas</a>{% else %}{% if request.session.usuario_rol == 'ADMIN_GERENTE' %}<a href="{% url 'gestion' %}">Panel de gestión</a>{% endif %}<a href="{% url 'inicio' %}">Panel del hotel</a>{% endif %}
+                <form method="post" action="{% url 'logout' %}">
+                    {% csrf_token %}
+                    <button type="submit">Cerrar sesión</button>
+                </form>
+            </div>
+        </details>
+        {% else %}
+        <a href="{% url 'login' %}" class="btn btn--sm">Iniciar sesión</a>
+        {% endif %}
+    </nav>
+</header>
+
+<main class="cpag">
+    {% if messages %}
+        <div class="cmensajes">
+            {% for message in messages %}
+                <p class="cmensaje cmensaje--{{ message.tags|default:'info' }}" role="status">{{ message }}</p>
+            {% endfor %}
+        </div>
+    {% endif %}
+    <section class="cpanel" aria-labelledby="t-cuenta">
+        <p class="reserva__eyebrow">Mi cuenta</p>
+        <h1 id="t-cuenta">Configuración</h1>
+
+        <dl class="provisional__datos">
+            <dt>Nombre</dt><dd>{{ usuario.nombres }} {{ usuario.apellidos }}</dd>
+            <dt>Correo</dt><dd>{{ usuario.correo }}</dd>
+            <dt>Tipo de cuenta</dt><dd>{{ usuario.get_rol_display }}</dd>
+        </dl>
+
+        <h2 class="csub">Cambiar contraseña</h2>
+        <form method="post" action="{% url 'cuenta' %}" class="cform" novalidate>
+            {% csrf_token %}
+            {% for campo in form %}
+            <div class="cform__campo">
+                <label for="{{ campo.id_for_label }}">{% if campo.name == 'actual' %}Contraseña actual{% elif campo.name == 'nueva' %}Nueva contraseña{% else %}Confirmar nueva contraseña{% endif %}</label>
+                <input type="password" class="reserva__input" id="{{ campo.id_for_label }}" name="{{ campo.html_name }}" required maxlength="128" autocomplete="{% if campo.name == 'actual' %}current-password{% else %}new-password{% endif %}"{% if campo.errors %} aria-invalid="true"{% endif %}>
+                {% for e in campo.errors %}<p class="reserva__error" role="alert">{{ e }}</p>{% endfor %}
+            </div>
+            {% endfor %}
+            <p class="cform__ayuda">Mínimo 8 caracteres. Evita contraseñas comunes, solo números o parecidas a tus datos.</p>
+            <button type="submit" class="btn btn--gold">Guardar contraseña</button>
+        </form>
+
+        <div class="provisional__acciones">
+            {% if usuario.rol == 'CLIENTE' %}<a href="{% url 'mis_reservas' %}" class="btn">Mis reservas</a>{% else %}<a href="{% url 'inicio' %}" class="btn">Ir al panel</a>{% endif %}
+            <a href="{% url 'home' %}" class="btn">Volver al inicio</a>
+        </div>
+    </section>
+</main>
+
+</body>
+</html>

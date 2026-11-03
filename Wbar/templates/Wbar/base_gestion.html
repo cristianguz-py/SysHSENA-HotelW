@@ -1,0 +1,63 @@
+{% load static %}<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>{% block title %}W Bar{% endblock %} · Gestión · Hotel W</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="{% static 'css/panel.css' %}">
+    <link rel="stylesheet" href="{% static 'Wbar/css/wbar.css' %}">
+</head> 
+<body class="pn">
+<aside class="pn-lateral">
+    <a class="pn-marca" href="{% url 'wbar:gestion' %}">
+        <img src="{% static 'img/logohotelw.jpg' %}" alt="Logo Hotel W">
+        <span><strong>HOTEL W</strong><small>W Bar · Gestión</small></span>
+    </a>
+    <nav class="pn-nav" aria-label="Navegación de W Bar">
+        <a href="{% url 'wbar:gestion' %}" class="{% if seccion == 'pedidos' %}activo{% endif %}"><i class="bi bi-receipt"></i>Pedidos</a>
+        {% if es_admin %}
+        <a href="{% url 'wbar:gestion_productos' %}" class="{% if seccion == 'productos' %}activo{% endif %}"><i class="bi bi-cup-straw"></i>Productos</a>
+        <a href="{% url 'wbar:gestion_categorias' %}" class="{% if seccion == 'categorias' %}activo{% endif %}"><i class="bi bi-tags"></i>Categorías</a>
+        <a href="{% url 'wbar:gestion_estadisticas' %}" class="{% if seccion == 'estadisticas' %}activo{% endif %}"><i class="bi bi-bar-chart"></i>Estadísticas</a>
+        {% endif %}
+        <hr>
+        <a href="{% url 'wbar:menu' %}"><i class="bi bi-eye"></i>Ver menú del huésped</a>
+        {% if es_admin %}<a href="{% url 'gestion' %}"><i class="bi bi-grid-1x2"></i>Panel de gestión</a>{% endif %}
+        <a href="{% url 'cuenta' %}"><i class="bi bi-person-gear"></i>Mi cuenta</a>
+        <form method="post" action="{% url 'logout' %}">
+            {% csrf_token %}
+            <button type="submit"><i class="bi bi-box-arrow-right"></i>Cerrar sesión</button>
+        </form>
+    </nav>
+</aside>
+
+<div class="pn-cuerpo">
+    <header class="pn-barra">
+        <div class="pn-usuario">
+            <strong>{{ usuario_nombre }}</strong>
+            <small>{{ usuario_rol_texto }}</small>
+        </div>
+        <span class="pn-avatar" aria-hidden="true">{{ usuario_nombre|slice:":1"|upper }}</span>
+    </header>
+    
+    <main class="pn-principal">
+        {% if messages %}
+        <ul class="pn-mensajes" role="status">
+            {% for m in messages %}
+            <li class="pn-mensaje pn-mensaje--{{ m.level_tag }}">{{ m }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+        
+        {% block contenido %}{% endblock %}
+    </main>
+    
+    <footer class="pn-pie">Hotel W · W Bar Online · © {% now "Y" %}</footer>
+</div>
+</body>
+</html>

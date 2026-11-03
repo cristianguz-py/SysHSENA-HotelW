@@ -1,0 +1,102 @@
+{% load static %}<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0A0A0A">
+    <title>Hotel W — Disponibilidad</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/home.css' %}">
+    <link rel="stylesheet" href="{% static 'css/cuenta.css' %}">
+
+    <style>
+        /* 1. Forzamos el fondo en el body desde el HEAD con propiedades separadas y !important */
+        body {
+            margin: 0 !important;
+            min-height: 100vh !important;
+            background-color: #0A0A0A !important;
+            background-image: linear-gradient(rgba(10, 10, 10, 0.75), rgba(10, 10, 10, 0.75)), url("{% static 'img/Hotel W 7.webp' %}") !important;
+            background-size: cover !important;
+            background-position: center !important;
+            background-repeat: no-repeat !important;
+            background-attachment: fixed !important;
+        }
+
+        /* 2. Aseguramos que los contenedores de texto dejen ver el fondo si venían con color sólido */
+        .cpag {
+            background: transparent !important;
+        }
+    </style>
+</head>
+<body>
+
+<header class="cnav">
+    <a href="{% url 'home' %}" class="nav__brand">HOTEL W</a>
+    <nav class="cnav__menu" aria-label="Principal">
+        <a href="{% url 'home' %}">Inicio</a>
+        {% if request.session.usuario_rol == 'CLIENTE' %}
+            <a href="{% url 'mis_reservas' %}">Mis reservas</a>
+        {% elif request.session.usuario_id %}
+            <a href="{% url 'inicio' %}">Panel</a>
+        {% endif %}
+        {% if request.session.usuario_id %}
+        <details class="cuenta-menu">
+            <summary class="btn btn--sm">{{ request.session.usuario_nombre|default:"Mi cuenta" }}</summary>
+            <div class="cuenta-menu__panel">
+                <a href="{% url 'cuenta' %}">Configuración</a>
+                {% if request.session.usuario_rol == 'CLIENTE' %}<a href="{% url 'mis_reservas' %}">Mis reservas</a>{% else %}{% if request.session.usuario_rol == 'ADMIN_GERENTE' %}<a href="{% url 'gestion' %}">Panel de gestión</a>{% endif %}<a href="{% url 'inicio' %}">Panel del hotel</a>{% endif %}
+                <form method="post" action="{% url 'logout' %}">
+                    {% csrf_token %}
+                    <button type="submit">Cerrar sesión</button>
+                </form>
+            </div>
+        </details>
+        {% else %}
+        <a href="{% url 'login' %}" class="btn btn--sm">Iniciar sesión</a>
+        {% endif %}
+    </nav>
+</header>
+
+<main class="cpag">
+    {% if messages %}
+        <div class="cmensajes">
+            {% for message in messages %}
+                <p class="cmensaje cmensaje--{{ message.tags|default:'info' }}" role="status">{{ message }}</p>
+            {% endfor %}
+        </div>
+    {% endif %}
+    <section class="cpanel" aria-labelledby="titulo-busqueda">
+        {% if busqueda %}
+            <p class="reserva__eyebrow">Tu búsqueda</p>
+            <h1 id="titulo-busqueda">{% if hay_disponibilidad %}Hay disponibilidad{% else %}Sin disponibilidad{% endif %}</h1>
+            <p>{% if usuario_nombre %}{{ usuario_nombre }}, {% endif %}{% if hay_disponibilidad %}hay habitaciones <strong>{{ busqueda.tipo.nombre }}</strong> libres para tus fechas. Aún no se ha reservado nada.{% else %}no quedan habitaciones <strong>{{ busqueda.tipo.nombre }}</strong> para esas fechas. Prueba con otras fechas u otro tipo.{% endif %}</p>
+
+            <dl class="provisional__datos">
+                <dt>Llegada</dt><dd>{{ busqueda.llegada|date:"d/m/Y" }}</dd>
+                <dt>Salida</dt><dd>{{ busqueda.salida|date:"d/m/Y" }}</dd>
+                <dt>Noches</dt><dd>{{ busqueda.noches }}</dd>
+                <dt>Tipo</dt><dd>{{ busqueda.tipo.nombre }}</dd>
+                {% if hay_disponibilidad %}
+                <dt>Precio por noche</dt><dd>$ {{ precio_noche|floatformat:0 }}</dd>
+                <dt>Total alojamiento</dt><dd>$ {{ total_alojamiento|floatformat:0 }}</dd>
+                {% endif %}
+            </dl>
+            <p class="provisional__nota">La disponibilidad se vuelve a comprobar al confirmar. Esta consulta no bloquea la habitación ni implica ningún pago.</p>
+        {% else %}
+            <p class="reserva__eyebrow">Sin búsqueda activa</p>
+            <h1 id="titulo-busqueda">No hay una búsqueda guardada</h1>
+            <p>Elige tus fechas y el tipo de habitación en la página de inicio. Si guardaste una búsqueda hace tiempo, es posible que sus fechas ya hayan pasado.</p>
+        {% endif %}
+
+        <div class="provisional__acciones">
+            {% if busqueda and hay_disponibilidad and es_cliente %}<a href="{% url 'reservar' %}" class="btn btn--gold">Continuar con la reserva</a>{% endif %}
+            <a href="{% url 'home' %}#reservar" class="btn">{% if busqueda %}Cambiar búsqueda{% else %}Ir al formulario{% endif %}</a>
+            {% if es_cliente %}<a href="{% url 'mis_reservas' %}" class="btn">Mis reservas</a>{% else %}<a href="{% url 'inicio' %}" class="btn">Ir al panel</a>{% endif %}
+        </div>
+    </section>
+</main>
+
+</body>
+</html>

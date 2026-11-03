@@ -1,0 +1,62 @@
+/* HOTEL W — Cuenta, reservas del cliente y menú de sesión. Usa las variables de home.css */
+
+/* Menú de sesión (sin JavaScript) */
+.cuenta-menu { position: relative; }
+.cuenta-menu summary { list-style: none; cursor: pointer; max-width: 16rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cuenta-menu summary::-webkit-details-marker { display: none; }
+.cuenta-menu[open] summary { background: var(--beige); color: var(--black); }
+.cuenta-menu__panel { position: absolute; right: 0; top: calc(100% + .6rem); min-width: 13rem; z-index: 60; display: flex; flex-direction: column; padding: .4rem; background: var(--black); border: 1px solid rgba(216,199,174,.35); }
+.cuenta-menu__panel a, .cuenta-menu__panel button { display: block; width: 100%; padding: .7rem 1rem; text-align: left; font: 400 .85rem var(--sans); color: var(--beige-soft); background: none; border: 0; cursor: pointer; }
+.cuenta-menu__panel a::after { display: none; }
+.cuenta-menu__panel a:hover, .cuenta-menu__panel button:hover { background: rgba(216,199,174,.12); color: #fff; }
+.cuenta-menu__panel form { margin: 0; }
+
+/* Cabecera de las páginas de cuenta (siempre visible, también en móvil) */
+.cnav { position: sticky; top: 0; z-index: 50; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: .8rem 1.5rem; padding: .85rem 5vw; background: rgba(10,10,10,.94); border-bottom: 1px solid rgba(216,199,174,.15); backdrop-filter: blur(8px); }
+.cnav__menu { display: flex; flex-wrap: wrap; align-items: center; gap: .8rem 1.4rem; font-size: .85rem; }
+.cnav__menu > a:not(.btn) { color: var(--beige-soft); }
+.cnav__menu > a:not(.btn):hover { color: #fff; }
+
+/* Páginas */
+.cpag { min-height: calc(100svh - 4.5rem); padding: 3rem 5vw 4rem; background: var(--charcoal); }
+.cpanel { width: 100%; max-width: 42rem; margin: 0 auto; padding: clamp(1.6rem, 5vw, 3rem); background: var(--black); border: 1px solid rgba(216,199,174,.3); }
+.cpanel--ancho { max-width: 78rem; }
+.cpanel h1 { font-size: clamp(1.8rem, 4.5vw, 2.6rem); margin-bottom: 1rem; }
+.csub { font-size: 1.6rem; margin: 2rem 0 1rem; }
+.cmensajes { max-width: 42rem; margin: 0 auto 1.2rem; }
+.cpanel--ancho ~ .cmensajes { max-width: 78rem; }
+.cmensaje { margin: 0 0 .6rem; padding: .7rem 1rem; font-size: .9rem; border-left: 2px solid var(--beige); background: rgba(216,199,174,.08); }
+.cmensaje--error { border-color: #E8A598; background: rgba(232,165,152,.08); color: #F3C5BB; }
+.cmensaje--success { border-color: #9CC7A3; background: rgba(156,199,163,.08); color: #C8E6CD; }
+.cmensaje--warning { border-color: #E3C27A; background: rgba(227,194,122,.08); color: #F0DDB0; }
+
+/* Formularios */
+.cform { display: grid; gap: 1.1rem; }
+.cform__campo label { display: block; margin-bottom: .45rem; font: 400 .75rem var(--sans); letter-spacing: .14em; text-transform: uppercase; color: var(--beige); }
+.cform__campo--check { display: flex; align-items: center; gap: .7rem; }
+.cform__campo--check label { margin: 0; }
+.cform__campo--check input { width: 1.1rem; height: 1.1rem; accent-color: var(--beige); }
+.cform__ayuda { margin: 0; font-size: .85rem; opacity: .8; }
+.cform .btn { justify-self: start; }
+.cform button.btn { background: transparent; }
+.btn--gold { background: var(--beige); color: var(--black); }
+.btn--gold:hover { background: #fff; border-color: #fff; }
+
+/* Tabla de reservas (tarjetas en móvil) */
+.ctabla { overflow-x: auto; margin: 1.4rem 0; }
+.ctabla table { width: 100%; border-collapse: collapse; font-size: .92rem; }
+.ctabla th { text-align: left; padding: .7rem .8rem; font: 400 .72rem var(--sans); letter-spacing: .14em; text-transform: uppercase; color: var(--beige); border-bottom: 1px solid rgba(216,199,174,.3); }
+.ctabla td { padding: .9rem .8rem; border-bottom: 1px solid rgba(216,199,174,.12); color: #fff; }
+.cpaginas { display: flex; gap: 1.2rem; align-items: center; font-size: .9rem; }
+.cestado { display: inline-block; padding: .15rem .7rem; font-size: .75rem; letter-spacing: .08em; border: 1px solid rgba(216,199,174,.5); color: var(--beige); }
+.cestado--confirmada, .cestado--checkin { border-color: #9CC7A3; color: #C8E6CD; }
+.cestado--cancelada { border-color: #E8A598; color: #F3C5BB; }
+
+@media (max-width: 720px) {
+    .ctabla thead { position: absolute; left: -9999px; }
+    .ctabla table, .ctabla tbody, .ctabla tr, .ctabla td { display: block; }
+    .ctabla tr { margin-bottom: 1rem; padding: .6rem 0; border: 1px solid rgba(216,199,174,.25); }
+    .ctabla td { display: flex; justify-content: space-between; gap: 1rem; border: 0; padding: .4rem 1rem; }
+    .ctabla td::before { content: attr(data-etiqueta); font: 400 .72rem var(--sans); letter-spacing: .14em; text-transform: uppercase; color: var(--beige); }
+    .cuenta-menu__panel { right: auto; left: 0; }
+}

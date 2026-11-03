@@ -1,0 +1,570 @@
+/* =====================================================================
+   HOTEL W — Reservas (crear_reserva.html y reserva_detalle.html)
+   Ubicación: static/css/reservas.css
+
+   Va DESPUÉS de dashboard.css, que aporta las variables de marca
+   (--hw-negro, --hw-beige, --hw-linea, tipografías…), la base, el hero,
+   los botones .hw-btn y las animaciones. Aquí solo está lo propio de
+   estas dos pantallas. Todo cuelga de .hw-res para no afectar otras páginas.
+
+   Índice
+     0. Variables locales (colores semánticos)
+     1. Hero
+     2. Avisos (error / éxito)
+     3. Layout (formulario + resumen)
+     4. Panel y pasos
+     5. Campos de formulario
+     6. Interruptor (extranjero)
+     7. Estados de consulta (AJAX)
+     8. Selector de habitaciones
+     9. Resumen y total
+    10. Detalle de reserva
+    11. Botones auxiliares
+    12. Responsive
+   ===================================================================== */
+
+
+/* ---------------------------------------------------------------------
+   0. VARIABLES LOCALES
+   Colores semánticos sobrios; todos superan 4.5:1 sobre el fondo oscuro.
+   --------------------------------------------------------------------- */
+.hw-res {
+    --res-error:     #EE9A93;
+    --res-error-bg:  rgba(238, 154, 147, 0.10);
+    --res-ok:        #97CFA9;
+    --res-ok-bg:     rgba(151, 207, 169, 0.10);
+    --res-aviso:     #E6BC77;
+    --res-azul:      #93BDE8;
+    --res-foco:      0 0 0 3px rgba(216, 199, 174, 0.14);
+}
+
+
+/* ---------------------------------------------------------------------
+   1. HERO
+   --------------------------------------------------------------------- */
+.hw-res .hw-hero__nombre { font-size: clamp(2.3rem, 5vw, 3.8rem); }
+.hw-res .hw-hero__lado   { justify-self: end; }
+.hw-res .hw-hero__texto  { margin-top: 0.9rem; font-size: 1.02rem; }
+
+
+/* ---------------------------------------------------------------------
+   2. AVISOS
+   --------------------------------------------------------------------- */
+.hw-alerta {
+    display: flex;
+    gap: 0.9rem;
+    margin-top: clamp(1.25rem, 2.5vw, 2rem);
+    padding: 1.1rem 1.25rem;
+    border: 1px solid;
+    border-radius: var(--hw-radio);
+}
+
+.hw-alerta > i { margin-top: 0.1rem; font-size: 1.2rem; }
+
+.hw-alerta__titulo { font-weight: 500; }
+
+.hw-alerta__lista {
+    margin: 0.4rem 0 0;
+    padding-left: 1.1rem;
+    font-size: 0.9rem;
+    color: var(--hw-texto);
+}
+
+.hw-alerta--error { color: var(--res-error); background: var(--res-error-bg); border-color: rgba(238, 154, 147, 0.35); }
+.hw-alerta--ok    { color: var(--res-ok);    background: var(--res-ok-bg);    border-color: rgba(151, 207, 169, 0.35); }
+
+.hw-alerta__datos {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem 1.5rem;
+    margin-top: 0.5rem;
+    font-size: 0.9rem;
+    color: var(--hw-texto-suave);
+}
+
+.hw-alerta__datos b { font-weight: 500; color: var(--hw-texto); }
+
+
+/* ---------------------------------------------------------------------
+   3. LAYOUT
+   --------------------------------------------------------------------- */
+.hw-res__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(300px, 380px);
+    align-items: start;
+    gap: 1.5rem;
+    margin-top: clamp(1.5rem, 3vw, 2.5rem);
+    padding-bottom: 3rem;
+}
+
+.hw-res__lateral {
+    position: sticky;
+    top: 1.5rem;
+}
+
+
+/* ---------------------------------------------------------------------
+   4. PANEL Y PASOS
+   --------------------------------------------------------------------- */
+.hw-panel {
+    position: relative;
+    padding: clamp(1.25rem, 3vw, 2rem);
+    background: var(--hw-negro-2);
+    border: 1px solid var(--hw-linea);
+    border-radius: var(--hw-radio);
+}
+
+.hw-panel::before {                       /* línea corta de acento */
+    content: "";
+    position: absolute;
+    top: -1px;
+    left: -1px;
+    width: 72px;
+    height: 2px;
+    background: var(--hw-beige);
+}
+
+.hw-paso + .hw-paso {
+    margin-top: clamp(1.5rem, 3vw, 2.25rem);
+    padding-top: clamp(1.5rem, 3vw, 2.25rem);
+    border-top: 1px solid var(--hw-linea);
+}
+
+.hw-paso__cab {
+    display: flex;
+    align-items: baseline;
+    gap: 0.9rem;
+    margin-bottom: 1.35rem;
+}
+
+.hw-paso__num {
+    font-family: var(--hw-serif);
+    font-size: 1.6rem;
+    line-height: 1;
+    color: var(--hw-beige);
+}
+
+.hw-paso__titulo {
+    margin: 0;
+    font-family: var(--hw-serif);
+    font-size: 1.35rem;
+    font-weight: 500;
+    color: var(--hw-beige-claro);
+}
+
+.hw-paso__sub {
+    margin: 0.2rem 0 0;
+    font-size: 0.82rem;
+    color: var(--hw-texto-suave);
+}
+
+
+/* ---------------------------------------------------------------------
+   5. CAMPOS
+   --------------------------------------------------------------------- */
+.hw-campos {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.25rem 1.5rem;
+}
+
+.hw-campos--doc  { grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); }
+.hw-campos + .hw-campos { margin-top: 1.25rem; }
+.hw-campo--ancho { grid-column: 1 / -1; }
+
+.hw-campo { min-width: 0; }
+
+.hw-campo__label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.55rem;
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--hw-beige);
+}
+
+.hw-campo__req { color: var(--res-aviso); }
+
+.hw-campo__control {
+    position: relative;
+    display: flex;
+    align-items: center;
+    background: var(--hw-negro);
+    border: 1px solid var(--hw-linea);
+    border-radius: var(--hw-radio);
+    transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.hw-campo__control:hover       { border-color: var(--hw-linea-fuerte); }
+.hw-campo__control:focus-within { border-color: var(--hw-beige); box-shadow: var(--res-foco); }
+
+.hw-campo__input {
+    width: 100%;
+    min-height: 52px;
+    padding: 0.75rem 1rem;
+    font: inherit;
+    font-size: 1rem;                       /* 16px: evita el zoom en iPhone */
+    color: var(--hw-blanco);
+    background: transparent;
+    border: 0;
+    border-radius: var(--hw-radio);
+    outline: none;
+    color-scheme: dark;                    /* calendario nativo en oscuro */
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+.hw-campo__input::placeholder { color: var(--hw-texto-tenue); }
+
+.hw-campo__input::-webkit-calendar-picker-indicator { cursor: pointer; opacity: 0.75; }
+.hw-campo__input::-webkit-calendar-picker-indicator:hover { opacity: 1; }
+
+.hw-campo__control--select::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    right: 1.1rem;
+    width: 7px;
+    height: 7px;
+    margin-top: -6px;
+    border-right: 1.5px solid var(--hw-beige);
+    border-bottom: 1.5px solid var(--hw-beige);
+    transform: rotate(45deg);
+    pointer-events: none;
+}
+
+.hw-campo__input--select { padding-right: 2.6rem; cursor: pointer; text-overflow: ellipsis; }
+
+.hw-campo__input option { color: var(--hw-texto); background: var(--hw-negro-2); }
+
+/* botón de lupa pegado al input */
+.hw-campo__btn {
+    flex: none;
+    align-self: stretch;
+    padding: 0 1.1rem;
+    color: var(--hw-beige);
+    background: transparent;
+    border: 0;
+    border-left: 1px solid var(--hw-linea);
+    border-radius: 0 var(--hw-radio) var(--hw-radio) 0;
+    cursor: pointer;
+    transition: color 0.25s ease, background 0.25s ease;
+}
+
+.hw-campo__btn:hover,
+.hw-campo__btn:focus-visible { color: var(--hw-negro); background: var(--hw-beige); outline: none; }
+
+.hw-campo__hint {
+    margin: 0.55rem 0 0;
+    font-size: 0.78rem;
+    line-height: 1.5;
+    color: var(--hw-texto-suave);
+}
+
+.hw-campo__error {
+    margin: 0.5rem 0 0;
+    font-size: 0.82rem;
+    color: var(--res-error);
+}
+
+.hw-campo__error[id] { display: none; }    /* mensaje de "elige habitación": lo muestra el JS */
+
+/* error devuelto por el servidor o validación del navegador tras intentar enviar */
+.hw-campo--error .hw-campo__control,
+.was-validated .hw-campo__control:has(.hw-campo__input:invalid) { border-color: var(--res-error); }
+
+.hw-campo--error .hw-campo__control:focus-within,
+.was-validated .hw-campo__control:has(.hw-campo__input:invalid):focus-within {
+    box-shadow: 0 0 0 3px rgba(238, 154, 147, 0.16);
+}
+
+
+/* ---------------------------------------------------------------------
+   6. INTERRUPTOR (huésped extranjero)
+   --------------------------------------------------------------------- */
+.hw-interruptor {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    min-height: 52px;
+    cursor: pointer;
+}
+
+.hw-interruptor__input {
+    position: relative;
+    flex: none;
+    width: 44px;
+    height: 24px;
+    margin: 0;
+    background: var(--hw-negro);
+    border: 1px solid var(--hw-linea-fuerte);
+    border-radius: 999px;
+    cursor: pointer;
+    transition: background 0.25s ease, border-color 0.25s ease;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+.hw-interruptor__input::after {
+    content: "";
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 16px;
+    height: 16px;
+    background: var(--hw-texto-suave);
+    border-radius: 50%;
+    transition: transform 0.25s ease, background 0.25s ease;
+}
+
+.hw-interruptor__input:checked { background: rgba(216, 199, 174, 0.18); border-color: var(--hw-beige); }
+.hw-interruptor__input:checked::after { background: var(--hw-beige); transform: translateX(20px); }
+.hw-interruptor__input:focus-visible { outline: none; box-shadow: var(--res-foco); border-color: var(--hw-beige); }
+
+.hw-interruptor__texto { font-size: 0.88rem; line-height: 1.4; color: var(--hw-texto); }
+.hw-interruptor__texto small { display: block; color: var(--hw-texto-suave); }
+
+
+/* ---------------------------------------------------------------------
+   7. ESTADOS DE CONSULTA (texto que escribe el JS)
+   --------------------------------------------------------------------- */
+.hw-estado { font-size: 0.85rem; }
+.hw-estado--neutro { color: var(--hw-texto-suave); }
+.hw-estado--info   { color: var(--res-azul); }
+.hw-estado--ok     { color: var(--res-ok); }
+.hw-estado--error  { color: var(--res-error); }
+
+#disp-mensaje { min-height: 1.3rem; }
+
+
+/* ---------------------------------------------------------------------
+   8. SELECTOR DE HABITACIONES (radios que genera el JS)
+   --------------------------------------------------------------------- */
+.hw-opciones {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(112px, 1fr));
+    gap: 0.75rem;
+    margin-top: 0.85rem;
+}
+
+.hw-opciones:empty { display: none; }
+
+.hw-opcion__radio {                        /* accesible pero invisible */
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.hw-opcion {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    padding: 0.85rem 1rem;
+    background: var(--hw-negro);
+    border: 1px solid var(--hw-linea);
+    border-radius: var(--hw-radio);
+    cursor: pointer;
+    transition: border-color 0.25s ease, background 0.25s ease, transform 0.25s ease;
+}
+
+.hw-opcion:hover { border-color: var(--hw-linea-fuerte); transform: translateY(-1px); }
+
+.hw-opcion__num {
+    font-family: var(--hw-serif);
+    font-size: 1.7rem;
+    line-height: 1;
+    color: var(--hw-beige-claro);
+}
+
+.hw-opcion__piso {
+    font-size: 0.66rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--hw-texto-suave);
+}
+
+.hw-opcion__radio:checked + .hw-opcion {
+    background: rgba(216, 199, 174, 0.10);
+    border-color: var(--hw-beige);
+    box-shadow: var(--res-foco);
+}
+
+.hw-opcion__radio:focus-visible + .hw-opcion { outline: 2px solid var(--hw-beige); outline-offset: 2px; }
+
+
+/* ---------------------------------------------------------------------
+   9. RESUMEN Y TOTAL
+   --------------------------------------------------------------------- */
+.hw-resumen__titulo {
+    margin: 0 0 1.1rem;
+    font-family: var(--hw-serif);
+    font-size: 1.35rem;
+    font-weight: 500;
+    color: var(--hw-beige-claro);
+}
+
+.hw-resumen__lista { margin: 0; }
+
+.hw-resumen__fila {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid var(--hw-linea);
+}
+
+.hw-resumen__fila dt {
+    font-size: 0.7rem;
+    font-weight: 400;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--hw-texto-suave);
+}
+
+.hw-resumen__fila dd {
+    margin: 0;
+    font-size: 0.95rem;
+    font-weight: 500;
+    text-align: right;
+    color: var(--hw-texto);
+    overflow-wrap: anywhere;
+}
+
+.hw-resumen__total {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    margin: 1.1rem 0 1.25rem;
+    padding: 1rem 1.1rem;
+    background: rgba(216, 199, 174, 0.06);
+    border: 1px solid var(--hw-linea);
+    border-radius: var(--hw-radio);
+}
+
+.hw-resumen__total span:first-child {
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--hw-texto-suave);
+}
+
+.hw-resumen__total-valor {
+    font-family: var(--hw-serif);
+    font-size: 1.9rem;
+    font-weight: 500;
+    line-height: 1;
+    color: var(--hw-beige-claro);
+    overflow-wrap: anywhere;
+}
+
+.hw-resumen__nota {
+    margin: 1rem 0 0;
+    font-size: 0.76rem;
+    line-height: 1.55;
+    color: var(--hw-texto-tenue);
+}
+
+
+/* ---------------------------------------------------------------------
+   10. DETALLE DE RESERVA
+   --------------------------------------------------------------------- */
+.hw-detalle {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.5rem;
+    margin-top: clamp(1.5rem, 3vw, 2.5rem);
+}
+
+.hw-detalle__ancho { grid-column: 1 / -1; }
+
+.hw-etiqueta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.3rem 0.8rem;
+    font-size: 0.68rem;
+    font-weight: 500;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--hw-beige);
+    border: 1px solid var(--hw-linea-fuerte);
+    border-radius: 999px;
+}
+
+.hw-etiqueta::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    background: currentColor;
+    border-radius: 50%;
+}
+
+.hw-etiqueta--confirmada { color: var(--hw-beige-claro); }
+.hw-etiqueta--checkin    { color: var(--res-azul); }
+.hw-etiqueta--checkout   { color: var(--res-ok); }
+.hw-etiqueta--cancelada  { color: var(--res-error); }
+.hw-etiqueta--pendiente  { color: var(--res-aviso); }
+
+.hw-acciones {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+    padding-bottom: 3rem;
+}
+
+
+/* ---------------------------------------------------------------------
+   11. BOTONES AUXILIARES (el resto viene de dashboard.css)
+   --------------------------------------------------------------------- */
+.hw-res .hw-btn--grande { width: 100%; min-height: 54px; }
+
+.hw-res .hw-btn--peligro { color: var(--res-error); border-color: rgba(238, 154, 147, 0.45); }
+.hw-res .hw-btn--peligro:hover { background: var(--res-error-bg); border-color: var(--res-error); }
+
+.hw-nota {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.7rem 1rem;
+    font-size: 0.85rem;
+    color: var(--hw-texto-suave);
+    border: 1px dashed var(--hw-linea-fuerte);
+    border-radius: var(--hw-radio);
+}
+
+
+/* ---------------------------------------------------------------------
+   12. RESPONSIVE
+   --------------------------------------------------------------------- */
+
+/* Tablet y menor: el resumen pasa debajo del formulario (con el botón de crear) */
+@media (max-width: 991px) {
+    .hw-res .hw-hero__lado { justify-self: start; }
+    .hw-res__grid { grid-template-columns: minmax(0, 1fr); }
+    .hw-res__lateral { position: static; }
+    .hw-detalle { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* Celular */
+@media (max-width: 575px) {
+    .hw-campos,
+    .hw-campos--doc { grid-template-columns: minmax(0, 1fr); }
+
+    .hw-opciones { grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); }
+    .hw-acciones .hw-btn { width: 100%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .hw-res *,
+    .hw-res *::before,
+    .hw-res *::after { transition: none !important; }
+}

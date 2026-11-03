@@ -1,0 +1,198 @@
+{% extends 'Wbar/base_gestion.html' %}{% load wbar_extras %}
+{% block title %}Pedido {{ pedido.numero }}{% endblock %}
+{% block contenido %}
+<div class="pn-titulo">
+    <div>
+        <h1>{{ pedido.numero }} · Habitación {{ pedido.habitacion.numero }}</h1>
+        <p><span class="et et--{{ pedido.estado|lower }}">{{ pedido.get_estado_display }}</span> · {{ pedido.get_estado_pago_display }}</p>
+    </div>
+    <a class="pn-btn pn-btn--claro" href="{% url 'wbar:gestion' %}">← Volver a pedidos</a>
+</div>
+
+<section class="pn-tarjeta" style="margin-bottom:1rem">
+    <h2>Datos</h2>
+    <dl class="pn-datos">
+        <div>
+            <dt>Huésped</dt>
+            <dd>{{ pedido.reserva.huesped.nombres }} {{ pedido.reserva.huesped.apellidos }}</dd>
+        </div>
+        <div>
+            <dt>Cuenta que pidió</dt>
+            <dd>{{ pedido.usuario.nombres }} {{ pedido.usuario.apellidos }}</dd>
+        </div>
+        <div>
+            <dt>Reserva</dt>
+            <dd>#{{ pedido.reserva.pk }} · {{ pedido.reserva.get_estado_display }}</dd>
+        </div>
+        <div>
+            <dt>Fecha</dt>
+            <dd>{{ pedido.creado|date:"d/m/Y H:i" }}</dd>
+        </div>
+        <div>
+            <dt>Atendido por</dt>
+            <dd>{% if pedido.atendido_por %}{{ pedido.atendido_por.nombres }} {{ pedido.atendido_por.apellidos }}{% else %}—{% endif %}</dd>
+        </div>
+        {% if pedido.entregado_en %}
+        <div>
+            <dt>Entregado</dt>
+            <dd>{{ pedido.entregado_en|date:"d/m/Y H:i" }} · {{ pedido.entregado_por.nombres }} {{ pedido.entregado_por.apellidos }}</dd>
+        </div>
+        {% endif %}
+        {% if pago %}
+        <div>
+            <dt>Pago registrado</dt>
+            <dd>{{ pago.monto|cop }} · {{ pago.get_metodo_display }}{% if pago.referencia %} · comp. {{ pago.referencia }}{% endif %} · {{ pago.registrado_por.nombres }}</dd>
+        </div>
+        {% endif %}
+        {% if pedido.contiene_alcohol %}
+        <div>
+            <dt>Alcohol / edad</dt>
+            <dd>Declaración del cliente: {{ pedido.declaracion_mayoria_edad|yesno:"sí,no" }} · Verificada por personal: {% if pedido.edad_verificada %}sí ({{ pedido.get_documento_verificado_display }}){% else %}pendiente{% endif %}</dd>
+        </div>
+        {% endif %}
+        {% if pedido.motivo_cancelacion %}
+        <div>
+            <dt>Motivo de cancelación</dt>
+            <dd>{{ pedido.motivo_cancelacion }}</dd>
+        </div>
+        {% endif %}
+    </dl>
+    
+    {% if pedido.notas %}
+    <p class="pn-nota" style="margin-top:1rem">Nota del huésped: {{ pedido.notas }}</p>
+    {% endif %}
+    
+    {% if pedido.codigo_bloqueado %}
+    <p class="pn-nota" style="margin-top:1rem">Código bloqueado por intentos fallidos. Requiere revisión de un administrador.</p>
+    {% endif %}
+</section>
+
+<section class="pn-tarjeta" style="margin-bottom:1rem">
+    <h2>Productos</h2>
+    <div class="pn-tabla-wrap">
+        <table class="pn-tabla">
+            <thead>
+                <tr>
+                    <th>Producto</th>
+                    <th class="num">Precio</th>
+                    <th class="num">Cant.</th>
+                    <th class="num">Subtotal</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for d in pedido.detalles.all %}
+                <tr>
+                    <td>
+                        {{ d.nombre_producto }}
+                        {% if d.presentacion %}<span class="sub">{{ d.presentacion }}</span>{% endif %}
+                        {% if d.contiene_alcohol %}<span class="sub">Contiene alcohol</span>{% endif %}
+                    </td>
+                    <td class="num">{{ d.precio_unitario|cop }}</td>
+                    <td class="num">{{ d.cantidad }}</td>
+                    <td class="num">{{ d.subtotal|cop }}</td>
+                </tr>
+                {% endfor %}
+                <tr>
+                    <td colspan="3" class="num"><strong>Total</strong></td>
+                    <td class="num"><strong>{{ pedido.total|cop }}</strong></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+{% if siguientes or puede_entregar or puede_cancelar %}
+<section class="pn-tarjeta" style="margin-bottom:1rem">
+    <h2>Acciones</h2>
+    
+    {% if siguientes %}
+    <div class="pn-acciones">
+        {% for valor, texto in siguientes %}
+        <form method="post" action="{% url 'wbar:gestion_estado' pedido.pk %}">
+            {% csrf_token %}
+            <input type="hidden" name="estado" value="{{ valor }}">
+            <button class="pn-btn" type="submit">Pasar a «{{ texto }}»</button>
+        </form>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if puede_entregar %}
+    <h3 style="margin:1.2rem 0 .5rem;font-size:1.3rem">Confirmar entrega en la puerta</h3>
+    
+    {% if pedido.contiene_alcohol %}
+    <p class="pn-nota"><strong>{{ aviso_alcohol }}</strong> Este pedido contiene alcohol: pide el documento original, verifica que sea mayor de edad y márcalo abajo. Si no puedes verificarlo, NO entregues el alcohol y cancela el pedido.</p>
+    {% endif %}
+    
+    <form method="post" action="{% url 'wbar:gestion_entrega' pedido.pk %}" class="pn-formulario" style="margin-top:.8rem">
+        {% csrf_token %}
+        <div class="pn-campo">
+            <label for="{{ form_entrega.codigo.id_for_label }}">{{ form_entrega.codigo.label }}</label>
+            {{ form_entrega.codigo }}
+        </div>
+        
+        {% if pedido.contiene_alcohol %}
+        <div class="pn-campo">
+            <label for="{{ form_entrega.documento.id_for_label }}">{{ form_entrega.documento.label }}</label>
+            {{ form_entrega.documento }}
+        </div>
+        <div class="pn-campo pn-ancho">
+            <label class="pn-check" for="{{ form_entrega.edad_verificada.id_for_label }}">
+                {{ form_entrega.edad_verificada }} {{ form_entrega.edad_verificada.label }}
+            </label>
+        </div>
+        {% endif %}
+        
+        <div class="pn-campo pn-ancho">
+            <label for="{{ form_entrega.forma_cobro.id_for_label }}">{{ form_entrega.forma_cobro.label }}</label>
+            {{ form_entrega.forma_cobro }}
+        </div>
+        <div class="pn-campo">
+            <label for="{{ form_entrega.metodo_pago.id_for_label }}">{{ form_entrega.metodo_pago.label }}</label>
+            {{ form_entrega.metodo_pago }}
+            <span class="pn-ayuda">Obligatorio si cobras ahora.</span>
+        </div>
+        <div class="pn-campo">
+            <label for="{{ form_entrega.referencia.id_for_label }}">{{ form_entrega.referencia.label }}</label>
+            {{ form_entrega.referencia }}
+        </div>
+        <div class="pn-campo pn-ancho">
+            <p class="pn-ayuda">Se registrará el consumo en la cuenta de la reserva. Total a cobrar: <strong>{{ pedido.total|cop }}</strong>. El pedido nunca se marca como pagado sin esta confirmación.</p>
+            <button class="pn-btn pn-btn--ok" type="submit">Confirmar entrega</button>
+        </div>
+    </form>
+    {% endif %}
+
+    {% if puede_cancelar %}
+    <h3 style="margin:1.2rem 0 .5rem;font-size:1.3rem">Cancelar pedido</h3>
+    <form method="post" action="{% url 'wbar:gestion_cancelar' pedido.pk %}" class="pn-filtros">
+        {% csrf_token %}
+        <div class="pn-campo" style="min-width:280px">
+            <label for="{{ form_cancelar.motivo.id_for_label }}">{{ form_cancelar.motivo.label }}</label>
+            {{ form_cancelar.motivo }}
+        </div>
+        <button class="pn-btn pn-btn--peligro" type="submit">Cancelar pedido</button>
+    </form>
+    {% endif %}
+</section>
+{% endif %}
+
+<section class="pn-tarjeta">
+    <h2>Historial</h2>
+    <ul class="pn-lista">
+        {% for e in pedido.eventos.all %}
+        <li>
+            <span>
+                {% if e.estado_anterior != e.estado_nuevo %}
+                {{ e.get_estado_anterior_display|default:"—" }} → <strong>{{ e.get_estado_nuevo_display }}</strong>
+                {% else %}
+                Evento
+                {% endif %}
+                {% if e.nota %} · {{ e.nota }}{% endif %}
+            </span>
+            <span class="pn-ayuda">{{ e.fecha|date:"d/m/Y H:i" }} · {% if e.usuario %}{{ e.usuario.nombres }} ({{ e.rol }}){% else %}Sistema{% endif %}</span>
+        </li>
+        {% endfor %}
+    </ul>
+</section>
+{% endblock %}

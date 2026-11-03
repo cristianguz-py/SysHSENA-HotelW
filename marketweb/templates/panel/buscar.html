@@ -1,0 +1,49 @@
+{% extends 'panel/base.html' %}{% load panel_extras %}
+{% block title %}Búsqueda{% endblock %}
+{% block contenido %}
+<div class="pn-titulo">
+    <div>
+        <h1>Búsqueda global</h1>
+        <p>{% if q %}{{ total }} resultado{{ total|pluralize }} para «{{ q }}»{% else %}Escribe un código de reserva, nombre, documento o número de habitación.{% endif %}</p>
+    </div>
+</div>
+{% if q and not total %}
+<p class="pn-tarjeta pn-vacio">No se encontró nada con ese texto.</p>
+{% endif %}
+{% if reservas %}
+<section class="pn-tarjeta" style="margin-bottom:1rem">
+    <h2>Reservas</h2>
+    <ul class="pn-lista">
+        {% for r in reservas %}
+        <li>
+            <span><a href="{% url 'gestion_reserva_detalle' r.pk %}"><strong>{{ r.pk|codigo_reserva }}</strong></a> · {{ r.huesped.nombres }} {{ r.huesped.apellidos }} · Hab. {{ r.habitacion.numero }} · {{ r.fecha_entrada|date:"d/m/Y" }} → {{ r.fecha_salida|date:"d/m/Y" }}</span>{% include 'panel/_estado_reserva.html' %}
+        </li>
+        {% endfor %}
+    </ul>
+</section>
+{% endif %}
+{% if huespedes %}
+<section class="pn-tarjeta" style="margin-bottom:1rem">
+    <h2>Huéspedes</h2>
+    <ul class="pn-lista">
+        {% for h in huespedes %}
+        <li>
+            <a href="{% url 'gestion_huesped_detalle' h.pk %}"><strong>{{ h.nombres }} {{ h.apellidos }}</strong></a><span class="pn-ayuda">{{ h.get_tipo_documento_display }} {{ h.numero_documento }}</span>
+        </li>
+        {% endfor %}
+    </ul>
+</section>
+{% endif %}
+{% if habitaciones %}
+<section class="pn-tarjeta">
+    <h2>Habitaciones</h2>
+    <ul class="pn-lista">
+        {% for h in habitaciones %}
+        <li>
+            <a href="{% url 'gestion_habitacion_detalle' h.pk %}"><strong>Habitación {{ h.numero }}</strong></a><span class="pn-ayuda">Piso {{ h.piso }} · {{ h.tipo.nombre }}</span>
+        </li>
+        {% endfor %}
+    </ul>
+</section>
+{% endif %}
+{% endblock %}

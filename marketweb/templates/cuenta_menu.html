@@ -1,0 +1,17 @@
+{# Menú de sesión compartido (sin JavaScript: <details>). Solo visitantes ven "Iniciar sesión". #}
+{% if request.session.usuario_id %}
+<details class="cuenta-menu">
+    <summary class="btn btn--sm">{{ request.session.usuario_nombre|default:"Mi cuenta" }}</summary>
+    <div class="cuenta-menu__panel">
+        <a href="{% url 'cuenta' %}">Configuración</a>
+        {% if request.session.usuario_rol == 'CLIENTE' %}<a href="{% url 'mis_reservas' %}">Mis reservas</a>{% else %}{% if request.session.usuario_rol == 'ADMIN_GERENTE' %}<a 
+        href="{% url 'gestion' %}">Panel de gestión</a>{% endif %}<a href="{% url 'inicio' %}">Panel del hotel</a>{% endif %}
+        <form method="post" action="{% url 'logout' %}">
+            {% csrf_token %}
+            <button type="submit">Cerrar sesión</button>
+        </form>
+    </div>
+</details>
+{% else %}
+<a href="{% url 'login' %}" class="btn btn--sm">Iniciar sesión</a>
+{% endif %}

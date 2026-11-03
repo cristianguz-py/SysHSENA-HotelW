@@ -1,0 +1,81 @@
+{% extends 'Wbar/base_cliente.html' %}{% load wbar_extras %}
+{% block title %}Mi pedido{% endblock %}
+{% block contenido %}
+<section class="wb-hero">
+    <p class="sobre">W Bar Online</p>
+    <h1>Mi pedido</h1>
+</section>
+
+{% if lineas %}
+<div class="wb-panel">
+    <div class="wb-tabla-wrap">
+        <table class="wb-tabla">
+            <thead>
+                <tr>
+                    <th>Producto</th>
+                    <th class="num">Precio</th>
+                    <th>Cantidad</th>
+                    <th class="num">Subtotal</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for l in lineas %}
+                <tr>
+                    <td>
+                        {{ l.producto.nombre }}
+                        {% if l.producto.presentacion %}<br><small class="wb-ayuda">{{ l.producto.presentacion }}</small>{% endif %}
+                        {% if l.producto.contiene_alcohol %}<br><span class="wb-sello">Contiene alcohol</span>{% endif %}
+                    </td>
+                    <td class="num">{{ l.producto.precio|cop }}</td>
+                    <td>
+                        <form method="post" action="{% url 'wbar:carrito_actualizar' %}" style="display:flex;gap:.4rem;align-items:center">
+                            {% csrf_token %}
+                            <input type="hidden" name="producto" value="{{ l.producto.pk }}">
+                            <input type="number" name="cantidad" value="{{ l.cantidad }}" min="0" max="20" aria-label="Cantidad de {{ l.producto.nombre }}">
+                            <button class="wb-btn wb-btn--linea" type="submit">Actualizar</button>
+                        </form>
+                    </td>
+                    <td class="num">{{ l.subtotal|cop }}</td>
+                    <td>
+                        <form method="post" action="{% url 'wbar:carrito_actualizar' %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="producto" value="{{ l.producto.pk }}">
+                            <input type="hidden" name="accion" value="quitar">
+                            <button class="wb-btn wb-btn--peligro" type="submit">Quitar</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="wb-total">
+        <span>Total</span>
+        <span>{{ total|cop }}</span>
+    </div>
+
+    <p class="wb-ayuda">Pagas cuando recibes tu pedido en la habitación (efectivo, datáfono del hotel u otro medio autorizado). No se hacen pagos en línea.</p>
+
+    {% if hay_alcohol %}
+    <p class="wb-aviso"><strong>{{ aviso_alcohol }}</strong> Tu pedido contiene alcohol: deberás declarar que eres mayor de edad y el personal verificará tu documento al entregar.</p>
+    {% endif %}
+
+    <p style="display:flex;gap:.6rem;flex-wrap:wrap;margin-top:1rem">
+        <a class="wb-btn" href="{% url 'wbar:confirmar' %}">Continuar y elegir habitación</a>
+        <a class="wb-btn wb-btn--linea" href="{% url 'wbar:menu' %}">Seguir viendo el menú</a>
+    </p>
+
+    <form method="post" action="{% url 'wbar:carrito_vaciar' %}" style="margin-top:.8rem">
+        {% csrf_token %}
+        <button class="wb-btn wb-btn--peligro" type="submit">Vaciar pedido</button>
+    </form>
+</div>
+{% else %}
+<div class="wb-panel">
+    <p>Tu pedido está vacío.</p>
+    <a class="wb-btn" href="{% url 'wbar:menu' %}">Ver el menú</a>
+</div>
+{% endif %}
+{% endblock %}

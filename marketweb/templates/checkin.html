@@ -1,0 +1,163 @@
+{% load static %}
+{% include 'inc/header.html' %}
+
+<!-- Estilos: dashboard.css (sistema de diseño) + frontdesk.css (Check-in y Check-out) -->
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+<link rel="stylesheet" href="{% static 'css/frontdesk.css' %}">
+
+<div class="hw-dash hw-fd hw-fd--in">
+
+    <!-- 1. ENCABEZADO -->
+    <section class="hw-hero">
+        <div class="hw-hero__bg" aria-hidden="true"></div>
+        <div class="hw-wrap hw-hero__inner">
+            <div class="hw-hero__main hw-reveal" style="--d:0">
+                <p class="hw-eyebrow">
+                    <span>Hotel W · Front Desk</span>
+                    <span class="hw-eyebrow__linea" aria-hidden="true"></span>
+                    <span>Riohacha · La Guajira</span>
+                </p>
+                <h1 class="hw-hero__nombre">Check-in</h1>
+                <p class="hw-hero__texto">Registro de llegada · Reserva #{{ reserva.id }}</p>
+            </div>
+            <div class="hw-hero__lado hw-reveal" style="--d:2">
+                <a href="{% url 'inicio' %}" class="hw-btn hw-btn--fantasma">
+                    <i class="bi bi-arrow-left"></i>
+                    Volver al Panel
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <div class="hw-wrap">
+
+        <!-- Mensajes de Django -->
+        {% if messages %}
+            <ul class="hw-fd-msgs" role="status">
+                {% for message in messages %}
+                    <li class="hw-fd-msg" data-tipo="{{ message.tags }}"><i class="bi bi-dot"></i>{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+
+        <div class="hw-fd-layout">
+
+            <!-- COLUMNA PRINCIPAL -->
+            <div class="hw-fd-main">
+
+                <!-- 2. INFORMACIÓN DE LA RESERVA -->
+                <section class="hw-fd-card hw-reveal" style="--d:2" aria-labelledby="t-reserva">
+                    <header class="hw-fd-card__cab">
+                        <div>
+                            <p class="hw-fd-kicker">Llegada</p>
+                            <h2 class="hw-fd-titulo" id="t-reserva">Reserva #{{ reserva.id }}</h2>
+                        </div>
+                        <span class="hw-fd-estado" data-estado="{{ reserva.estado }}">
+                            <i></i>{{ reserva.get_estado_display }}
+                        </span>
+                    </header>
+
+                    <dl class="hw-fd-datos">
+                        <div class="is-wide is-big">
+                            <dt>Huésped</dt>
+                            <dd>{{ reserva.huesped.nombres }} {{ reserva.huesped.apellidos }}</dd>
+                        </div>
+                        <div>
+                            <dt>Habitación</dt>
+                            <dd>{{ reserva.habitacion.numero }} · {{ reserva.habitacion.tipo.nombre }}</dd>
+                        </div>
+                        <div>
+                            <dt>Número de huéspedes</dt>
+                            <dd>{{ reserva.num_huespedes }}</dd>
+                        </div>
+                        <div>
+                            <dt>Fecha de entrada</dt>
+                            <dd>{{ reserva.fecha_entrada|date:"d M Y" }}</dd>
+                        </div>
+                        <div>
+                            <dt>Fecha de salida</dt>
+                            <dd>{{ reserva.fecha_salida|date:"d M Y" }}</dd>
+                        </div>
+                    </dl>
+                </section>
+
+                <!-- 3. DATOS DEL HUÉSPED -->
+                <section class="hw-fd-card hw-reveal" style="--d:3" aria-labelledby="t-huesped">
+                    <header class="hw-fd-card__cab">
+                        <div>
+                            <p class="hw-fd-kicker">Bienvenida</p>
+                            <h2 class="hw-fd-titulo" id="t-huesped">Datos del huésped</h2>
+                        </div>
+                    </header>
+
+                    <dl class="hw-fd-datos">
+                        <div>
+                            <dt>Nombres</dt>
+                            <dd>{{ reserva.huesped.nombres }}</dd>
+                        </div>
+                        <div>
+                            <dt>Apellidos</dt>
+                            <dd>{{ reserva.huesped.apellidos }}</dd>
+                        </div>
+                        <div>
+                            <dt>{{ reserva.huesped.get_tipo_documento_display }}</dt>
+                            <dd>{{ reserva.huesped.numero_documento }}</dd>
+                        </div>
+                        <div>
+                            <dt>Nacionalidad</dt>
+                            <dd>{{ reserva.huesped.nacionalidad }}</dd>
+                        </div>
+                        <div>
+                            <dt>Teléfono</dt>
+                            <dd>{{ reserva.huesped.telefono }}</dd>
+                        </div>
+                        <div>
+                            <dt>Correo</dt>
+                            <dd>{{ reserva.huesped.correo }}</dd>
+                        </div>
+                    </dl>
+                </section>
+
+            </div>
+
+            <!-- COLUMNA LATERAL -->
+            <aside class="hw-fd-side">
+
+                <!-- 5. HABITACIÓN -->
+                <section class="hw-fd-card hw-fd-room hw-reveal" style="--d:3" aria-label="Habitación asignada">
+                    <p class="hw-fd-kicker">Habitación</p>
+                    <p class="hw-fd-room__num">{{ reserva.habitacion.numero }}</p>
+                    <p class="hw-fd-room__tipo">{{ reserva.habitacion.tipo.nombre }}</p>
+                    <p class="hw-fd-room__piso">{{ reserva.habitacion.piso }}.º piso</p>
+
+                    <div class="hw-fd-room__meta">
+                        <p><span>Capacidad</span><b>{{ reserva.habitacion.tipo.capacidad }} personas</b></p>
+                        <p><span>Estado</span><b>{{ reserva.habitacion.get_estado_display }}</b></p>
+                    </div>
+                </section>
+
+                <!-- 4. CONFIRMACIÓN DE LLEGADA -->
+                <section class="hw-fd-card hw-fd-accion hw-reveal" style="--d:4" aria-labelledby="t-confirmar">
+                    <p class="hw-fd-kicker">Listo para check-in</p>
+                    <h2 class="hw-fd-titulo" id="t-confirmar">Confirmar llegada</h2>
+                    <p>Al confirmar, la reserva pasa a «Huésped en casa» y la habitación {{ reserva.habitacion.numero }} queda ocupada.</p>
+
+                    <form method="POST" action="{% url 'checkin' reserva.id %}" id="formCheckin" data-fd-form>
+                        {% csrf_token %}
+                        <button type="submit" class="hw-btn hw-btn--primario hw-fd-submit">
+                            <i class="bi bi-key"></i>
+                            Confirmar Check-in
+                        </button>
+                    </form>
+
+                    <a href="{% url 'inicio' %}" class="hw-fd-volver">Cancelar y volver</a>
+                </section>
+
+            </aside>
+        </div>
+    </div>
+</div>
+
+
+
+{% include 'inc/footer.html' %}

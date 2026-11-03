@@ -1,0 +1,332 @@
+/* ==========================================================
+   HOTEL W - ESTILOS CORPORATIVOS & COLORIMETRÍA
+   ========================================================== */
+
+/* Variables Corporativas y Sistemas de Color */
+:root {
+    --color-primary-dark: #0f172a;
+    --color-primary-accent: #e65100;
+    --color-primary-accent-hover: #bf360c;
+    --color-accent-amber: #ffb74d;
+    --color-bg-main: #f8fafc;
+    
+    --state-available: #10b981;
+    --state-available-hover: #059669;
+    --state-available-bg: #d1fae5;
+    --state-available-text: #047857;
+
+    --state-occupied: #1e88e5;
+    --state-occupied-hover: #1565c0;
+    --state-occupied-bg: #e0f2fe;
+
+    --state-cleaning: #ffb74d;
+    --state-cleaning-hover: #ffa726;
+    --state-cleaning-bg: #fef3c7;
+    --state-cleaning-text: #b45309;
+}
+
+/* Configuración General */
+body {
+    background-color: var(--color-bg-main);
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.extra-small {
+    font-size: 0.65rem;
+    letter-spacing: 0.5px;
+}
+
+/* ==========================================================
+   HEADER & NAVBAR
+   ========================================================== */
+
+.navbar-walena {
+    background-color: var(--color-primary-dark);
+    border-bottom: 3px solid var(--color-primary-accent);
+}
+
+.badge-riohacha {
+    background-color: var(--color-accent-amber);
+    color: var(--color-primary-dark);
+    font-size: 0.65rem;
+}
+
+/* ==========================================================
+   HERO / BANNER PRINCIPAL
+   ========================================================== */
+
+.hero-banner {
+    background: linear-gradient(135deg, var(--color-primary-dark) 0%, #1e293b 100%);
+    border-left: 6px solid var(--color-primary-accent);
+}
+
+.pill-location {
+    background-color: rgba(230, 81, 0, 0.25);
+    color: #ff9800;
+    font-size: 0.75rem;
+    letter-spacing: 0.5px;
+}
+
+.btn-reserva-banner {
+    background-color: var(--color-primary-accent);
+    border: none;
+    border-radius: 8px;
+    color: #ffffff;
+}
+
+.btn-reserva-banner:hover {
+    background-color: var(--color-primary-accent-hover);
+    color: #ffffff;
+}
+
+/* ==========================================================
+   TARJETAS DE MÉTRICAS DIRECTIVAS
+   ========================================================== */
+
+.card-total-suites {
+    background-color: var(--color-primary-dark);
+    border-left: 5px solid #64748b;
+}
+
+.card-disponibles {
+    border-left: 5px solid var(--state-available);
+}
+
+.card-ocupadas {
+    border-left: 5px solid var(--state-occupied);
+}
+
+.card-aseo {
+    border-left: 5px solid var(--state-cleaning);
+}
+
+/* ==========================================================
+   CAJAS DE ÍCONOS
+   ========================================================== */
+
+.icon-box {
+    width: 50px;
+    height: 50px;
+}
+
+.icon-box-dark {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.icon-box-success {
+    background-color: var(--state-available-bg);
+}
+
+.icon-box-info {
+    background-color: var(--state-occupied-bg);
+}
+
+.icon-box-warning {
+    background-color: var(--state-cleaning-bg);
+}
+
+/* ==========================================================
+   MÓDULOS DE OPERACIÓN RÁPIDA
+   ========================================================== */
+
+.quick-op-btn {
+    background-color: var(--color-bg-main);
+}
+
+.icon-op-reserva {
+    background-color: var(--color-primary-accent);
+}
+
+.icon-op-checkin {
+    background-color: var(--state-available);
+}
+
+.icon-op-checkout {
+    background-color: #ef4444;
+}
+
+.icon-op-huespedes {
+    background-color: #0284c7;
+}
+
+/* ==========================================================
+   SECCIÓN MAPA DE HABITACIONES
+   ========================================================== */
+
+.section-title {
+    border-left: 4px solid var(--color-primary-accent);
+    padding-left: 10px;
+}
+
+.card-hab {
+    background-color: #ffffff;
+}
+
+/* ==========================================================
+   ESTADOS VISUALES DE HABITACIONES
+   ========================================================== */
+
+.hab-disponible {
+    border-top: 4px solid var(--state-available);
+}
+
+.hab-ocupada {
+    border-top: 4px solid var(--state-occupied);
+}
+
+.hab-aseo {
+    border-top: 4px solid var(--state-cleaning);
+}
+
+/* ==========================================================
+   BADGES DE ESTADO
+   ========================================================== */
+
+.badge-estado-disponible {
+    background-color: var(--state-available-bg);
+    color: var(--state-available-text);
+}
+
+.badge-estado-ocupada {
+    background-color: var(--state-occupied-bg);
+    color: var(--state-occupied);
+}
+
+.badge-estado-aseo {
+    background-color: var(--state-cleaning-bg);
+    color: var(--state-cleaning-text);
+}
+
+/* ==========================================================
+   CAJA DE DETALLES TÉCNICOS
+   ========================================================== */
+
+.hab-details-box {
+    background-color: var(--color-bg-main);
+    font-size: 0.85rem;
+}
+
+/* ==========================================================
+   BOTONES POR ESTADO
+   ========================================================== */
+
+.btn-hab-disponible {
+    background-color: var(--state-available);
+    border-radius: 6px;
+    color: #ffffff;
+}
+
+.btn-hab-disponible:hover {
+    background-color: var(--state-available-hover);
+    color: #ffffff;
+}
+
+.btn-hab-ocupada {
+    background-color: var(--state-occupied);
+    border-radius: 6px;
+    color: #ffffff;
+}
+
+.btn-hab-ocupada:hover {
+    background-color: var(--state-occupied-hover);
+    color: #ffffff;
+}
+
+.btn-hab-aseo {
+    background-color: var(--state-cleaning);
+    border-radius: 6px;
+    color: var(--color-primary-dark);
+}
+
+.btn-hab-aseo:hover {
+    background-color: var(--state-cleaning-hover);
+    color: var(--color-primary-dark);
+}
+
+/* ==========================================================
+   FOOTER
+   ========================================================== */
+
+.footer-walena {
+    background-color: var(--color-primary-dark);
+    border-top: 1px solid #334155;
+    font-size: 0.85rem;
+}
+
+/* ==========================================================
+   HERO DE LA PÁGINA PÚBLICA HOTEL W
+   ========================================================== */
+
+.hero {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    height: 100svh;
+    min-height: 700px;
+    display: flex;
+    align-items: flex-end;
+    overflow: hidden;
+    background: #0a0a0a;
+}
+
+.hero__img,
+.hero video.hero__img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+    z-index: 0;
+}
+
+.hero::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        to top,
+        rgba(10, 10, 10, 0.92) 8%,
+        rgba(10, 10, 10, 0.35) 60%,
+        rgba(10, 10, 10, 0.55) 100%
+    );
+    z-index: 1;
+}
+
+.hero__content {
+    position: relative;
+    z-index: 2;
+    padding: 0 5vw 12vh;
+    max-width: 54rem;
+    animation: rise 1.4s cubic-bezier(.2, .7, .2, 1) both;
+}
+
+/* ==========================================================
+   ANIMACIÓN
+   ========================================================== */
+
+@keyframes rise {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ==========================================================
+   RESPONSIVE
+   ========================================================== */
+
+@media (max-width: 768px) {
+    .hero {
+        min-height: 600px;
+    }
+
+    .hero__content {
+        padding: 0 6vw 8vh;
+    }
+}

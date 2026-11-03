@@ -1,0 +1,52 @@
+{% extends 'panel/base.html' %}{% load panel_extras %}
+{% block title %}Llegadas y salidas{% endblock %}
+{% block contenido %}
+<div class="pn-titulo">
+    <div>
+        <h1>Llegadas y salidas</h1>
+        <p>{{ fecha|date:"l j \d\e F \d\e Y" }}{% if es_hoy %} (hoy){% endif %}</p>
+    </div>
+    <form method="get" class="pn-filtros" style="margin:0">
+        <a class="pn-btn pn-btn--claro" href="?fecha={{ anterior|date:'Y-m-d' }}">←</a>
+        <div class="pn-campo">
+            <label for="fecha">Fecha</label>
+            <input type="date" id="fecha" name="fecha" value="{{ fecha|date:'Y-m-d' }}">
+        </div>
+        <button class="pn-btn" type="submit">Ver</button>
+        <a class="pn-btn pn-btn--claro" href="?fecha={{ siguiente|date:'Y-m-d' }}">→</a>
+        <a class="pn-btn pn-btn--claro" href="{% url 'gestion_llegadas' %}">Hoy</a>
+    </form>
+</div>
+<div class="pn-rejilla pn-iguales">
+    <section class="pn-tarjeta">
+        <h2>Llegadas ({{ llegadas|length }})</h2>
+        {% if llegadas %}
+        <ul class="pn-lista">
+            {% for r in llegadas %}
+            <li>
+                <span><a href="{% url 'gestion_reserva_detalle' r.pk %}"><strong>{{ r.pk|codigo_reserva }}</strong></a> · {{ r.huesped.nombres }} {{ r.huesped.apellidos }}<span class="sub pn-ayuda" style="display:block">Hab. {{ r.habitacion.numero }} · {{ r.fecha_entrada|date:"d/m" }} → {{ r.fecha_salida|date:"d/m/Y" }}</span></span>
+                <span class="pn-acciones">{% include 'panel/_estado_reserva.html' %}{% if r.estado == 'CONFIRMADA' %}<a class="pn-btn pn-btn--sm" href="{% url 'checkin' r.pk %}">Check-in</a>{% endif %}</span>
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p class="pn-vacio">No hay llegadas previstas.</p>
+        {% endif %}
+    </section>
+    <section class="pn-tarjeta">
+        <h2>Salidas ({{ salidas|length }})</h2>
+        {% if salidas %}
+        <ul class="pn-lista">
+            {% for r in salidas %}
+            <li>
+                <span><a href="{% url 'gestion_reserva_detalle' r.pk %}"><strong>{{ r.pk|codigo_reserva }}</strong></a> · {{ r.huesped.nombres }} {{ r.huesped.apellidos }}<span class="sub pn-ayuda" style="display:block">Hab. {{ r.habitacion.numero }} · {{ r.fecha_entrada|date:"d/m" }} → {{ r.fecha_salida|date:"d/m/Y" }}</span></span>
+                <span class="pn-acciones">{% include 'panel/_estado_reserva.html' %}{% if r.estado == 'CHECKIN' %}<a class="pn-btn pn-btn--sm" href="{% url 'checkout' r.pk %}">Check-out</a>{% endif %}</span>
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p class="pn-vacio">No hay salidas previstas.</p>
+        {% endif %}
+    </section>
+</div>
+{% endblock %}

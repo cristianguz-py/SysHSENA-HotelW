@@ -1,0 +1,184 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0A0A0A">
+    <title>Hotel W — Reservar</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/home.css' %}">
+    <link rel="stylesheet" href="{% static 'css/cuenta.css' %}">
+</head>
+<body>
+
+    <style>
+        /* 1. Forzamos el fondo en el body desde el HEAD con propiedades separadas y !important */
+        body {
+            margin: 0 !important;
+            min-height: 100vh !important;
+            background-color: #0A0A0A !important;
+            background-image: linear-gradient(rgba(10, 10, 10, 0.75), rgba(10, 10, 10, 0.75)), url("{% static 'img/Hotel W 7.webp' %}") !important;
+            background-size: cover !important;
+            background-position: center !important;
+            background-repeat: no-repeat !important;
+            background-attachment: fixed !important;
+        }
+
+        /* 2. Aseguramos que los contenedores de texto dejen ver el fondo si venían con color sólido */
+        .cpag {
+            background: transparent !important;
+        }
+    </style>    
+
+<header class="cnav">
+    <a href="{% url 'home' %}" class="nav__brand">HOTEL W</a>
+    <nav class="cnav__menu" aria-label="Principal">
+        <a href="{% url 'home' %}">Inicio</a>
+        {% if request.session.usuario_rol == 'CLIENTE' %}
+            <a href="{% url 'mis_reservas' %}">Mis reservas</a>
+        {% elif request.session.usuario_id %}
+            <a href="{% url 'inicio' %}">Panel</a>
+        {% endif %}
+        {% if request.session.usuario_id %}
+        <details class="cuenta-menu">
+            <summary class="btn btn--sm">{{ request.session.usuario_nombre|default:"Mi cuenta" }}</summary>
+            <div class="cuenta-menu__panel">
+                <a href="{% url 'cuenta' %}">Configuración</a>
+                {% if request.session.usuario_rol == 'CLIENTE' %}<a href="{% url 'mis_reservas' %}">Mis reservas</a>{% else %}{% if request.session.usuario_rol == 'ADMIN_GERENTE' %}<a href="{% url 'gestion' %}">Panel de gestión</a>{% endif %}<a href="{% url 'inicio' %}">Panel del hotel</a>{% endif %}
+                <form method="post" action="{% url 'logout' %}">
+                    {% csrf_token %}
+                    <button type="submit">Cerrar sesión</button>
+                </form>
+            </div>
+        </details>
+        {% else %}
+        <a href="{% url 'login' %}" class="btn btn--sm">Iniciar sesión</a>
+        {% endif %}
+    </nav>
+</header>
+
+<main class="cpag">
+    {% if messages %}
+        <div class="cmensajes">
+            {% for message in messages %}
+                <p class="cmensaje cmensaje--{{ message.tags|default:'info' }}" role="status">{{ message }}</p>
+            {% endfor %}
+        </div>
+    {% endif %}
+    <section class="cpanel" aria-labelledby="t-res">
+        <p class="reserva__eyebrow">{% if resumen %}Paso 2 de 2 · Revisa y confirma{% else %}Paso 1 de 2 · Tus datos{% endif %}</p>
+        <h1 id="t-res">{% if resumen %}Resumen de tu reserva{% else %}Reservar {{ tipo.nombre }}{% endif %}</h1>
+
+        <dl class="provisional__datos">
+            <dt>Tipo</dt><dd>{{ tipo.nombre }} (hasta {{ tipo.capacidad }} personas)</dd>
+            <dt>Llegada</dt><dd>{{ busqueda.llegada|date:"d/m/Y" }}</dd>
+            <dt>Salida</dt><dd>{{ busqueda.salida|date:"d/m/Y" }}</dd>
+            <dt>Noches</dt><dd>{{ busqueda.noches }}</dd>
+            <dt>Titular</dt><dd>{{ usuario.nombres }} {{ usuario.apellidos }} · {{ usuario.correo }}</dd>
+            {% if resumen %}
+            <dt>Huéspedes</dt><dd>{{ form.cleaned_data.num_huespedes }}</dd>
+            <dt>Documento</dt><dd>{{ form.cleaned_data.numero_documento }}</dd>
+            <dt>Nacionalidad</dt><dd>{{ form.cleaned_data.nacionalidad }}</dd>
+            <dt>Precio por noche</dt><dd>$ {{ resumen.precio_noche|floatformat:0 }}</dd>
+            <dt>Total alojamiento</dt><dd>$ {{ resumen.total|floatformat:0 }}</dd>
+            {% endif %}
+        </dl>
+
+        {% if errores_negocio %}
+            <div class="cmensajes">{% for e in errores_negocio %}<p class="cmensaje cmensaje--error" role="alert">{{ e }}</p>{% endfor %}</div>
+            <p><a href="{% url 'busqueda_preparada' %}" class="link">Revisar la búsqueda</a></p>
+        {% endif %}
+
+        <form method="post" action="{% url 'reservar' %}" class="cform" novalidate>
+            {% csrf_token %}
+            {% if resumen %}
+                <input type="hidden" name="paso" value="confirmar">
+                <input type="hidden" name="huella" value="{{ huella }}">
+                <input type="hidden" name="tipo_documento" value="{{ form.cleaned_data.tipo_documento }}">
+                <input type="hidden" name="numero_documento" value="{{ form.cleaned_data.numero_documento }}">
+                <input type="hidden" name="telefono" value="{{ form.cleaned_data.telefono }}">
+                <input type="hidden" name="nacionalidad" value="{{ form.cleaned_data.nacionalidad }}">
+                {% if form.cleaned_data.es_extranjero %}<input type="hidden" name="es_extranjero" value="on">{% endif %}
+                <input type="hidden" name="num_huespedes" value="{{ form.cleaned_data.num_huespedes }}">
+                <p class="provisional__nota">Al confirmar se guarda tu reserva. No se realiza ningún pago en línea: el pago se gestiona con la recepción del hotel.</p>
+                <div class="provisional__acciones">
+                    <button type="submit" class="btn btn--gold">Confirmar reserva</button>
+                    <a href="{% url 'reservar' %}" class="btn">Editar datos</a>
+                </div>
+            {% else %}
+                <input type="hidden" name="paso" value="resumen">
+                <input type="hidden" name="huella" value="{{ huella }}">
+                <div class="cform__campo">
+                    <label for="{{ form.tipo_documento.id_for_label }}">Tipo de documento</label>
+                    <select name="tipo_documento" id="{{ form.tipo_documento.id_for_label }}" class="reserva__input reserva__select">
+                        {% for valor, etiqueta in form.fields.tipo_documento.choices %}
+                        <option value="{{ valor }}"{% if form.tipo_documento.value == valor %} selected{% endif %}>{{ etiqueta }}</option>
+                        {% endfor %}
+                    </select>
+                    {% for e in form.tipo_documento.errors %}<p class="reserva__error" role="alert">{{ e }}</p>{% endfor %}
+                </div>
+                <div class="cform__campo">
+                    <label for="{{ form.numero_documento.id_for_label }}">Número de documento</label>
+                    <input type="text" class="reserva__input" id="{{ form.numero_documento.id_for_label }}" name="numero_documento" maxlength="30" required value="{{ form.numero_documento.value|default:'' }}"{% if form.numero_documento.errors %} aria-invalid="true"{% endif %}>
+                    {% for e in form.numero_documento.errors %}<p class="reserva__error" role="alert">{{ e }}</p>{% endfor %}
+                </div>
+                <div class="cform__campo">
+                    <label for="{{ form.telefono.id_for_label }}">Teléfono</label>
+                    <input type="tel" class="reserva__input" id="{{ form.telefono.id_for_label }}" name="telefono" maxlength="20" required autocomplete="tel" value="{{ form.telefono.value|default:'' }}"{% if form.telefono.errors %} aria-invalid="true"{% endif %}>
+                    {% for e in form.telefono.errors %}<p class="reserva__error" role="alert">{{ e }}</p>{% endfor %}
+                </div>
+                
+                <!-- Selector de Nacionalidad con Países y Banderas -->
+                <div class="cform__campo">
+                    <label for="{{ form.nacionalidad.id_for_label }}">Nacionalidad</label>
+                    <select name="nacionalidad" id="{{ form.nacionalidad.id_for_label }}" class="reserva__input reserva__select" required>
+                        <option value="" disabled {% if not form.nacionalidad.value %}selected{% endif %}>Selecciona tu país</option>
+                        <option value="Colombia" {% if form.nacionalidad.value == 'Colombia' %}selected{% endif %}>🇨🇴 Colombia</option>
+                        <option value="Argentina" {% if form.nacionalidad.value == 'Argentina' %}selected{% endif %}>🇦🇷 Argentina</option>
+                        <option value="Bolivia" {% if form.nacionalidad.value == 'Bolivia' %}selected{% endif %}>🇧🇴 Bolivia</option>
+                        <option value="Brasil" {% if form.nacionalidad.value == 'Brasil' %}selected{% endif %}>🇧🇷 Brasil</option>
+                        <option value="Canadá" {% if form.nacionalidad.value == 'Canadá' %}selected{% endif %}>🇨🇦 Canadá</option>
+                        <option value="Chile" {% if form.nacionalidad.value == 'Chile' %}selected{% endif %}>🇨🇱 Chile</option>
+                        <option value="Costa Rica" {% if form.nacionalidad.value == 'Costa Rica' %}selected{% endif %}>🇨🇷 Costa Rica</option>
+                        <option value="Cuba" {% if form.nacionalidad.value == 'Cuba' %}selected{% endif %}>🇨🇺 Cuba</option>
+                        <option value="Ecuador" {% if form.nacionalidad.value == 'Ecuador' %}selected{% endif %}>🇪🇨 Ecuador</option>
+                        <option value="España" {% if form.nacionalidad.value == 'España' %}selected{% endif %}>🇪🇸 España</option>
+                        <option value="Estados Unidos" {% if form.nacionalidad.value == 'Estados Unidos' %}selected{% endif %}>🇺🇸 Estados Unidos</option>
+                        <option value="Francia" {% if form.nacionalidad.value == 'Francia' %}selected{% endif %}>🇫🇷 Francia</option>
+                        <option value="Italia" {% if form.nacionalidad.value == 'Italia' %}selected{% endif %}>🇮🇹 Italia</option>
+                        <option value="México" {% if form.nacionalidad.value == 'México' %}selected{% endif %}>🇲🇽 México</option>
+                        <option value="Panamá" {% if form.nacionalidad.value == 'Panamá' %}selected{% endif %}>🇵🇦 Panamá</option>
+                        <option value="Paraguay" {% if form.nacionalidad.value == 'Paraguay' %}selected{% endif %}>🇵🇾 Paraguay</option>
+                        <option value="Perú" {% if form.nacionalidad.value == 'Perú' %}selected{% endif %}>🇵🇪 Perú</option>
+                        <option value="Reino Unido" {% if form.nacionalidad.value == 'Reino Unido' %}selected{% endif %}>🇬🇧 Reino Unido</option>
+                        <option value="República Dominicana" {% if form.nacionalidad.value == 'República Dominicana' %}selected{% endif %}>🇩🇴 República Dominicana</option>
+                        <option value="Uruguay" {% if form.nacionalidad.value == 'Uruguay' %}selected{% endif %}>🇺🇾 Uruguay</option>
+                        <option value="Venezuela" {% if form.nacionalidad.value == 'Venezuela' %}selected{% endif %}>🇻🇪 Venezuela</option>
+                        <option value="Otro" {% if form.nacionalidad.value == 'Otro' %}selected{% endif %}>🌐 Otro país</option>
+                    </select>
+                    {% for e in form.nacionalidad.errors %}<p class="reserva__error" role="alert">{{ e }}</p>{% endfor %}
+                </div>
+
+                <div class="cform__campo cform__campo--check">
+                    <input type="checkbox" id="{{ form.es_extranjero.id_for_label }}" name="es_extranjero"{% if form.es_extranjero.value %} checked{% endif %}>
+                    <label for="{{ form.es_extranjero.id_for_label }}">Soy extranjero(a)</label>
+                </div>
+                <div class="cform__campo">
+                    <label for="{{ form.num_huespedes.id_for_label }}">Número de huéspedes (máx. {{ tipo.capacidad }})</label>
+                    <input type="number" class="reserva__input" id="{{ form.num_huespedes.id_for_label }}" name="num_huespedes" min="1" max="{{ tipo.capacidad }}" required value="{{ form.num_huespedes.value|default:1 }}"{% if form.num_huespedes.errors %} aria-invalid="true"{% endif %}>
+                    {% for e in form.num_huespedes.errors %}<p class="reserva__error" role="alert">{{ e }}</p>{% endfor %}
+                </div>
+                <div class="provisional__acciones">
+                    <button type="submit" class="btn btn--gold" >Ver resumen</button> 
+                    <a href="{% url 'busqueda_preparada' %}" class="btn">Volver</a>
+                </div>
+            {% endif %}
+        </form>
+    </section>
+</main>
+
+</body>
+</html>

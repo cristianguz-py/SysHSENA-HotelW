@@ -1,0 +1,29 @@
+{% extends 'panel/base.html' %}{% load panel_extras %}
+{% block title %}Editar reserva{% endblock %}
+{% block contenido %}
+<div class="pn-titulo">
+    <div>
+        <h1>Editar reserva {{ r.pk|codigo_reserva }}</h1>
+        <p>{{ r.huesped.nombres }} {{ r.huesped.apellidos }} · {% include 'panel/_estado_reserva.html' %}</p>
+    </div>
+</div>
+<form method="post" class="pn-tarjeta">{% csrf_token %}
+    {% if form.non_field_errors %}
+    <ul class="pn-mensajes">
+        {% for e in form.non_field_errors %}
+        <li class="pn-mensaje pn-mensaje--error">{{ e }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+    <div class="pn-formulario">
+        {% for campo in form %}
+        {% include 'panel/_campo.html' %}
+        {% endfor %}
+    </div>
+    <p class="pn-nota" style="margin-top:1rem">Al guardar se vuelve a validar la disponibilidad y el importe se recalcula con la tarifa vigente. El estado y el huésped no se modifican desde aquí.</p>
+    <div class="pn-acciones" style="margin-top:1rem">
+        <button class="pn-btn" type="submit">Guardar cambios</button>
+        <a class="pn-btn pn-btn--claro" href="{% url 'gestion_reserva_detalle' r.pk %}">Cancelar edición</a>
+    </div>
+</form>
+{% endblock %}

@@ -1,0 +1,35 @@
+{% extends 'panel/base.html' %}{% load panel_extras %}
+{% block title %}{{ h.nombres }} {{ h.apellidos }}{% endblock %}
+{% block contenido %}
+<div class="pn-titulo">
+    <div>
+        <h1>{{ h.nombres }} {{ h.apellidos }}</h1>
+        <p>{{ h.get_tipo_documento_display }} {{ h.numero_documento }} · {{ historial.count }} reserva{{ historial.count|pluralize }} · {{ total_gastado|cop }} en reservas no canceladas</p>
+    </div>
+    <a class="pn-btn pn-btn--claro" href="{% url 'gestion_huespedes' %}">← Volver</a>
+</div>
+<div class="pn-rejilla pn-iguales">
+    <section class="pn-tarjeta">
+        <h2>Datos de contacto</h2>
+        <form method="post">{% csrf_token %}
+            <div class="pn-formulario">{% for campo in form %}{% include 'panel/_campo.html' %}{% endfor %}</div>
+            <p class="pn-ayuda" style="margin-top:.6rem">El documento de identidad no se puede cambiar desde aquí.</p>
+            <button class="pn-btn" type="submit" style="margin-top:.8rem">Guardar datos</button>
+        </form>
+    </section>
+    <section class="pn-tarjeta">
+        <h2>Historial de reservas</h2>
+        {% if historial %}
+        <ul class="pn-lista">
+            {% for r in historial %}
+            <li>
+                <span><a href="{% url 'gestion_reserva_detalle' r.pk %}"><strong>{{ r.pk|codigo_reserva }}</strong></a> · Hab. {{ r.habitacion.numero }} · {{ r.fecha_entrada|date:"d/m/Y" }} → {{ r.fecha_salida|date:"d/m/Y" }}</span>{% include 'panel/_estado_reserva.html' %}
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p class="pn-vacio">Este huésped aún no tiene reservas.</p>
+        {% endif %}
+    </section>
+</div>
+{% endblock %}

@@ -1,0 +1,20 @@
+{% load panel_extras %}
+{% if tipos.total %}
+<div class="pn-anillo">
+    <svg class="pn-svg" viewBox="0 0 190 190" role="img" aria-label="Distribución de reservas por tipo de habitación" style="max-width:190px">
+        <g transform="rotate(-90 95 95)">
+            <circle cx="95" cy="95" r="{{ tipos.radio }}" fill="none" stroke="#EFEAE1" stroke-width="26"/>
+            {% for s in tipos.segmentos %}
+            <circle cx="95" cy="95" r="{{ tipos.radio }}" fill="none" stroke="{{ s.color }}" stroke-width="26" stroke-dasharray="{{ s.dash }}" stroke-dashoffset="{{ s.offset }}"><title>{{ s.nombre }}: {{ s.cantidad }}</title></circle>
+            {% endfor %}
+        </g>
+        <text x="95" y="95" text-anchor="middle" font-size="30" font-weight="600" style="fill:#1C1A17">{{ tipos.total }}</text>
+        <text x="95" y="114" text-anchor="middle" font-size="12" style="fill:#6F6B64;font-family:Jost,sans-serif">reservas</text>
+    </svg>
+    <ul class="pn-leyenda">
+        {% for s in tipos.segmentos %}
+        <li><svg class="cuadro" width="10" height="10" aria-hidden="true"><rect width="10" height="10" fill="{{ s.color }}"/></svg>{{ s.nombre }}<span class="cant">{{ s.cantidad }} · {{ s.porcentaje|pct }}</span></li>
+        {% endfor %}
+    </ul>
+</div>
+{% else %}<p class="pn-vacio">No hay reservas en el periodo para mostrar la distribución.</p>{% endif %}

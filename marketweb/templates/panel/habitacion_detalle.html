@@ -1,0 +1,75 @@
+{% extends 'panel/base.html' %}{% load panel_extras %}
+{% block title %}Habitación {{ hab.numero }}{% endblock %}
+{% block contenido %}
+<div class="pn-titulo">
+    <div>
+        <h1>Habitación {{ hab.numero }} <span class="et et--{{ hab.estado_periodo }}">{{ hab.estado_periodo_texto }}</span></h1>
+        <p>Piso {{ hab.piso }} · {{ hab.tipo.nombre }}{% if not hab.activa %} · inactiva{% endif %}</p>
+    </div>
+    <div class="pn-acciones">
+        <a class="pn-btn pn-btn--claro" href="{% url 'gestion_habitaciones' %}">← Volver</a>
+        <a class="pn-btn" href="{% url 'gestion_habitacion_editar' hab.pk %}">Editar</a>
+        {% if hab.estado == 'EN_ASEO' or hab.estado == 'MANTENIMIENTO' %}
+        <form method="post" action="{% url 'gestion_habilitar' hab.pk %}">{% csrf_token %}<button class="pn-btn pn-btn--ok" type="submit">Habilitar</button></form>
+        {% endif %}
+    </div>
+</div>
+<div class="pn-rejilla pn-iguales">
+    <section class="pn-tarjeta">
+        <h2>Ficha</h2>
+        <dl class="pn-datos">
+            <div>
+                <dt>Estado operativo</dt>
+                <dd>{{ hab.get_estado_display }}</dd>
+            </div>
+            <div>
+                <dt>Capacidad</dt>
+                <dd>{{ hab.tipo.capacidad }} huéspedes</dd>
+            </div>
+            <div>
+                <dt>Precio por noche</dt>
+                <dd>{{ hab.tipo.precio_noche|cop }}</dd>
+            </div>
+            <div>
+                <dt>Reservas históricas</dt>
+                <dd>{{ total_historial }}</dd>
+            </div>
+            {% if hab.tipo.descripcion %}
+            <div style="grid-column:1/-1">
+                <dt>Descripción</dt>
+                <dd style="font-weight:400">{{ hab.tipo.descripcion }}</dd>
+            </div>
+            {% endif %}
+        </dl>
+        <p class="pn-ayuda" style="margin-top:.8rem">Las habitaciones con reservas no se eliminan: se desactivan para conservar el historial.</p>
+    </section>
+    <section class="pn-tarjeta">
+        <h2>Reservas vigentes y próximas</h2>
+        {% if proximas %}
+        <ul class="pn-lista">
+            {% for r in proximas %}
+            <li>
+                <span><a href="{% url 'gestion_reserva_detalle' r.pk %}"><strong>{{ r.pk|codigo_reserva }}</strong></a> · {{ r.huesped.nombres }} {{ r.huesped.apellidos }} · {{ r.fecha_entrada|date:"d/m" }} → {{ r.fecha_salida|date:"d/m/Y" }}</span>{% include 'panel/_estado_reserva.html' %}
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p class="pn-vacio">Sin reservas vigentes.</p>
+        {% endif %}
+    </section>
+</div>
+<section class="pn-tarjeta" style="margin-top:1rem">
+    <h2>Últimas reservas</h2>
+    {% if historial %}
+    <ul class="pn-lista">
+        {% for r in historial %}
+        <li>
+            <span><a href="{% url 'gestion_reserva_detalle' r.pk %}">{{ r.pk|codigo_reserva }}</a> · {{ r.huesped.nombres }} {{ r.huesped.apellidos }} · {{ r.fecha_entrada|date:"d/m/Y" }} → {{ r.fecha_salida|date:"d/m/Y" }}</span>{% include 'panel/_estado_reserva.html' %}
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p class="pn-vacio">Esta habitación aún no tiene reservas.</p>
+    {% endif %}
+</section>
+{% endblock %}

@@ -1,0 +1,72 @@
+{% load static wbar_extras %}<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0A0A0A">
+    <title>{% block title %}W Bar Online{% endblock %} · Hotel W</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'Wbar/css/wbar.css' %}">
+</head>
+<style>
+    /* 1. Forzamos el fondo en el body desde el HEAD con propiedades separadas y !important */
+    body {
+        margin: 0 !important;
+        min-height: 100vh !important;
+        background-color: #0A0A0A !important;
+        background-image: linear-gradient(rgba(10, 10, 10, 0.75), rgba(10, 10, 10, 0.75)), url("{% static 'img/Hotel W 7.webp' %}") !important;
+        background-size: cover !important;
+        background-position: center !important;
+        background-repeat: no-repeat !important;
+        background-attachment: fixed !important;
+    }
+
+    /* 2. Aseguramos que los contenedores de texto dejen ver el fondo si venían con color sólido */
+    .cpag {
+        background: transparent !important;
+    }
+</style>
+<body class="wb">
+<header class="wb-nav">
+    <a class="wb-marca" href="{% url 'wbar:menu' %}">HOTEL W<small>W BAR ONLINE</small></a>
+    <nav class="wb-menu" aria-label="Principal">
+        <a href="{% url 'wbar:menu' %}">Menú</a>
+        {% if request.session.usuario_rol == 'CLIENTE' %}
+        <a href="{% url 'wbar:carrito' %}">Mi pedido{% if items_carrito %}<span class="wb-contador">{{ items_carrito }}</span>{% endif %}</a>
+        <a href="{% url 'wbar:mis_pedidos' %}">Mis pedidos</a>
+        <a href="{% url 'mis_reservas' %}">Mis reservas</a>
+        {% elif request.session.usuario_rol == 'ADMIN_GERENTE' or request.session.usuario_rol == 'RECEPCIONISTA' %}
+        <a href="{% url 'wbar:gestion' %}">Gestión del bar</a>
+        {% endif %}
+        <a href="{% url 'home' %}">Sitio del hotel</a>
+        {% if request.session.usuario_id %}
+        <form method="post" action="{% url 'logout' %}">
+            {% csrf_token %}
+            <button type="submit">Cerrar sesión</button>
+        </form>
+        {% else %}
+        <a href="{% url 'login' %}">Iniciar sesión</a>
+        {% endif %}
+    </nav>
+</header>
+
+<main class="wb-pagina">
+    {% if messages %}
+    <ul class="wb-mensajes" role="status">
+        {% for m in messages %}
+        <li class="wb-mensaje wb-mensaje--{{ m.level_tag }}">{{ m }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+    
+    {% block contenido %}{% endblock %}
+</main>
+
+<footer class="wb-pie">
+    <p><strong>El exceso de alcohol es perjudicial para la salud.</strong> El alcohol es nocivo para la salud, la convivencia y la seguridad vial. Se prohíbe la venta de bebidas alcohólicas a menores de edad. Consume con responsabilidad.</p>
+    <p>Hotel W · W Bar Online · © {% now "Y" %}</p>
+</footer>
+</body>
+</html>

@@ -1,0 +1,101 @@
+{% load static %}<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0A0A0A">
+    <title>Hotel W — Reserva #{{ reserva.pk }}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/home.css' %}">
+    <link rel="stylesheet" href="{% static 'css/cuenta.css' %}">
+</head>
+<body>
+
+    <style>
+        /* 1. Forzamos el fondo en el body desde el HEAD con propiedades separadas y !important */
+        body {
+            margin: 0 !important;
+            min-height: 100vh !important;
+            background-color: #0A0A0A !important;
+            background-image: linear-gradient(rgba(10, 10, 10, 0.75), rgba(10, 10, 10, 0.75)), url("{% static 'img/Hotel W 7.webp' %}") !important;
+            background-size: cover !important;
+            background-position: center !important;
+            background-repeat: no-repeat !important;
+            background-attachment: fixed !important;
+        }
+
+        /* 2. Aseguramos que los contenedores de texto dejen ver el fondo si venían con color sólido */
+        .cpag {
+            background: transparent !important;
+        }
+    </style>  
+
+<header class="cnav">
+    <a href="{% url 'home' %}" class="nav__brand">HOTEL W</a>
+    <nav class="cnav__menu" aria-label="Principal">
+        <a href="{% url 'home' %}">Inicio</a>
+        {% if request.session.usuario_rol == 'CLIENTE' %}
+            <a href="{% url 'mis_reservas' %}">Mis reservas</a>
+        {% elif request.session.usuario_id %}
+            <a href="{% url 'inicio' %}">Panel</a>
+        {% endif %}
+        {% if request.session.usuario_id %}
+        <details class="cuenta-menu">
+            <summary class="btn btn--sm">{{ request.session.usuario_nombre|default:"Mi cuenta" }}</summary>
+            <div class="cuenta-menu__panel">
+                <a href="{% url 'cuenta' %}">Configuración</a>
+                {% if request.session.usuario_rol == 'CLIENTE' %}<a href="{% url 'mis_reservas' %}">Mis reservas</a>{% else %}{% if request.session.usuario_rol == 'ADMIN_GERENTE' %}<a href="{% url 'gestion' %}">Panel de gestión</a>{% endif %}<a href="{% url 'inicio' %}">Panel del hotel</a>{% endif %}
+                <form method="post" action="{% url 'logout' %}">
+                    {% csrf_token %}
+                    <button type="submit">Cerrar sesión</button>
+                </form>
+            </div>
+        </details>
+        {% else %}
+        <a href="{% url 'login' %}" class="btn btn--sm">Iniciar sesión</a>
+        {% endif %}
+    </nav>
+</header>
+
+<main class="cpag">
+    {% if messages %}
+        <div class="cmensajes">
+            {% for message in messages %}
+                <p class="cmensaje cmensaje--{{ message.tags|default:'info' }}" role="status">{{ message }}</p>
+            {% endfor %}
+        </div>
+    {% endif %}
+    <section class="cpanel" aria-labelledby="t-det">
+        {% if nueva %}
+            <p class="reserva__eyebrow">Reserva guardada</p>
+            <h1 id="t-det">Tu reserva #{{ reserva.pk }} está registrada</h1>
+            <p>La reserva quedó guardada en el sistema del hotel y aparece en «Mis reservas».</p>
+        {% else %}
+            <p class="reserva__eyebrow">Mis reservas</p>
+            <h1 id="t-det">Reserva #{{ reserva.pk }}</h1>
+        {% endif %}
+
+        <dl class="provisional__datos">
+            <dt>Estado</dt><dd><span class="cestado cestado--{{ reserva.estado|lower }}">{{ reserva.get_estado_display }}</span></dd>
+            <dt>Tipo</dt><dd>{{ reserva.habitacion.tipo.nombre }}</dd>
+            <dt>Habitación</dt><dd>{{ reserva.habitacion.numero }} (piso {{ reserva.habitacion.piso }})</dd>
+            <dt>Llegada</dt><dd>{{ reserva.fecha_entrada|date:"d/m/Y" }}</dd>
+            <dt>Salida</dt><dd>{{ reserva.fecha_salida|date:"d/m/Y" }}</dd>
+            <dt>Noches</dt><dd>{{ noches }}</dd>
+            <dt>Huéspedes</dt><dd>{{ reserva.num_huespedes }}</dd>
+            <dt>Total alojamiento</dt><dd>$ {{ reserva.valor_total|floatformat:0 }}</dd>
+            <dt>Creada</dt><dd>{{ reserva.fecha_creacion|date:"d/m/Y H:i" }}</dd>
+        </dl>
+        <p class="provisional__nota">No se realizó ningún pago en línea. Los cargos adicionales y el pago se gestionan con la recepción.</p>
+
+        <div class="provisional__acciones">
+            <a href="{% url 'mis_reservas' %}" class="btn btn--gold">Mis reservas</a>
+            <a href="{% url 'home' %}" class="btn">Volver al inicio</a>
+        </div>
+    </section>
+</main>
+
+</body>
+</html>

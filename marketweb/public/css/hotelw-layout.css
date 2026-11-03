@@ -1,0 +1,332 @@
+/* =====================================================================
+   HOTEL W — Layout compartido: navbar (inc/header.html) y footer (inc/footer.html)
+   Ubicación: static/css/hotelw-layout.css
+
+   Se carga DESPUÉS de styles.css, así que sobrescribe lo que quede de
+   .navbar-walena y .footer-walena (las clases se conservan en el HTML,
+   solo cambia su apariencia).
+
+   Índice
+     1. Variables
+     2. Navbar
+     3. Footer
+     4. Responsive
+     5. Movimiento reducido
+   ===================================================================== */
+
+
+/* ---------------------------------------------------------------------
+   1. VARIABLES
+   --------------------------------------------------------------------- */
+.hw-nav,
+.hw-foot {
+    --hwl-negro: #0A0A0A;
+    --hwl-beige: #D8C7AE;
+    --hwl-beige-claro: #E5D8C5;
+    --hwl-suave: #9C978E;
+    --hwl-linea: rgba(216, 199, 174, 0.16);
+    --hwl-linea-fuerte: rgba(216, 199, 174, 0.36);
+    --hwl-serif: "Cormorant Garamond", Georgia, "Times New Roman", serif;
+    --hwl-sans: "Jost", "Helvetica Neue", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --hwl-ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+
+    font-family: var(--hwl-sans);
+    -webkit-font-smoothing: antialiased;
+}
+
+/* Logo circular (se usa en navbar y footer) */
+.hw-marca__logo {
+    display: inline-flex;
+    flex: none;
+    width: 42px;
+    height: 42px;
+    padding: 3px;
+    background: #fff;
+    border: 1px solid var(--hwl-beige);
+    border-radius: 50%;
+}
+
+.hw-marca__logo img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    border-radius: 50%;
+}
+
+
+/* ---------------------------------------------------------------------
+   2. NAVBAR
+   --------------------------------------------------------------------- */
+.hw-nav.navbar-walena {
+    --bs-navbar-color: #9C978E;
+    --bs-navbar-hover-color: #FFFFFF;
+    --bs-navbar-active-color: #FFFFFF;
+    --bs-navbar-toggler-border-color: rgba(216, 199, 174, 0.36);
+
+    padding: 0.7rem 0;
+    background: rgba(10, 10, 10, 0.96);
+    border-bottom: 1px solid var(--hwl-linea);
+    box-shadow: none;
+}
+
+@supports ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+    .hw-nav.navbar-walena {
+        background: rgba(10, 10, 10, 0.82);
+        -webkit-backdrop-filter: blur(14px) saturate(120%);
+        backdrop-filter: blur(14px) saturate(120%);
+    }
+}
+
+/* Marca */
+.hw-nav .hw-marca {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.85rem;
+    margin-right: 1rem;
+    padding: 0;
+}
+
+.hw-marca__texto {
+    display: flex;
+    flex-direction: column;
+    gap: 0.22rem;
+}
+
+.hw-marca__texto strong {
+    font-size: 0.95rem;
+    font-weight: 500;
+    line-height: 1;
+    letter-spacing: 0.32em;
+    color: #fff;
+}
+
+.hw-marca__texto small {
+    font-size: 0.62rem;
+    font-weight: 400;
+    line-height: 1;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--hwl-beige);
+}
+
+/* Enlaces (se especifica .navbar-nav para ganarle a Bootstrap) */
+.hw-nav.navbar-walena .navbar-nav .nav-link {
+    position: relative;
+    margin: 0 0.9rem;
+    padding: 0.5rem 0.1rem;
+    font-size: 0.74rem;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--hwl-suave);
+    transition: color 0.3s ease;
+}
+
+.hw-nav.navbar-walena .navbar-nav .nav-link::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0.15rem;
+    height: 1px;
+    background: var(--hwl-beige);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.45s var(--hwl-ease);
+}
+
+.hw-nav.navbar-walena .navbar-nav .nav-link:hover,
+.hw-nav.navbar-walena .navbar-nav .nav-link:focus,
+.hw-nav.navbar-walena .navbar-nav .nav-link.active {
+    color: #fff;
+}
+
+.hw-nav.navbar-walena .navbar-nav .nav-link:hover::after,
+.hw-nav.navbar-walena .navbar-nav .nav-link:focus::after,
+.hw-nav.navbar-walena .navbar-nav .nav-link.active::after {
+    transform: scaleX(1);
+}
+
+/* Lado derecho */
+.hw-nav__derecha {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.hw-nav__dir {
+    font-size: 0.8rem;
+    letter-spacing: 0.03em;
+    color: var(--hwl-suave);
+}
+
+.hw-nav__dir i {
+    margin-right: 0.4rem;
+    color: var(--hwl-beige);
+}
+
+.hw-nav__btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.55rem 1.05rem;
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: var(--hwl-beige-claro);
+    background: transparent;
+    border: 1px solid var(--hwl-linea-fuerte);
+    border-radius: 4px;
+    transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease, transform 0.3s var(--hwl-ease);
+}
+
+.hw-nav__btn:hover,
+.hw-nav__btn:focus-visible {
+    color: #14110D;
+    background: var(--hwl-beige);
+    border-color: var(--hwl-beige);
+    transform: translateY(-1px);
+}
+
+/* Botón de menú móvil */
+.hw-nav .navbar-toggler {
+    padding: 0.4rem 0.6rem;
+    border-radius: 4px;
+}
+
+.hw-nav .navbar-toggler:focus {
+    box-shadow: 0 0 0 2px rgba(216, 199, 174, 0.45);
+}
+
+.hw-nav a:focus-visible,
+.hw-nav button:focus-visible {
+    outline: 2px solid var(--hwl-beige-claro);
+    outline-offset: 3px;
+}
+
+
+/* ---------------------------------------------------------------------
+   3. FOOTER
+   --------------------------------------------------------------------- */
+.hw-foot.footer-walena {
+    margin-top: auto;
+    padding: clamp(1.75rem, 4vw, 2.5rem) 0;
+    text-align: left;
+    color: var(--hwl-suave);
+    background: var(--hwl-negro);
+    border-top: 1px solid var(--hwl-linea);
+    box-shadow: none;
+}
+
+.hw-foot__inner {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1.3fr) auto;
+    align-items: center;
+    gap: 1.5rem 2.5rem;
+}
+
+.hw-foot__marca {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+}
+
+.hw-foot__nombre {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 500;
+    letter-spacing: 0.32em;
+    color: #fff;
+}
+
+.hw-foot__lema {
+    margin: 0.25rem 0 0;
+    font-family: var(--hwl-serif);
+    font-size: 1.1rem;
+    font-style: italic;
+    line-height: 1.2;
+    color: var(--hwl-beige-claro);
+}
+
+.hw-foot__dir {
+    margin: 0;
+    font-size: 0.85rem;
+    line-height: 1.5;
+}
+
+.hw-foot__dir i {
+    margin-right: 0.4rem;
+    color: var(--hwl-beige);
+}
+
+.hw-foot__legal {
+    margin: 0;
+    font-size: 0.75rem;
+    line-height: 1.6;
+    letter-spacing: 0.06em;
+    text-align: right;
+    color: #6F6B64;
+}
+
+
+/* ---------------------------------------------------------------------
+   4. RESPONSIVE
+   --------------------------------------------------------------------- */
+
+/* Menú móvil desplegado */
+@media (max-width: 991.98px) {
+    .hw-nav .navbar-collapse {
+        margin-top: 0.75rem;
+        padding-top: 0.5rem;
+        border-top: 1px solid var(--hwl-linea);
+    }
+
+    .hw-nav.navbar-walena .navbar-nav .nav-link {
+        margin: 0;
+        padding: 0.85rem 0;
+        border-bottom: 1px solid var(--hwl-linea);
+    }
+
+    .hw-nav.navbar-walena .navbar-nav .nav-link::after { display: none; }
+
+    .hw-nav__derecha {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.9rem;
+        padding: 1rem 0 0.5rem;
+    }
+
+    .hw-nav__btn { justify-content: center; }
+}
+
+/* Footer apilado y centrado */
+@media (max-width: 767.98px) {
+    .hw-foot__inner {
+        grid-template-columns: minmax(0, 1fr);
+        justify-items: center;
+        text-align: center;
+    }
+
+    .hw-foot__marca { flex-direction: column; text-align: center; }
+    .hw-foot__legal { text-align: center; }
+}
+
+/* Celulares pequeños: oculta el subtítulo de la marca para no saturar */
+@media (max-width: 380px) {
+    .hw-marca__texto small { display: none; }
+}
+
+
+/* ---------------------------------------------------------------------
+   5. MOVIMIENTO REDUCIDO
+   --------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+    .hw-nav *,
+    .hw-nav *::before,
+    .hw-nav *::after,
+    .hw-foot * {
+        transition: none !important;
+    }
+}

@@ -1,0 +1,310 @@
+{% load static %}<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hotel W — Experiencia de Lujo en La Guajira</title>
+    <meta name="description" content="Hotel W, Riohacha, La Guajira. 120 habitaciones en 9 tipos, Piscina W, Wi-Fi incluido de alta calidad y W Bar Online.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/home.css' %}">
+    <link rel="stylesheet" href="{% static 'css/cuenta.css' %}">
+    <link rel="icon" type="image/png" href="{% static 'img/Logo de Hotel W.jpg' %}">
+</head>
+
+</head>
+<body>
+
+<header class="nav" id="nav">
+    <a href="#inicio" class="nav__brand">HOTEL W</a>
+    <button class="nav__toggle" id="navToggle" aria-label="Abrir menú" aria-expanded="false"><span></span><span></span></button>
+    <nav class="nav__menu" id="navMenu">
+        <a href="#inicio">Inicio</a>
+        <a href="#hotel">El Hotel</a>
+        <a href="#habitaciones">Habitaciones</a>
+        <a href="#experiencia">Experiencia</a>
+        <a href="#bar">W Bar Online</a>
+        <a href="#guajira">La Guajira</a>
+        <a href="#galeria">Galería</a>
+        <a href="#contacto">Contacto</a>
+        {% if request.session.usuario_id %}
+        <details class="cuenta-menu">
+            <summary class="btn btn--sm">{{ request.session.usuario_nombre|default:"Mi cuenta" }}</summary>
+            <div class="cuenta-menu__panel">
+                <a href="{% url 'cuenta' %}">Configuración</a>
+                {% if request.session.usuario_rol == 'CLIENTE' %}<a href="{% url 'mis_reservas' %}">Mis reservas</a>{% else %}{% if request.session.usuario_rol == 'ADMIN_GERENTE' %}<a href="{% url 'gestion' %}">Panel de gestión</a>{% endif %}<a href="{% url 'inicio' %}">Panel del hotel</a>{% endif %}
+                <form method="post" action="{% url 'logout' %}">
+                    {% csrf_token %}
+                    <button type="submit">Cerrar sesión</button>
+                </form>
+            </div>
+        </details>
+        {% else %}
+        <a href="{% url 'login' %}" class="btn btn--sm">Iniciar sesión</a>
+        {% endif %}
+    </nav>
+</header>
+
+<!-- 1. HERO -->
+<section class="hero" id="inicio">
+    <video class="hero__img" autoplay muted loop playsinline>
+    <source src="{% static 'img/ppp.mp4' %}" type="video/mp4">
+</video>
+    <div class="hero__content">
+        <p class="hero__brand">HOTEL W &nbsp;</p>
+        <h1>Una experiencia que se vive.</h1>
+        <p class="hero__text">Riohacha, La Guajira.</p>
+        <div class="hero__actions">
+            <a href="#hotel" class="btn btn--solid">Descubrir Hotel W</a>
+            {% if request.session.usuario_id %}<a href="{% if request.session.usuario_rol == 'CLIENTE' %}{% url 'mis_reservas' %}{% else %}{% url 'inicio' %}{% endif %}" class="btn">{% if request.session.usuario_rol == 'CLIENTE' %}Mis reservas{% else %}Ir al panel{% endif %}</a>{% else %}<a href="{% url 'login' %}" class="btn">Iniciar sesión</a>{% endif %}
+        </div>
+    </div>
+</section>
+
+<!-- 1b. DISPONIBILIDAD (sin JavaScript: formulario POST procesado por Django) -->
+<section class="reserva" id="reservar" aria-labelledby="reservar-titulo">
+    <div class="reserva__wrap">
+        <div class="reserva__intro">
+            <p class="reserva__eyebrow">Reservas</p>
+            <h2 id="reservar-titulo">Consulta disponibilidad</h2>
+            <p>Elige tus fechas y el tipo de habitación. Para continuar necesitarás iniciar sesión.</p>
+        </div>
+
+        <form class="reserva__form" method="post" action="{% url 'buscar_disponibilidad' %}#reservar">
+            {% csrf_token %}
+
+            {% if form_busqueda.errors %}
+            <p class="reserva__resumen" role="alert">Revisa los campos marcados para continuar.</p>
+            {% endif %}
+
+            <div class="reserva__campo">
+                <label for="{{ form_busqueda.llegada.id_for_label }}">{{ form_busqueda.llegada.label }}</label>
+                {{ form_busqueda.llegada }}
+                {% if form_busqueda.llegada.errors %}<p class="reserva__error" id="error-llegada">{{ form_busqueda.llegada.errors.0 }}</p>{% endif %}
+            </div>
+
+            <div class="reserva__campo">
+                <label for="{{ form_busqueda.salida.id_for_label }}">{{ form_busqueda.salida.label }}</label>
+                {{ form_busqueda.salida }}
+                {% if form_busqueda.salida.errors %}<p class="reserva__error" id="error-salida">{{ form_busqueda.salida.errors.0 }}</p>{% endif %}
+            </div>
+
+            <div class="reserva__campo">
+                <label for="{{ form_busqueda.tipo.id_for_label }}">{{ form_busqueda.tipo.label }}</label>
+                {{ form_busqueda.tipo }}
+                {% if form_busqueda.tipo.errors %}<p class="reserva__error" id="error-tipo">{{ form_busqueda.tipo.errors.0 }}</p>{% endif %}
+            </div>
+
+            <div class="reserva__accion">
+                <button type="submit" class="btn btn--gold reserva__boton">Ver disponibilidad</button>
+            </div>
+        </form>
+    </div>
+</section>
+
+<!-- 2. INTRODUCCIÓN -->
+<section class="section section--black" id="hotel">
+    <div class="hotel">
+        <figure class="hotel__main reveal"><img src="{% static 'img/Logo de W Hotel cara.png' %}" alt="Interior de Hotel W" loading="lazy"></figure>
+        <div class="hotel__text reveal">
+            <h2>Hotel W — Experiencia de Lujo en La Guajira</h2>
+            <p>Un hotel urbano y turístico de cinco estrellas en Riohacha, donde el lujo contemporáneo se une a la identidad caribeña.</p>
+            <p>Descanso, gastronomía, entretenimiento y tecnología en 8 pisos pensados para que vivas la ciudad y el territorio.</p>
+            <span class="line"></span>
+        </div>
+        <ul class="stats reveal">
+            <li><strong>120</strong><span>habitaciones</span></li>
+            <li><strong>9</strong><span>tipos de habitaciones</span></li>
+            <li><strong>8</strong><span>pisos</span></li>
+        </ul>
+    </div>
+</section>
+
+<!-- 3. HABITACIONES -->
+<section class="section section--charcoal" id="habitaciones">
+    <div class="wrap">
+        <div class="section__head reveal">
+            <h2>120 habitaciones. 9 formas de vivir Hotel W.</h2>
+            <p>Precios base por noche, en pesos colombianos.</p>
+        </div>
+        <div class="cats">
+            <figure class="cats__view"><img id="catImg" src="{% static 'img/collage.png' %}" alt="Habitaciones Hotel W"></figure>
+            <ul class="cats__list">
+                <li class="cat" tabindex="0" data-img="{% static 'img/W Essential.jpg' %}">
+                    <h3>W Essential</h3><span class="cat__meta">2 huéspedes · 30 habitaciones</span>
+                    <p>Cama King, baño privado, aire acondicionado, Smart TV, Wi-Fi, escritorio, minibar y caja de seguridad.</p>
+                    <b>Desde $320.000 COP</b>
+                </li>
+                <li class="cat" tabindex="0" data-img="{% static 'img/W Comfort.jpg' %}">
+                    <h3>W Comfort</h3><span class="cat__meta">2 huéspedes · 25 habitaciones</span>
+                    <p>Cama King, zona de descanso, balcón, vista exterior, cafetera y minibar.</p>
+                    <b>Desde $390.000 COP</b>
+                </li>
+                <li class="cat" tabindex="0" data-img="{% static 'img/W Premium.jpg' %}">
+                    <h3>W Premium</h3><span class="cat__meta">3 huéspedes · 20 habitaciones</span>
+                    <p>Cama King y sofá cama, balcón, vista panorámica, minibar premium y zona de trabajo.</p>
+                    <b>Desde $480.000 COP</b>
+                </li>
+                <li class="cat" tabindex="0" data-img="{% static 'img/W Ocean View.jpg' %}">
+                    <h3>W Ocean View</h3><span class="cat__meta">2 huéspedes · 15 habitaciones</span>
+                    <p>Vista al mar, balcón privado, cama King, bañera, minibar, cafetera y Room Service.</p>
+                    <b>Desde $560.000 COP</b>
+                </li>
+                <li class="cat" tabindex="0" data-img="{% static 'img/W Executive.jpg' %}">
+                    <h3>W Executive</h3><span class="cat__meta">2 huéspedes · 10 habitaciones</span>
+                    <p>Cama King, escritorio ejecutivo, zona de trabajo, sala pequeña, acceso a zona ejecutiva y desayuno incluido.</p>
+                    <b>Desde $650.000 COP</b>
+                </li>
+                <li class="cat" tabindex="0" data-img="{% static 'img/W Junior Suite.jpg' %}">
+                    <h3>W Junior Suite</h3><span class="cat__meta">3 huéspedes · 8 habitaciones</span>
+                    <p>Dormitorio independiente, sala, cama King, bañera, balcón y zona de trabajo.</p>
+                    <b>Desde $780.000 COP</b>
+                </li>
+                <li class="cat" tabindex="0" data-img="{% static 'img/W Suite.jpg' %}">
+                    <h3>W Suite</h3><span class="cat__meta">4 huéspedes · 7 habitaciones</span>
+                    <p>Habitación principal con cama King, sala independiente, comedor pequeño, vestidor, balcón, vista panorámica y Room Service.</p>
+                    <b>Desde $950.000 COP</b>
+                </li>
+                <li class="cat" tabindex="0" data-img="{% static 'img/W Presidental Suite.jpg' %}">
+                    <h3>W Presidential Suite</h3><span class="cat__meta">4 huéspedes · 4 habitaciones</span>
+                    <p>Habitación King, sala de lujo, comedor, cocina pequeña, vestidor, jacuzzi, terraza privada, vista panorámica y servicio personalizado.</p>
+                    <b>Desde $1.500.000 COP</b>
+                </li>
+                <li class="cat cat--royal" tabindex="0" data-img="{% static 'img/W Royal Suite.jpg' %}">
+                    <h3>W Royal Suite</h3><span class="cat__meta">1 unidad · hasta 6 huéspedes</span>
+                    <p>La experiencia más exclusiva del hotel: dos habitaciones, sala, comedor, cocina, terraza privada, jacuzzi, vestidor, bar privado, minibar, Smart TVs, zona de trabajo, Room Service y servicio personalizado.</p>
+                    <b>Desde $2.500.000 COP</b>
+                </li>
+            </ul>
+        </div>
+    </div>
+</section>
+
+<!-- 4. EXPERIENCIA -->
+<section class="section section--black" id="experiencia">
+    <div class="wrap">
+        <div class="section__head reveal"><h2>La experiencia Hotel W</h2></div>
+
+        <figure class="pool reveal">
+            <img src="{% static 'img/Hotel W 13.jpeg' %}" alt="Piscina W" loading="lazy">
+            <figcaption><h3>Piscina W</h3><p>Un espacio central para descansar, entre terraza y jardines.</p></figcaption>
+        </figure>
+
+        <div class="tiles">
+            <figure class="tile reveal"><img src="{% static 'img/Hotel W 15.jpg' %}" alt="Restaurante W" loading="lazy"><figcaption>Restaurante W</figcaption></figure>
+            <figure class="tile reveal"><img src="{% static 'img/Hotel W 19.jpg' %}" alt="W Café" loading="lazy"><figcaption>W Café</figcaption></figure>
+            <figure class="tile reveal"><img src="{% static 'img/Hotel W 17.jpeg' %}" alt="W Wellness" loading="lazy"><figcaption>W Wellness</figcaption></figure>
+            <figure class="tile reveal"><img src="{% static 'img/Hotel W 20.webp' %}" alt="W Lounge" loading="lazy"><figcaption>W Lounge</figcaption></figure>
+        </div>
+
+        <div class="wifi reveal">
+            <h3>Wi-Fi incluido de alta calidad</h3>
+            <p>Para descansar, entretenerte o trabajar sin interrupciones.</p>
+        </div>
+
+        <ul class="services reveal">
+            <li>W Fitness</li><li>W Business Center</li><li>Room Service</li><li>Lavandería</li>
+            <li>Transporte</li><li>Experiencias turísticas</li><li>Recepción 24 horas</li><li>Salones de eventos</li>
+            <li>Salas de reuniones</li><li>Terraza</li><li>Jardines</li><li>Estacionamiento</li>
+        </ul>
+    </div>
+</section>
+
+<!-- 5. W BAR ONLINE -->
+<section class="section section--dark bar" id="bar">
+    <div class="bar__grid">
+        <div class="reveal">
+            <h2>W BAR ONLINE</h2>
+            <p class="bar__tag">Tu experiencia, a un clic.</p>
+            <p>Un bar digital propio de Hotel W: explora bebidas, cócteles y snacks desde tu dispositivo y haz tu pedido sin moverte.</p>
+            <!-- Botón visual: aún sin ruta. Enlazarlo cuando exista la funcionalidad del bar -->
+            <a class="btn" href="{% url 'wbar:menu' %}">Explorar W Bar</a>
+        </div>
+        <div class="bar__visual reveal">
+            <img src="{% static 'img/W Bar Online Cara.png' %}" alt="W Bar Online" loading="lazy">
+            <div class="bar__ui" aria-hidden="true">
+                <span>W Bar Online</span>
+                <ul><li>Bebidas</li><li>Cócteles</li><li>Snacks</li></ul>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 6. LA GUAJIRA -->
+<section class="section section--charcoal" id="guajira">
+    <div class="wrap">
+        <div class="section__head reveal">
+            <h2>La Guajira, a un paso del hotel</h2>
+            <p>Experiencias turísticas que conectan Hotel W con el territorio.</p>
+        </div>
+        <div class="guajira">
+            <figure class="gj gj--a reveal"><img src="{% static 'img/Cabo de la vela.webp' %}" alt="Cabo de la Vela" loading="lazy"><figcaption>Cabo de la Vela</figcaption></figure>
+            <figure class="gj gj--b reveal"><img src="{% static 'img/Punta Gallinas.jpeg' %}" alt="Punta Gallinas" loading="lazy"><figcaption>Punta Gallinas</figcaption></figure>
+            <figure class="gj gj--c reveal"><img src="{% static 'img/Los Flamencos.jpeg' %}" alt="Los Flamencos" loading="lazy"><figcaption>Los Flamencos</figcaption></figure>
+            <div class="gj__text reveal"><h3>Riohacha</h3><p>La ciudad donde está Hotel W.</p></div>
+            <div class="gj__text reveal"><h3>Cultura Wayuu</h3><p>Una identidad viva que forma parte de la experiencia.</p></div>
+        </div>
+    </div>
+</section>
+
+<!-- 7. GALERÍA -->
+<section class="section section--dark" id="galeria">
+    <div class="wrap">
+        <div class="section__head reveal"><h2>Famosos que han elegido Hotel W</h2></div>
+        <div class="gallery">
+            <figure class="g g1 reveal"><img src="{% static 'img/Ruben Blades.jpeg' %}" alt="Galería Hotel W" loading="lazy"></figure>
+            <figure class="g g2 reveal"><img src="{% static 'img/Blessd.png' %}" alt="Galería Hotel W" loading="lazy"></figure>
+            <figure class="g g3 reveal"><img src="{% static 'img/Bicho.png' %}" alt="Galería Hotel W" loading="lazy"></figure>
+            <figure class="g g4 reveal"><img src="{% static 'img/Arca.png' %}" alt="Galería Hotel W" loading="lazy"></figure>
+        </div>
+    </div>
+</section>
+
+<!-- 8. CTA -->
+<section class="cta">
+    <img class="cta__img" src="{% static 'img/Hotel W 4.jpeg' %}" alt="" loading="lazy">
+    <div class="cta__content reveal">
+        <h2>Una experiencia que se vive.</h2>
+        {% if request.session.usuario_id %}<a href="#reservar" class="btn btn--solid">Reservar</a>{% else %}<a href="{% url 'login' %}" class="btn btn--solid">Iniciar sesión</a>{% endif %}
+    </div>
+</section>
+
+<!-- 9. FOOTER -->
+<footer class="footer" id="contacto">
+    <div class="footer__grid">
+        <div>
+            <a href="#inicio" class="nav__brand">HOTEL W</a>
+            <p class="footer__muted">Hotel W — Experiencia de Lujo en La Guajira · 120 habitaciones · 8 pisos.</p>
+        </div>
+        <div>
+            <h4>Contacto</h4>
+            {% if hotel and hotel.telefono != 'NN' %}<p>{{ hotel.telefono }}</p>{% endif %}
+            {% if hotel and hotel.correo != 'NN' %}<p><a href="mailto:{{ hotel.correo }}">{{ hotel.correo }}</a></p>{% endif %}
+            <p>Recepción 24 horas</p>
+        </div>
+        <div>
+            <h4>Ubicación</h4>
+            <p>{% if hotel and hotel.direccion != 'NN' %}{{ hotel.direccion }}{% else %}Calle 15 # 14B - 205{% endif %}, Riohacha, La Guajira</p>
+        </div>
+        <div>
+            <h4>Navegación</h4>
+            <p><a href="#habitaciones">Habitaciones</a></p>
+            <p><a href="#experiencia">Experiencia</a></p>
+            <p><a href="#bar">W Bar Online</a></p>
+            <p><a href="#guajira">La Guajira</a></p>
+            {% if request.session.usuario_id %}<p><a href="{% url 'cuenta' %}">Mi cuenta</a></p>{% else %}<p><a href="{% url 'login' %}">Iniciar sesión</a></p>{% endif %}
+        </div>
+    </div>
+    <p class="footer__copy">© 2026 Hotel W — Riohacha, La Guajira</p>
+</footer>
+
+<div class="lb" id="lb" aria-hidden="true">
+    <button class="lb__close" id="lbClose" aria-label="Cerrar">&times;</button>
+    <button class="lb__nav lb__prev" id="lbPrev" aria-label="Anterior">&#8249;</button>
+    <img id="lbImg" src="" alt="">
+    <button class="lb__nav lb__next" id="lbNext" aria-label="Siguiente">&#8250;</button>
+</div>
+
+</body>
+</html>

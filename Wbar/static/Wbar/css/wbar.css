@@ -1,0 +1,120 @@
+/* =====================================================================
+   W BAR ONLINE · Hotel W. Solo CSS (sin JavaScript).
+   Negro #0A0A0A · beige/dorado #D8C7AE · Cormorant Garamond (títulos) · Jost (texto)
+   ===================================================================== */
+.wb {
+    --negro: #0A0A0A; --negro-2: #141414; --gris: #1C1C1C; --beige: #D8C7AE; --beige-claro: #E5D8C5;
+    --beige-oscuro: #8A7B66; --texto: #EFE8DC; --suave: #A59C8D; --linea: rgba(216,199,174,.18);
+    --ok: #9DB894; --error: #D98B7C; --alerta: #E3C77A;
+    --serif: "Cormorant Garamond", Georgia, serif; --sans: "Jost", "Helvetica Neue", system-ui, sans-serif;
+    margin: 0; min-height: 100vh; background: var(--negro); color: var(--texto); font-family: var(--sans);
+    font-size: 16px; line-height: 1.55;
+}
+.wb *, .wb *::before, .wb *::after { box-sizing: border-box; }
+.wb a { color: var(--beige); }
+.wb h1, .wb h2, .wb h3 { font-family: var(--sans); font-weight: 500; letter-spacing: .02em; margin: 0; color: #fff; }
+
+/* Barra superior */
+.wb-nav { position: sticky; top: 0; z-index: 10; display: flex; align-items: center; gap: 1.2rem; flex-wrap: wrap;
+    padding: .8rem clamp(1rem, 4vw, 3rem); background: rgba(10,10,10,.94); border-bottom: 1px solid var(--linea); backdrop-filter: blur(6px); }
+.wb-marca { font-family: var(--sans); font-size: 1.5rem; letter-spacing: .18em; text-decoration: none; color: #fff !important; }
+.wb-marca small { display: block; font-family: var(--sans); font-size: .62rem; letter-spacing: .3em; color: var(--beige); }
+.wb-menu { margin-left: auto; display: flex; gap: 1.1rem; align-items: center; flex-wrap: wrap; }
+.wb-menu a, .wb-menu button { color: var(--texto); text-decoration: none; background: none; border: 0; font: inherit; cursor: pointer; padding: .2rem 0; border-bottom: 1px solid transparent; }
+.wb-menu a:hover, .wb-menu button:hover { border-color: var(--beige); color: var(--beige); }
+.wb-menu form { margin: 0; }
+.wb-contador { background: var(--beige); color: var(--negro); border-radius: 999px; padding: 0 .5rem; font-size: .8rem; font-weight: 500; margin-left: .25rem; }
+
+.wb-pagina { max-width: 1240px; margin: 0 auto; padding: 2rem clamp(1rem, 4vw, 3rem) 4rem; }
+.wb-hero { text-align: center; padding: 2.5rem 1rem 1.5rem; }
+.wb-hero .sobre { color: var(--beige); letter-spacing: .35em; font-size: .75rem; text-transform: uppercase; }
+.wb-hero h1 { font-size: clamp(2.4rem, 7vw, 4.2rem); line-height: 1.05; margin: .4rem 0 .6rem; }
+.wb-hero p { max-width: 640px; margin: 0 auto; color: var(--suave); }
+.wb-aviso { margin: 1.2rem auto; max-width: 760px; text-align: center; padding: .7rem 1rem; border: 1px solid var(--linea); border-radius: 4px; color: var(--beige-claro); font-size: .92rem; }
+.wb-aviso strong { color: var(--beige); }
+
+/* Categorías (anclas) */
+.wb-cats { display: flex; gap: .5rem; flex-wrap: wrap; justify-content: center; margin: 1rem 0 2rem; }
+.wb-cats a { text-decoration: none; padding: .35rem 1rem; border: 1px solid var(--linea); border-radius: 999px; font-size: .88rem; color: var(--texto); }
+.wb-cats a:hover { background: var(--beige); color: var(--negro); }
+.wb-seccion { margin-top: 2.5rem; scroll-margin-top: 90px; }
+.wb-seccion > h2 { font-size: 2rem; padding-bottom: .5rem; border-bottom: 1px solid var(--linea); margin-bottom: 1.2rem; }
+.wb-seccion > p { color: var(--suave); margin: -.6rem 0 1rem; }
+
+/* Tarjetas de producto */
+.wb-rejilla { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1.4rem; }
+.wb-prod { background: var(--negro-2); border: 1px solid var(--linea); border-radius: 6px; overflow: hidden; display: flex; flex-direction: column; }
+.wb-prod__foto { aspect-ratio: 4 / 3; background: var(--gris); display: grid; place-items: center; overflow: hidden; }
+.wb-prod__foto img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.wb-prod__foto span { font-family: var(--sans); font-size: 3.2rem; color: var(--beige-oscuro); letter-spacing: .1em; }
+.wb-prod__cuerpo { padding: 1rem 1.1rem 1.2rem; display: flex; flex-direction: column; gap: .35rem; flex: 1; }
+.wb-prod h3 { font-size: 1.45rem; }
+.wb-prod .cat { font-size: .7rem; letter-spacing: .2em; text-transform: uppercase; color: var(--beige); }
+.wb-prod .desc { color: var(--suave); font-size: .92rem; margin: 0; }
+.wb-prod .pres { font-size: .82rem; color: var(--beige-oscuro); }
+.wb-prod .precio { font-family: var(--sans); font-size: 1.6rem; color: var(--beige); margin-top: auto; padding-top: .4rem; }.wb-prod form { display: flex; gap: .5rem; align-items: center; margin-top: .5rem; }
+.wb-sello { display: inline-block; font-size: .68rem; letter-spacing: .12em; text-transform: uppercase; padding: .1rem .55rem; border: 1px solid var(--beige-oscuro); border-radius: 999px; color: var(--beige-claro); }
+.wb-sello--agotado { border-color: var(--error); color: var(--error); }
+
+/* Botones y campos */
+.wb-btn { display: inline-flex; align-items: center; justify-content: center; gap: .4rem; padding: .6rem 1.3rem; border: 1px solid var(--beige); background: var(--beige);
+    color: var(--negro) !important; text-decoration: none; font: inherit; font-weight: 500; letter-spacing: .06em; text-transform: uppercase; font-size: .8rem; cursor: pointer; border-radius: 2px; }
+.wb-btn:hover { background: var(--beige-claro); }
+.wb-btn--linea { background: transparent; color: var(--beige) !important; }
+.wb-btn--linea:hover { background: rgba(216,199,174,.12); }
+.wb-btn--peligro { background: transparent; border-color: var(--error); color: var(--error) !important; }
+.wb .wb-input, .wb input[type=number], .wb input[type=text], .wb select, .wb textarea {
+    background: var(--gris); color: var(--texto); border: 1px solid var(--linea); border-radius: 2px; padding: .55rem .7rem; font: inherit; width: 100%; }
+.wb input[type=number] { width: 4.6rem; }
+.wb input:focus, .wb select:focus, .wb textarea:focus, .wb a:focus-visible, .wb button:focus-visible { outline: 2px solid var(--beige); outline-offset: 2px; }
+.wb label { display: block; font-size: .78rem; letter-spacing: .1em; text-transform: uppercase; color: var(--beige); margin-bottom: .25rem; }
+.wb-campo { margin-bottom: 1.1rem; }
+.wb-campo--check label { text-transform: none; letter-spacing: 0; font-size: .95rem; color: var(--texto); display: flex; gap: .6rem; align-items: flex-start; }
+.wb-campo--check input { margin-top: .3rem; accent-color: var(--beige); }
+.wb-error, .wb .errorlist { color: var(--error); font-size: .85rem; list-style: none; padding: 0; margin: .25rem 0 0; }
+.wb-ayuda { color: var(--suave); font-size: .84rem; }
+
+/* Mensajes */
+.wb-mensajes { list-style: none; padding: 0; margin: 0 0 1.4rem; display: grid; gap: .5rem; }
+.wb-mensaje { padding: .75rem 1rem; border: 1px solid var(--linea); border-left-width: 3px; background: var(--negro-2); }
+.wb-mensaje--success { border-left-color: var(--ok); } .wb-mensaje--error { border-left-color: var(--error); }
+.wb-mensaje--warning { border-left-color: var(--alerta); } .wb-mensaje--info { border-left-color: var(--beige); }
+
+/* Paneles, tablas */
+.wb-panel { background: var(--negro-2); border: 1px solid var(--linea); border-radius: 6px; padding: 1.4rem 1.5rem; margin-bottom: 1.4rem; }
+.wb-panel h2 { font-size: 1.7rem; margin-bottom: .8rem; }
+.wb-dos { display: grid; grid-template-columns: 1.5fr 1fr; gap: 1.4rem; align-items: start; }
+.wb-tabla-wrap { overflow-x: auto; }
+.wb-tabla { width: 100%; border-collapse: collapse; }
+.wb-tabla th { text-align: left; font-weight: 400; font-size: .72rem; letter-spacing: .14em; text-transform: uppercase; color: var(--beige); padding: .5rem .6rem; border-bottom: 1px solid var(--linea); }
+.wb-tabla td { padding: .7rem .6rem; border-bottom: 1px solid var(--linea); vertical-align: middle; }
+.wb-tabla .num { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.wb-total { display: flex; justify-content: space-between; font-family: var(--sans); font-size: 1.8rem; color: var(--beige); padding-top: .8rem; }
+.wb-codigo { text-align: center; padding: 1.2rem; border: 1px dashed var(--beige); border-radius: 6px; margin: 1rem 0; }
+.wb-codigo strong { display: block; font-family: var(--sans); font-size: 3rem; letter-spacing: .4em; color: var(--beige); padding-left: .4em; }
+.wb-codigo small { color: var(--suave); }
+.wb-linea-tiempo { list-style: none; padding: 0; margin: 0; }
+.wb-linea-tiempo li { padding: .5rem 0 .5rem 1.1rem; border-left: 1px solid var(--beige-oscuro); position: relative; font-size: .9rem; }
+.wb-linea-tiempo li::before { content: ""; position: absolute; left: -4px; top: .95rem; width: 7px; height: 7px; border-radius: 50%; background: var(--beige); }
+.wb-linea-tiempo small { display: block; color: var(--suave); }
+.wb-pie { text-align: center; color: var(--suave); font-size: .85rem; padding: 2rem 1rem; border-top: 1px solid var(--linea); }
+
+/* Estados de pedido (cliente y panel) */
+.et--aceptado { background: #E3E8EE; color: #4A5A6B; }
+.et--en_preparacion { background: #F5EBCF; color: #8A6A1F; }
+.et--listo { background: #E7EEE2; color: #4F6B4A; }
+.et--en_camino { background: #D8C7AE; color: #4a3f2c; }
+.et--entregado { background: #0A0A0A; color: #D8C7AE; }
+.wb .et { display: inline-block; padding: .1rem .7rem; border-radius: 999px; font-size: .76rem; white-space: nowrap; }
+.wb .et--pendiente { background: #F5EBCF; color: #8A6A1F; }
+.wb .et--cancelado { background: #F4DFDA; color: #8E3B2F; }
+.pn .et--cancelado { background: var(--error-fondo); color: var(--error); }
+.pn .wb-kv { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: .9rem 1.4rem; }
+.pn .wb-fila-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: .8rem; align-items: end; }
+.pn .wb-foto-mini { width: 54px; height: 54px; object-fit: cover; border-radius: 6px; border: 1px solid var(--linea); background: #F0E9DD; }
+
+@media (max-width: 860px) {
+    .wb-dos { grid-template-columns: 1fr; }
+    .wb-nav { position: static; }
+    .wb-menu { margin-left: 0; width: 100%; }
+}

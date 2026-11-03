@@ -1,0 +1,141 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0c0b0a">
+    <title>Hotel W — Crear cuenta</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="{% static 'css/login.css' %}">
+    <link rel="stylesheet" href="{% static 'css/registro.css' %}">
+
+</head>
+<body>
+
+    <div class="fondo" aria-hidden="true"></div>
+    <div class="fondo-overlay" aria-hidden="true"></div>
+
+    <!-- Botón flotante elegante para volver -->
+    <a href="javascript:history.back()" class="btn-volver-flotante" aria-label="Volver a la página anterior">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M19 12H5M12 19l-7-7 7-7"/>
+        </svg>
+        <span>Volver</span>
+    </a>
+
+    <main class="pagina">
+
+        <header class="marca">
+            <span class="marca__logo">
+                <img src="{% static 'img/logohotelw.jpg' %}" alt="Logo Hotel W">
+            </span>
+            <h1 class="marca__nombre">Hotel W</h1>
+            <span class="marca__regla" aria-hidden="true"></span>
+            <p class="marca__lema">Crea tu cuenta de huésped</p>
+            <p class="marca__lugar">Riohacha, La Guajira</p>
+        </header>
+
+        <section class="panel" aria-labelledby="titulo-registro">
+            <h2 class="panel__titulo" id="titulo-registro">Crear cuenta</h2>
+            <p class="panel__texto">Regístrate para consultar disponibilidad y continuar con tu reserva.</p>
+
+            {% if busqueda %}
+                <div class="aviso aviso--info" role="status">
+                    <span class="aviso__texto">
+                        Tu búsqueda quedó guardada: {{ busqueda.tipo.nombre }}, del {{ busqueda.llegada|date:"d/m/Y" }} al {{ busqueda.salida|date:"d/m/Y" }}.
+                        Al crear tu cuenta continuarás con ella.
+                    </span>
+                </div>
+            {% endif %}
+
+            {% if form.non_field_errors %}
+                <div class="aviso aviso--error" role="alert">
+                    {% for error in form.non_field_errors %}<span class="aviso__texto">{{ error }}</span>{% endfor %}
+                </div>
+            {% endif %}
+
+            <form method="POST" action="{% url 'registro' %}" novalidate>
+                {% csrf_token %}
+
+                <div class="campo{% if form.nombres.errors %} campo--error{% endif %}">
+                    <label for="id_nombres" class="campo__etiqueta">Nombre</label>
+                    <div class="campo__control">
+                        <svg class="campo__icono" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <circle cx="12" cy="8" r="4"/>
+                            <path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/>
+                        </svg>
+                        <input type="text" class="campo__input" id="id_nombres" name="nombres" required maxlength="80" autocomplete="given-name" value="{{ form.nombres.value|default:'' }}"{% if form.nombres.errors %} aria-invalid="true" aria-describedby="err_nombres"{% endif %}>
+                    </div>
+                    {% for error in form.nombres.errors %}<p class="campo__error" id="err_nombres" role="alert">{{ error }}</p>{% endfor %}
+                </div>
+
+                <div class="campo{% if form.apellidos.errors %} campo--error{% endif %}">
+                    <label for="id_apellidos" class="campo__etiqueta">Apellidos</label>
+                    <div class="campo__control">
+                        <svg class="campo__icono" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <circle cx="12" cy="8" r="4"/>
+                            <path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/>
+                        </svg>
+                        <input type="text" class="campo__input" id="id_apellidos" name="apellidos" required maxlength="80" autocomplete="family-name" value="{{ form.apellidos.value|default:'' }}"{% if form.apellidos.errors %} aria-invalid="true" aria-describedby="err_apellidos"{% endif %}>
+                    </div>
+                    {% for error in form.apellidos.errors %}<p class="campo__error" id="err_apellidos" role="alert">{{ error }}</p>{% endfor %}
+                </div>
+
+                <div class="campo{% if form.correo.errors %} campo--error{% endif %}">
+                    <label for="id_correo" class="campo__etiqueta">Correo electrónico</label>
+                    <div class="campo__control">
+                        <svg class="campo__icono" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <rect x="3" y="5" width="18" height="14" rx="2"/>
+                            <path d="M3 7l9 6 9-6"/>
+                        </svg>
+                        <input type="email" class="campo__input" id="id_correo" name="correo" required maxlength="254" autocomplete="email" value="{{ form.correo.value|default:'' }}"{% if form.correo.errors %} aria-invalid="true" aria-describedby="err_correo"{% endif %}>
+                    </div>
+                    {% for error in form.correo.errors %}<p class="campo__error" id="err_correo" role="alert">{{ error }}</p>{% endfor %}
+                </div>
+
+                <div class="campo{% if form.contrasena.errors %} campo--error{% endif %}">
+                    <label for="id_contrasena" class="campo__etiqueta">Contraseña</label>
+                    <div class="campo__control">
+                        <svg class="campo__icono" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <rect x="4" y="10" width="16" height="11" rx="2"/>
+                            <path d="M8 10V7a4 4 0 0 1 8 0v3"/>
+                        </svg>
+                        <input type="password" class="campo__input" id="id_contrasena" name="contrasena" required minlength="8" maxlength="128" autocomplete="new-password" aria-describedby="ayuda_contrasena{% if form.contrasena.errors %} err_contrasena{% endif %}"{% if form.contrasena.errors %} aria-invalid="true"{% endif %}>
+                    </div>
+                    <p class="campo__ayuda" id="ayuda_contrasena">Mínimo 8 caracteres. Evita contraseñas comunes, solo números o parecidas a tus datos.</p>
+                    {% for error in form.contrasena.errors %}<p class="campo__error" id="err_contrasena" role="alert">{{ error }}</p>{% endfor %}
+                </div>
+
+                <div class="campo{% if form.confirmar_contrasena.errors %} campo--error{% endif %}">
+                    <label for="id_confirmar_contrasena" class="campo__etiqueta">Confirmar contraseña</label>
+                    <div class="campo__control">
+                        <svg class="campo__icono" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <rect x="4" y="10" width="16" height="11" rx="2"/>
+                            <path d="M8 10V7a4 4 0 0 1 8 0v3"/>
+                        </svg>
+                        <input type="password" class="campo__input" id="id_confirmar_contrasena" name="confirmar_contrasena" required minlength="8" maxlength="128" autocomplete="new-password"{% if form.confirmar_contrasena.errors %} aria-invalid="true" aria-describedby="err_confirmar"{% endif %}>
+                    </div>
+                    {% for error in form.confirmar_contrasena.errors %}<p class="campo__error" id="err_confirmar" role="alert">{{ error }}</p>{% endfor %}
+                </div>
+
+                <button type="submit" class="boton">
+                    <span class="boton__texto">Crear cuenta</span>
+                </button>
+            </form>
+
+            <p class="panel__enlace">¿Ya tienes una cuenta? <a href="{% url 'login' %}">Inicia sesión</a></p>
+
+            <div class="panel__pie">
+                Las cuentas nuevas son de huésped, sin acceso al panel del hotel
+            </div>
+        </section>
+
+    </main>
+
+</body>
+</html>

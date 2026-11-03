@@ -1,0 +1,61 @@
+{% extends 'panel/base.html' %}{% load panel_extras %}
+{% block title %}Reservas{% endblock %}
+{% block contenido %}
+<div class="pn-titulo"><div><h1>Gestión de reservas</h1><p>{{ pagina.paginator.count }} reserva{{ pagina.paginator.count|pluralize }} con los filtros actuales.</p></div>
+    <a class="pn-btn" href="{% url 'crear_reserva' %}"><i class="bi bi-plus-lg"></i>Nueva reserva</a></div>
+
+<form class="pn-tarjeta pn-filtros" method="get" action="{% url 'gestion_reservas' %}">
+    <div class="pn-campo" style="flex:1;min-width:200px"><label for="q">Código, huésped o habitación</label><input type="search" id="q" name="q" value="{{ q }}" maxlength="80" placeholder="RW-000012, Pérez, 204…"></div>
+    <div class="pn-campo"><label for="estado">Estado</label><select id="estado" name="estado"><option value="">Todos</option>{% for v, t in estados %}<option value="{{ v }}" {% if estado == v %}selected{% endif %}>{{ t }}</option>{% endfor %}</select></div>
+    <div class="pn-campo"><label for="tipo">Tipo de habitación</label><select id="tipo" name="tipo"><option value="">Todos</option>{% for t in tipos %}<option value="{{ t.pk }}" {% if tipo == t.pk|stringformat:"d" %}selected{% endif %}>{{ t.nombre }}</option>{% endfor %}</select></div>
+    <div class="pn-campo"><label for="canal">Origen</label><select id="canal" name="canal"><option value="">Todos</option>{% for v, t in canales %}<option value="{{ v }}" {% if canal == v %}selected{% endif %}>{{ t }}</option>{% endfor %}</select></div>
+    <div class="pn-campo"><label for="desde">Entrada desde</label><input type="date" id="desde" name="desde" value="{{ desde }}"></div>
+    <div class="pn-campo"><label for="hasta">Entrada hasta</label><input type="date" id="hasta" name="hasta" value="{{ hasta }}"></div>
+    {% if orden != '-codigo' %}<input type="hidden" name="orden" value="{{ orden }}">{% endif %}
+    <button class="pn-btn" type="submit"><i class="bi bi-search"></i>Filtrar</button>
+    <a class="pn-btn pn-btn--claro" href="{% url 'gestion_reservas' %}">Limpiar</a>
+</form>
+
+<div class="pn-tabla-wrap">
+<table class="pn-tabla">
+    <thead><tr>
+        <th>{% include 'panel/_orden.html' with clave='codigo' titulo='Código' %}</th>
+        <th>{% include 'panel/_orden.html' with clave='huesped' titulo='Huésped' %}</th>
+        <th>{% include 'panel/_orden.html' with clave='tipo' titulo='Tipo' %}</th>
+        <th>{% include 'panel/_orden.html' with clave='habitacion' titulo='Hab.' %}</th>
+        <th>Estancia</th>
+        <th>{% include 'panel/_orden.html' with clave='entrada' titulo='Entrada' %}</th>
+        <th>{% include 'panel/_orden.html' with clave='salida' titulo='Salida' %}</th>
+        <th>{% include 'panel/_orden.html' with clave='estado' titulo='Estado' %}</th>
+        <th>{% include 'panel/_orden.html' with clave='canal' titulo='Origen' %}</th>
+        <th class="num">{% include 'panel/_orden.html' with clave='valor' titulo='Valor' %}</th>
+        <th class="num">Pagos</th>
+        <th>Acciones</th>
+    </tr></thead>
+    <tbody>
+    {% for r in pagina %}
+    <tr>
+        <td><a href="{% url 'gestion_reserva_detalle' r.pk %}"><strong>{{ r.pk|codigo_reserva }}</strong></a></td>
+        <td><a href="{% url 'gestion_huesped_detalle' r.huesped_id %}">{{ r.huesped.nombres }} {{ r.huesped.apellidos }}</a></td>
+        <td>{{ r.habitacion.tipo.nombre }}</td>
+        <td>{{ r.habitacion.numero }}</td>
+        <td>{{ r.calcular_noches }} noche{{ r.calcular_noches|pluralize }}</td>
+        <td>{{ r.fecha_entrada|date:"d/m/Y" }}</td>
+        <td>{{ r.fecha_salida|date:"d/m/Y" }}</td>
+        <td>{% include 'panel/_estado_reserva.html' %}</td>
+        <td>{{ r.get_canal_reserva_display }}</td>
+        <td class="num">{{ r.valor_total|cop }}</td>
+        <td class="num">{% if r.pagado %}{{ r.pagado|cop }}{% else %}<span class="pn-ayuda">Sin pagos</span>{% endif %}</td>
+        <td><div class="pn-acciones">
+            <a class="pn-btn pn-btn--claro pn-btn--sm" href="{% url 'gestion_reserva_detalle' r.pk %}">Ver</a>
+            {% if r.estado == 'PENDIENTE' %}<a class="pn-btn pn-btn--ok pn-btn--sm" href="{% url 'gestion_reserva_confirmar' r.pk %}">Confirmar</a>{% endif %}
+            {% if r.estado == 'PENDIENTE' or r.estado == 'CONFIRMADA' %}<a class="pn-btn pn-btn--claro pn-btn--sm" href="{% url 'gestion_reserva_editar' r.pk %}">Editar</a>
+            <a class="pn-btn pn-btn--claro pn-btn--sm" href="{% url 'gestion_reserva_cancelar' r.pk %}">Cancelar</a>{% endif %}
+        </div></td>
+    </tr>
+    {% empty %}<tr><td colspan="12" class="pn-vacio">No hay reservas con estos filtros.</td></tr>{% endfor %}
+    </tbody>
+</table>
+</div>
+{% include 'panel/_paginas.html' %}
+{% endblock %}

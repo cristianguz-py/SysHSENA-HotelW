@@ -1,0 +1,91 @@
+{% extends 'Wbar/base_cliente.html' %}{% load wbar_extras %}
+{% block title %}Pedido {{ pedido.numero }}{% endblock %}
+{% block contenido %}
+<section class="wb-hero">
+    <p class="sobre">Pedido</p>
+    <h1>{{ pedido.numero }}</h1>
+    <p><span class="et et--{{ pedido.estado|lower }}">{{ pedido.get_estado_display }}</span> · Habitación {{ pedido.habitacion.numero }}</p>
+</section>
+
+<div class="wb-dos">
+    <div>
+        <div class="wb-panel">
+            <h2>Productos</h2>
+            <div class="wb-tabla-wrap">
+                <table class="wb-tabla">
+                    <thead>
+                        <tr>
+                            <th>Producto</th>
+                            <th class="num">Precio</th>
+                            <th class="num">Cant.</th>
+                            <th class="num">Subtotal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for d in pedido.detalles.all %}
+                        <tr>
+                            <td>{{ d.nombre_producto }}{% if d.contiene_alcohol %} <span class="wb-sello">Alcohol</span>{% endif %}</td>
+                            <td class="num">{{ d.precio_unitario|cop }}</td>
+                            <td class="num">{{ d.cantidad }}</td>
+                            <td class="num">{{ d.subtotal|cop }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="wb-total">
+                <span>Total</span>
+                <span>{{ pedido.total|cop }}</span>
+            </div>
+
+            {% if pedido.notas %}
+            <p class="wb-ayuda">Nota: {{ pedido.notas }}</p>
+            {% endif %}
+
+            <p class="wb-ayuda">
+                {% if pedido.estado_pago == 'COBRADO' %}Pagado en la habitación.
+                {% elif pedido.estado_pago == 'CARGO_CUENTA' %}Cargado a la cuenta de tu habitación; se liquida en el check-out.
+                {% elif pedido.estado == 'CANCELADO' %}Pedido cancelado{% if pedido.motivo_cancelacion %}: {{ pedido.motivo_cancelacion }}{% endif %}.
+                {% else %}Pagas al recibir el pedido en tu habitación.{% endif %}
+            </p>
+
+            {% if pedido.contiene_alcohol %}
+            <p class="wb-aviso"><strong>{{ aviso_alcohol }}</strong> El personal verificará tu documento antes de entregar bebidas alcohólicas.</p>
+            {% endif %}
+
+            {% if puede_cancelar %}
+            <form method="post" action="{% url 'wbar:pedido_cancelar' pedido.pk %}">
+                {% csrf_token %}
+                <button class="wb-btn wb-btn--peligro" type="submit">Cancelar pedido</button>
+            </form>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div>
+        {% if codigo %}
+        <div class="wb-panel">
+            <h2>Código de entrega</h2>
+            <div class="wb-codigo">
+                <strong>{{ codigo }}</strong>
+                <small>Díselo al personal cuando llegue a tu puerta. Es personal y de un solo uso: no lo compartas con nadie más.</small>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="wb-panel">
+            <h2>Seguimiento</h2>
+            <ul class="wb-linea-tiempo">
+                {% for e in pedido.eventos.all %}
+                    {% if e.estado_anterior != e.estado_nuevo %}
+                    <li>{{ e.get_estado_nuevo_display|default:e.estado_nuevo }}<small>{{ e.fecha|date:"d/m/Y H:i" }}</small></li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+        </div>
+
+        <a class="wb-btn wb-btn--linea" href="{% url 'wbar:mis_pedidos' %}">Todos mis pedidos</a>
+    </div>
+</div>
+{% endblock %}

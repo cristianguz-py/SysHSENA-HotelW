@@ -1,0 +1,49 @@
+{% extends 'Wbar/base_gestion.html' %}
+{% block title %}Categorías{% endblock %}
+{% block contenido %}
+<div class="pn-titulo">
+    <div>
+        <h1>Categorías</h1>
+        <p>El menú del huésped sigue este orden.</p>
+    </div>
+    <a class="pn-btn" href="{% url 'wbar:gestion_categoria_nueva' %}">Nueva categoría</a>
+</div>
+
+<div class="pn-tabla-wrap">
+    <table class="pn-tabla">
+        <thead>
+            <tr>
+                <th>Orden</th>
+                <th>Nombre</th>
+                <th>Productos</th>
+                <th>Estado</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for c in categorias %}
+            <tr>
+                <td>{{ c.orden }}</td>
+                <td>
+                    {{ c.nombre }}
+                    <span class="sub">{{ c.descripcion }}</span>
+                </td>
+                <td>{{ c.n }}</td>
+                <td>
+                    {% if c.activa %}
+                    <span class="et et--activo">Activa</span>
+                    {% else %}
+                    <span class="et et--inactivo">Inactiva</span>
+                    {% endif %}
+                </td>
+                <td><a class="pn-btn pn-btn--sm" href="{% url 'wbar:gestion_categoria_editar' c.pk %}">Editar</a></td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5" class="pn-vacio">Aún no hay categorías. Crea la primera, o ejecuta <code>python manage.py cargar_categorias_wbar</code>.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

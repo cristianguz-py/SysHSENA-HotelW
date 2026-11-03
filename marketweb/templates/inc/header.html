@@ -1,0 +1,62 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0A0A0A">
+    <title>{% block title %}Hotel W — Sistema de Gestión{% endblock %}</title>
+
+    <!-- Tipografías de marca (Cormorant Garamond + Jost) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+    <!-- CSS Locales (hotelw-layout.css va después de styles.css para poder sobrescribirlo) -->
+    <link rel="stylesheet" href="{% static 'css/bootstrap.css' %}">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <link rel="stylesheet" href="{% static 'css/hotelw-layout.css' %}">
+
+    <!-- Bootstrap Icons CDN -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+</head>
+<body class="bg-light">
+
+    <!-- Navbar Corporativo -->
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top navbar-walena hw-nav">
+        <div class="container">
+
+            <a class="navbar-brand hw-marca" href="{% url 'inicio' %}">
+                <span class="hw-marca__logo">
+                    <img src="{% static 'img/logohotelw.jpg' %}" alt="Logo Hotel W">
+                </span>
+                <span class="hw-marca__texto">
+                    <strong>HOTEL W</strong>
+                    <small>Riohacha · La Guajira</small>
+                </span>
+            </a>
+
+            <!-- Botón Toggler para dispositivos móviles -->
+
+            <!-- Contenido del Nav -->
+            <div class="collapse navbar-collapse" id="navbarMain">
+
+                <ul class="navbar-nav me-auto ms-lg-4">
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'inicio' %}active{% endif %}" href="{% url 'inicio' %}">Inicio</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'disponibilidad' %}active{% endif %}" href="{% url 'disponibilidad' %}">Disponibilidad</a>
+                    </li>
+                </ul>
+
+                <div class="hw-nav__derecha">
+                    <span class="hw-nav__dir d-lg-none d-xl-inline">
+                        <i class="bi bi-geo-alt"></i>
+                        Calle 15 # 14B - 205, Riohacha
+                    </span>
+                </div>
+
+            </div>
+        </div>
+    </nav>

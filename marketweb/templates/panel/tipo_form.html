@@ -1,0 +1,21 @@
+{% extends 'panel/base.html' %}
+{% block title %}Editar tipo{% endblock %}
+{% block contenido %}
+<div class="pn-titulo">
+    <div>
+        <h1>Tipo «{{ tipo.nombre }}»</h1>
+    </div>
+</div>
+<form method="post" class="pn-tarjeta">{% csrf_token %}
+    <div class="pn-formulario">
+        {% for campo in form %}
+        {% include 'panel/_campo.html' with ancho=campo.name %}
+        {% endfor %}
+    </div>
+    <p class="pn-nota" style="margin-top:1rem">El nuevo precio se usa en reservas nuevas y en el cálculo de check-out. Las reservas confirmadas conservan el valor ya guardado hasta que se editen.</p>
+    <div class="pn-acciones" style="margin-top:1rem">
+        <button class="pn-btn" type="submit">Guardar</button>
+        <a class="pn-btn pn-btn--claro" href="{% url 'gestion_habitaciones' %}">Cancelar</a>
+    </div>
+</form>
+{% endblock %}

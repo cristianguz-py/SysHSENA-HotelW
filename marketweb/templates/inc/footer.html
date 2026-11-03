@@ -1,0 +1,31 @@
+{% load static %}
+<!-- Footer Corporativo -->
+    <footer class="mt-auto footer-walena hw-foot">
+        <div class="container hw-foot__inner">
+
+            <div class="hw-foot__marca">
+                <span class="hw-marca__logo">
+                    <img src="{% static 'img/logohotelw.jpg' %}" alt="Logo Hotel W">
+                </span>
+                <div>
+                    <strong class="hw-foot__nombre">HOTEL W</strong>
+                    <p class="hw-foot__lema">Una experiencia que se vive.</p>
+                </div>
+            </div>
+
+            <p class="hw-foot__dir">
+                <i class="bi bi-geo-alt"></i>
+                Calle 15 # 14B - 205, Riohacha, La Guajira, Colombia
+            </p>
+
+            <p class="hw-foot__legal">
+                Hotel W — Sistema de Gestión Hotelera<br>
+                © {% now "Y" %}
+            </p>
+
+        </div>
+    </footer>
+
+    
+</body>
+</html>

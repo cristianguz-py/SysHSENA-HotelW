@@ -1,0 +1,77 @@
+{% extends 'panel/base.html' %}{% load panel_extras %}
+{% block title %}Servicios y limpieza{% endblock %}
+{% block contenido %}
+<div class="pn-titulo">
+    <div>
+        <h1>Servicios y limpieza</h1>
+        <p>Habitaciones por habilitar y consumos de huéspedes en casa.</p>
+    </div>
+</div>
+<div class="pn-rejilla pn-iguales">
+    <section class="pn-tarjeta">
+        <h2>Aseo y mantenimiento ({{ pendientes|length }})</h2>
+        {% if pendientes %}
+        <ul class="pn-lista">
+            {% for h in pendientes %}
+            <li>
+                <span><a href="{% url 'gestion_habitacion_detalle' h.pk %}"><strong>Hab. {{ h.numero }}</strong></a> · {{ h.tipo.nombre }} · piso {{ h.piso }}</span>
+                <span class="pn-acciones"><span class="et et--{{ h.estado|lower }}">{{ h.get_estado_display }}</span>
+                <form method="post" action="{% url 'gestion_habilitar' h.pk %}">{% csrf_token %}<button class="pn-btn pn-btn--ok pn-btn--sm" type="submit">Habilitar</button></form></span>
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p class="pn-vacio">No hay habitaciones pendientes de aseo ni en mantenimiento.</p>
+        {% endif %}
+    </section>
+    <section class="pn-tarjeta">
+        <h2>Cargar consumo</h2>
+        {% if not catalogo %}
+        <p class="pn-vacio">No hay servicios en el catálogo de la base de datos.</p>
+        {% else %}
+        <form method="post">{% csrf_token %}
+            {% if form.non_field_errors %}
+            <ul class="pn-mensajes">
+                {% for e in form.non_field_errors %}
+                <li class="pn-mensaje pn-mensaje--error">{{ e }}</li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+            <div class="pn-formulario">
+                {% for campo in form %}
+                {% include 'panel/_campo.html' with ancho=forloop.first %}
+                {% endfor %}
+            </div>
+            <p class="pn-ayuda" style="margin-top:.5rem">El precio sale del catálogo; el consumo se suma a la cuenta en el check-out.</p>
+            <button class="pn-btn" type="submit" style="margin-top:.7rem">Cargar a la cuenta</button>
+        </form>
+        {% endif %}
+    </section>
+</div>
+<div class="pn-rejilla pn-iguales" style="margin-top:1rem">
+    <section class="pn-tarjeta">
+        <h2>Consumos recientes (en casa)</h2>
+        {% if consumos %}
+        <ul class="pn-lista">
+            {% for c in consumos %}
+            <li><span>Hab. {{ c.reserva.habitacion.numero }} · {{ c.cantidad }} × {{ c.servicio.nombre }}</span><strong>{{ c.subtotal|cop }}</strong></li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p class="pn-vacio">Sin consumos registrados.</p>
+        {% endif %}
+    </section>
+    <section class="pn-tarjeta">
+        <h2>Catálogo de servicios</h2>
+        {% if catalogo %}
+        <ul class="pn-lista">
+            {% for s in catalogo %}
+            <li><span>{{ s.nombre }} <span class="pn-ayuda">· {{ s.get_categoria_display }}</span></span><strong>{{ s.precio|cop }}</strong></li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p class="pn-vacio">Catálogo vacío.</p>
+        {% endif %}
+    </section>
+</div>
+{% endblock %}

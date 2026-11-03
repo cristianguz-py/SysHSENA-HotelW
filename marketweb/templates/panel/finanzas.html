@@ -1,0 +1,99 @@
+{% extends 'panel/base.html' %}{% load panel_extras %}
+{% block title %}Finanzas e informes{% endblock %}
+{% block contenido %}
+<div class="pn-titulo">
+    <div>
+        <h1>Finanzas e informes</h1>
+        <p>Reservas con entrada entre {{ desde|date:"d/m/Y" }} y {{ hasta|date:"d/m/Y" }}.</p>
+    </div>
+    <a class="pn-btn" href="{% url 'gestion_finanzas_exportar' %}?{{ qs_export }}"><i class="bi bi-download"></i>Exportar CSV</a>
+</div>
+<form class="pn-tarjeta pn-filtros" method="get">
+    <div class="pn-campo">
+        <label for="desde">Desde</label>
+        <input type="date" id="desde" name="desde" value="{{ desde|date:'Y-m-d' }}">
+    </div>
+    <div class="pn-campo">
+        <label for="hasta">Hasta</label>
+        <input type="date" id="hasta" name="hasta" value="{{ hasta|date:'Y-m-d' }}">
+    </div>
+    <button class="pn-btn" type="submit">Aplicar</button>
+    <a class="pn-btn pn-btn--claro" href="{% url 'gestion_finanzas' %}">Mes actual</a>
+</form>
+
+<section class="pn-rejilla pn-kpis">
+    <article class="pn-tarjeta pn-kpi">
+        <small>Total de reservas</small>
+        <span class="valor">{{ m.total }}</span>
+        <span class="sub">{{ m.confirmadas }} confirmadas · {{ m.pendientes }} pendientes · {{ m.canceladas }} canceladas</span>
+    </article>
+    <article class="pn-tarjeta pn-kpi">
+        <small>Importe reservado</small>
+        <span class="valor">{{ m.reservado|cop }}</span>
+        <span class="sub">no canceladas (pendientes incluidas)</span>
+    </article>
+    <article class="pn-tarjeta pn-kpi">
+        <small>Importe confirmado</small>
+        <span class="valor">{{ m.confirmado|cop }}</span>
+        <span class="sub">confirmadas, en casa y finalizadas</span>
+    </article>
+    <article class="pn-tarjeta pn-kpi">
+        <small>Recaudado</small>
+        <span class="valor">{{ m.recaudado|cop }}</span>
+        <span class="sub">{{ pagos_total }} pago{{ pagos_total|pluralize }} registrado{{ pagos_total|pluralize }}</span>
+    </article>
+    <article class="pn-tarjeta pn-kpi">
+        <small>Duración promedio</small>
+        <span class="valor">{% if m.prom_noches is None %}—{% else %}{{ m.prom_noches|floatformat:1 }} noches{% endif %}</span>
+        <span class="sub">reservas no canceladas</span>
+    </article>
+    <article class="pn-tarjeta pn-kpi">
+        <small>Ocupación</small>
+        <span class="valor">{{ ocupacion.porcentaje|pct }}</span>
+        <span class="sub">{{ ocupacion.noches_vendidas }} de {{ ocupacion.noches_disponibles }} noches ({{ ocupacion.habitaciones }} hab. operativas)</span>
+    </article>
+</section>
+<p class="pn-nota">Los pagos en línea no están implementados: «Recaudado» solo suma pagos que alguien haya registrado en la base de datos y los importes reservados no deben leerse como dinero cobrado. La ocupación usa las habitaciones operativas actuales y solo reservas firmes.</p>
+
+<div class="pn-rejilla pn-dos" style="margin-top:1rem">
+    <section class="pn-tarjeta">
+        <h2>Resumen mensual</h2>
+        <div class="pn-tabla-wrap">
+            <table class="pn-tabla">
+                <thead>
+                    <tr>
+                        <th>Mes</th>
+                        <th class="num">Reservas</th>
+                        <th class="num">Confirm.</th>
+                        <th class="num">Pend.</th>
+                        <th class="num">Cancel.</th>
+                        <th class="num">Reservado</th>
+                        <th class="num">Confirmado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for f in mensual %}
+                    <tr>
+                        <td>{{ f.nombre }}</td>
+                        <td class="num">{{ f.total }}</td>
+                        <td class="num">{{ f.confirmadas }}</td>
+                        <td class="num">{{ f.pendientes }}</td>
+                        <td class="num">{{ f.canceladas }}</td>
+                        <td class="num">{{ f.reservado|cop }}</td>
+                        <td class="num">{{ f.confirmado|cop }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="pn-vacio">Sin reservas en el periodo.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+    <section class="pn-tarjeta">
+        <h2>Reservas por tipo de habitación</h2>
+        {% include 'panel/_anillo.html' %}
+    </section>
+</div>
+{% endblock %}

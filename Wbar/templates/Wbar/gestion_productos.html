@@ -1,0 +1,114 @@
+{% extends 'Wbar/base_gestion.html' %}{% load wbar_extras %}
+{% block title %}Productos{% endblock %}
+{% block contenido %}
+<div class="pn-titulo">
+    <div>
+        <h1>Productos</h1>
+        <p>Los productos no se borran: se desactivan, para conservar el historial de pedidos.</p>
+    </div>
+    <a class="pn-btn" href="{% url 'wbar:gestion_producto_nuevo' %}">Nuevo producto</a>
+</div>
+
+<form class="pn-filtros" method="get">
+    <div class="pn-campo">
+        <label for="f-q">Nombre</label>
+        <input id="f-q" type="search" name="q" value="{{ q }}" maxlength="60">
+    </div>
+    <div class="pn-campo">
+        <label for="f-c">Categoría</label>
+        <select id="f-c" name="categoria">
+            <option value="">Todas</option>
+            {% for c in categorias %}
+            <option value="{{ c.pk }}" {% if cat == c.pk %}selected{% endif %}>{{ c.nombre }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <button class="pn-btn" type="submit">Filtrar</button>
+</form>
+
+<div class="pn-tabla-wrap">
+    <table class="pn-tabla">
+        <thead>
+            <tr>
+                <th>Foto</th>
+                <th>Producto</th>
+                <th>Categoría</th>
+                <th class="num">Precio</th>
+                <th>Stock</th>
+                <th>Estado</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in pagina %}
+            <tr>
+                <td>
+                    {% if p.imagen %}
+                    <img class="wb-foto-mini" src="{{ p.imagen.url }}" alt="">
+                    {% else %}
+                    <span class="pn-ayuda">Sin foto</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {{ p.nombre }}
+                    {% if p.contiene_alcohol %}<span class="sub">Contiene alcohol</span>{% endif %}
+                </td>
+                <td>{{ p.categoria.nombre }}</td>
+                <td class="num">{{ p.precio|cop }}</td>
+                <td>{% if p.stock is None %}—{% else %}{{ p.stock }}{% endif %}</td>
+                <td>
+                    {% if p.activo %}
+                    <span class="et et--activo">Activo</span>
+                    {% else %}
+                    <span class="et et--inactivo">Inactivo</span>
+                    {% endif %}
+                    
+                    {% if not p.disponible %}
+                    <span class="et et--pendiente">Agotado</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <div class="pn-acciones">
+                        <a class="pn-btn pn-btn--sm" href="{% url 'wbar:gestion_producto_editar' p.pk %}">Editar</a>
+                        
+                        <form method="post" action="{% url 'wbar:gestion_producto_alternar' p.pk %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="campo" value="disponible">
+                            <button class="pn-btn pn-btn--sm pn-btn--claro" type="submit">
+                                {% if p.disponible %}Marcar agotado{% else %}Marcar disponible{% endif %}
+                            </button>
+                        </form>
+                        
+                        <form method="post" action="{% url 'wbar:gestion_producto_alternar' p.pk %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="campo" value="activo">
+                            <button class="pn-btn pn-btn--sm pn-btn--claro" type="submit">
+                                {% if p.activo %}Desactivar{% else %}Activar{% endif %}
+                            </button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="7" class="pn-vacio">No hay productos. Crea el primero con «Nuevo producto».</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% if pagina.has_other_pages %}
+<div class="pn-paginas">
+    {% if pagina.has_previous %}
+    <a class="pn-btn pn-btn--sm pn-btn--claro" href="?q={{ q|urlencode }}&categoria={{ cat }}&page={{ pagina.previous_page_number }}">Anterior</a>
+    {% endif %}
+    
+    <span>Página {{ pagina.number }} de {{ pagina.paginator.num_pages }}</span>
+    
+    {% if pagina.has_next %}
+    <a class="pn-btn pn-btn--sm pn-btn--claro" href="?q={{ q|urlencode }}&categoria={{ cat }}&page={{ pagina.next_page_number }}">Siguiente</a>
+    {% endif %}
+</div>
+{% endif %}
+{% endblock %}

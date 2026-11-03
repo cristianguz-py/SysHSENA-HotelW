@@ -1,0 +1,134 @@
+{% extends 'panel/base.html' %}{% load panel_extras %}
+{% block title %}Inicio{% endblock %}
+{% block contenido %}
+<div class="pn-titulo">
+    <div>
+        <h1>Inicio</h1>
+        <p>Periodo analizado: {{ desde|date:"d/m/Y" }} – {{ hasta|date:"d/m/Y" }} · comparado con {{ ant_desde|date:"d/m/Y" }} – {{ ant_hasta|date:"d/m/Y" }}</p>
+    </div>
+</div>
+
+<form class="pn-tarjeta pn-filtros" method="get" action="{% url 'gestion' %}">
+    <div class="pn-campo"><label for="desde">Reservas desde</label><input type="date" id="desde" name="desde" value="{{ desde|date:'Y-m-d' }}"></div>
+    <div class="pn-campo"><label for="hasta">Hasta</label><input type="date" id="hasta" name="hasta" value="{{ hasta|date:'Y-m-d' }}"></div>
+    <div class="pn-campo"><label for="meses">Meses en la tendencia</label>
+        <select id="meses" name="meses">
+            <option value="3" {% if meses == 3 %}selected{% endif %}>3 meses</option>
+            <option value="6" {% if meses == 6 %}selected{% endif %}>6 meses</option>
+            <option value="12" {% if meses == 12 %}selected{% endif %}>12 meses</option>
+        </select></div>
+    <div class="pn-campo"><label for="disp_entrada">Disponibilidad: entrada</label><input type="date" id="disp_entrada" name="disp_entrada" value="{{ d_entrada|date:'Y-m-d' }}"></div>
+    <div class="pn-campo"><label for="disp_salida">Salida</label><input type="date" id="disp_salida" name="disp_salida" value="{{ d_salida|date:'Y-m-d' }}"></div>
+    <button class="pn-btn" type="submit"><i class="bi bi-funnel"></i>Aplicar</button>
+    <a class="pn-btn pn-btn--claro" href="{% url 'gestion' %}">Restablecer</a>
+</form>
+
+<section class="pn-rejilla pn-kpis" aria-label="Indicadores principales">
+    <article class="pn-tarjeta pn-kpi">
+        <small>Reservas de hoy</small>
+        <span class="valor">{{ hoy_conteos.entran_hoy }}</span>
+        <span class="sub">con entrada hoy · {{ hoy_conteos.creadas_hoy }} creada{{ hoy_conteos.creadas_hoy|pluralize }} hoy</span>
+    </article>
+    <article class="pn-tarjeta pn-kpi">
+        <small>Reservas del periodo</small>
+        <span class="valor">{{ m.total }}</span>
+        <span class="sub">{{ m.pendientes }} pendiente{{ m.pendientes|pluralize }} de confirmar</span>
+        <span class="var var--{{ var_reservas.clase }}">{{ var_reservas.texto }}</span>
+    </article>
+    <article class="pn-tarjeta pn-kpi">
+        <small>Duración promedio</small>
+        <span class="valor">{% if m.prom_noches is None %}—{% else %}{{ m.prom_noches|floatformat:1 }} noches{% endif %}</span>
+        <span class="sub">reservas no canceladas</span>
+    </article>
+    <article class="pn-tarjeta pn-kpi">
+        <small>Confirmación</small>
+        <span class="valor">{{ m.pct_confirmacion|pct }}</span>
+        <span class="sub">{{ m.confirmadas }} de {{ m.total }} reservas</span>
+    </article>
+    <article class="pn-tarjeta pn-kpi">
+        <small>Cancelación</small>
+        <span class="valor">{{ m.pct_cancelacion|pct }}</span>
+        <span class="sub">{{ m.canceladas }} de {{ m.total }} reservas</span>
+        <span class="var var--{{ var_cancelacion.clase }}">{{ var_cancelacion.texto }}</span>
+    </article>
+    <article class="pn-tarjeta pn-kpi">
+        <small>Habitaciones disponibles</small>
+        <span class="valor">{{ disponibles }}</span>
+        <span class="sub">del {{ d_entrada|date:"d/m" }} al {{ d_salida|date:"d/m/Y" }} · {{ operativas }} operativas</span>
+    </article>
+    <article class="pn-tarjeta pn-kpi">
+        <small>Importe reservado</small>
+        <span class="valor">{{ m.reservado|cop }}</span>
+        <span class="sub">sin cancelaciones · confirmado: {{ m.confirmado|cop }}</span>
+        <span class="var var--{{ var_reservado.clase }}">{{ var_reservado.texto }}</span>
+    </article>
+    <article class="pn-tarjeta pn-kpi">
+        <small>Recaudado (pagos registrados)</small>
+        <span class="valor">{{ m.recaudado|cop }}</span>
+        <span class="sub">{% if m.recaudado %}suma de pagos en la base de datos{% else %}Aún no hay pagos registrados{% endif %}</span>
+    </article>
+    <article class="pn-tarjeta pn-kpi">
+        <small>Llegadas de hoy</small>
+        <a class="valor" href="{% url 'gestion_llegadas' %}">{{ hoy_conteos.entran_hoy }}</a>
+        <span class="sub">{{ hoy_conteos.llegadas_pendientes }} sin check-in todavía</span>
+    </article>
+    <article class="pn-tarjeta pn-kpi">
+        <small>Salidas de hoy</small>
+        <a class="valor" href="{% url 'gestion_llegadas' %}">{{ hoy_conteos.salidas_hoy }}</a>
+        <span class="sub">{{ hoy_conteos.salidas_pendientes }} sin check-out todavía</span>
+    </article>
+</section>
+
+<div class="pn-rejilla pn-dos">
+    <section class="pn-tarjeta" aria-labelledby="t-tendencia">
+        <header><h2 id="t-tendencia">Tendencia de reservas</h2>
+            <ul class="pn-leyenda" style="display:flex;gap:1rem;margin:0">
+                <li><span class="cuadro" style="background:#0A0A0A"></span>Confirmadas ({{ tendencia.total_confirmadas }})</li>
+                <li><span class="cuadro" style="background:#8A7B66"></span>Canceladas ({{ tendencia.total_canceladas }})</li>
+            </ul>
+        </header>
+        <p class="pn-ayuda">Por mes de entrada, hasta {{ hasta|date:"F Y" }}. Confirmadas incluye reservas en casa y finalizadas.</p>
+        {% if not tendencia.hay_datos %}<p class="pn-vacio">No hay reservas en estos meses; las barras aparecen en cero.</p>{% endif %}
+        <svg class="pn-svg" viewBox="0 0 {{ tendencia.ancho }} {{ tendencia.alto }}" role="img" aria-label="Reservas confirmadas y canceladas por mes">
+            {% for t in tendencia.ticks %}
+                <line class="rejilla" x1="{{ tendencia.izq }}" x2="{{ tendencia.der_x }}" y1="{{ t.y }}" y2="{{ t.y }}"/>
+                <text class="tick" x="{{ tendencia.izq|add:'-8' }}" y="{{ t.y }}" dy="4">{{ t.valor }}</text>
+            {% endfor %}
+            <line class="eje" x1="{{ tendencia.izq }}" x2="{{ tendencia.der_x }}" y1="{{ tendencia.base_y }}" y2="{{ tendencia.base_y }}"/>
+            {% for mes in tendencia.meses %}
+                <rect class="barra--conf" x="{{ mes.confirmadas_svg.x }}" y="{{ mes.confirmadas_svg.y }}" width="{{ mes.confirmadas_svg.w }}" height="{{ mes.confirmadas_svg.h }}" rx="2"><title>{{ mes.nombre }}: {{ mes.confirmadas }} confirmadas</title></rect>
+                <rect class="barra--canc" x="{{ mes.canceladas_svg.x }}" y="{{ mes.canceladas_svg.y }}" width="{{ mes.canceladas_svg.w }}" height="{{ mes.canceladas_svg.h }}" rx="2"><title>{{ mes.nombre }}: {{ mes.canceladas }} canceladas</title></rect>
+                <text class="valor" x="{{ mes.confirmadas_svg.tx }}" y="{{ mes.confirmadas_svg.ty }}">{{ mes.confirmadas }}</text>
+                <text class="valor" x="{{ mes.canceladas_svg.tx }}" y="{{ mes.canceladas_svg.ty }}">{{ mes.canceladas }}</text>
+                <text class="mes" x="{{ mes.etiqueta_x }}" y="{{ tendencia.y_etiqueta }}">{{ mes.etiqueta }}</text>
+            {% endfor %}
+        </svg>
+    </section>
+
+    <section class="pn-tarjeta" aria-labelledby="t-tipos">
+        <h2 id="t-tipos">Habitaciones más reservadas</h2>
+        <p class="pn-ayuda">Reservas no canceladas del periodo, por tipo de habitación.</p>
+        {% include 'panel/_anillo.html' with tipos=tipos %}
+    </section>
+</div>
+
+<section class="pn-tarjeta" aria-labelledby="t-actividad">
+    <header><h2 id="t-actividad">Actividad reciente</h2><a class="pn-btn pn-btn--claro pn-btn--sm" href="{% url 'gestion_reservas' %}">Ver todas las reservas</a></header>
+    {% if actividad %}
+    <ul class="pn-lista">
+        {% for r in actividad %}
+        <li>
+            <span><a href="{% url 'gestion_reserva_detalle' r.pk %}"><strong>{{ r.pk|codigo_reserva }}</strong></a> · {{ r.huesped.nombres }} {{ r.huesped.apellidos }} · Hab. {{ r.habitacion.numero }}
+                <span class="pn-ayuda">· creada el {{ r.fecha_creacion|date:"d/m/Y H:i" }}</span></span>
+            {% include 'panel/_estado_reserva.html' %}
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}<p class="pn-vacio">Todavía no hay reservas registradas.</p>{% endif %}
+</section>
+
+<p class="pn-nota" style="margin-top:1rem">
+    <strong>Cómo se calcula:</strong> el periodo toma las reservas por fecha de entrada. «Confirmadas» incluye confirmadas, en casa y finalizadas;
+    los porcentajes se calculan sobre el total del periodo. El importe reservado excluye canceladas y no es dinero cobrado: lo cobrado sale únicamente de los pagos registrados.
+</p>
+{% endblock %}

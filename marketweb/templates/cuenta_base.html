@@ -1,0 +1,41 @@
+{% load static %}<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0A0A0A">
+    <title>{% block title %}Hotel W{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/home.css' %}">
+    <link rel="stylesheet" href="{% static 'css/cuenta.css' %}">
+</head>
+<body>
+
+<header class="cnav">
+    <a href="{% url 'home' %}" class="nav__brand">HOTEL W</a>
+    <nav class="cnav__menu" aria-label="Principal">
+        <a href="{% url 'home' %}">Inicio</a>
+        {% if request.session.usuario_rol == 'CLIENTE' %}
+            <a href="{% url 'mis_reservas' %}">Mis reservas</a>
+        {% elif request.session.usuario_id %}
+            <a href="{% url 'inicio' %}">Panel</a>
+        {% endif %}
+        {% include "cuenta_menu.html" %}
+    </nav>
+</header>
+
+<main class="cpag">
+    {% if messages %}
+        <div class="cmensajes">
+            {% for message in messages %}
+                <p class="cmensaje cmensaje--{{ message.tags|default:'info' }}" role="status">{{ message }}</p>
+            {% endfor %}
+        </div>
+    {% endif %}
+    {% block contenido %}{% endblock %}
+</main>
+
+</body>
+</html>

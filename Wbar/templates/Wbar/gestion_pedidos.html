@@ -1,0 +1,80 @@
+{% extends 'Wbar/base_gestion.html' %}{% load wbar_extras %}
+{% block title %}Pedidos{% endblock %}
+{% block contenido %}
+<div class="pn-titulo">
+    <div>
+        <h1>Pedidos del W Bar</h1>
+        <p>{{ abiertos }} pedido{{ abiertos|pluralize }} en curso.</p>
+    </div>
+</div>
+
+<form class="pn-filtros" method="get">
+    <div class="pn-campo">
+        <label for="f-estado">Estado</label>
+        <select id="f-estado" name="estado">
+            <option value="ABIERTOS" {% if estado == 'ABIERTOS' %}selected{% endif %}>En curso</option>
+            <option value="TODOS" {% if estado == 'TODOS' %}selected{% endif %}>Todos</option>
+            {% for k, v in estados %}
+            <option value="{{ k }}" {% if estado == k %}selected{% endif %}>{{ v }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="pn-campo">
+        <label for="f-q">Buscar</label>
+        <input id="f-q" type="search" name="q" value="{{ q }}" maxlength="40" placeholder="N.º pedido, habitación o huésped">
+    </div>
+    <button class="pn-btn" type="submit">Filtrar</button>
+</form>
+
+<div class="pn-tabla-wrap">
+    <table class="pn-tabla">
+        <thead>
+            <tr>
+                <th>Pedido</th>
+                <th>Habitación</th>
+                <th>Huésped</th>
+                <th>Fecha</th>
+                <th>Estado</th>
+                <th>Pago</th>
+                <th class="num">Total</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in pagina %}
+            <tr>
+                <td>
+                    <strong>{{ p.numero }}</strong>
+                    {% if p.contiene_alcohol %}<span class="sub">Contiene alcohol</span>{% endif %}
+                </td>
+                <td>{{ p.habitacion.numero }}</td>
+                <td>{{ p.usuario.nombres }} {{ p.usuario.apellidos }}</td>
+                <td>{{ p.creado|date:"d/m/Y H:i" }}</td>
+                <td><span class="et et--{{ p.estado|lower }}">{{ p.get_estado_display }}</span></td>
+                <td>{{ p.get_estado_pago_display }}</td>
+                <td class="num">{{ p.total|cop }}</td>
+                <td><a class="pn-btn pn-btn--sm" href="{% url 'wbar:gestion_pedido' p.pk %}">Abrir</a></td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="8" class="pn-vacio">No hay pedidos con este filtro.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% if pagina.has_other_pages %}
+<div class="pn-paginas">
+    {% if pagina.has_previous %}
+    <a class="pn-btn pn-btn--sm pn-btn--claro" href="?estado={{ estado }}&q={{ q|urlencode }}&page={{ pagina.previous_page_number }}">Anterior</a>
+    {% endif %}
+    
+    <span>Página {{ pagina.number }} de {{ pagina.paginator.num_pages }}</span>
+    
+    {% if pagina.has_next %}
+    <a class="pn-btn pn-btn--sm pn-btn--claro" href="?estado={{ estado }}&q={{ q|urlencode }}&page={{ pagina.next_page_number }}">Siguiente</a>
+    {% endif %}
+</div>
+{% endif %}
+{% endblock %}

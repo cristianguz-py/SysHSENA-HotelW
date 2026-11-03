@@ -1,0 +1,71 @@
+{% extends 'Wbar/base_gestion.html' %}{% load wbar_extras %}
+{% block title %}Estadísticas{% endblock %}
+{% block contenido %}
+<div class="pn-titulo">
+    <div>
+        <h1>Estadísticas del W Bar</h1>
+        <p>Últimos 30 días ({{ desde|date:"d/m/Y" }} – {{ hoy|date:"d/m/Y" }}). Datos reales de pedidos y pagos registrados.</p>
+    </div>
+</div>
+
+<div class="pn-rejilla pn-kpis">
+    <div class="pn-tarjeta pn-kpi">
+        <small>Pedidos (sin cancelados)</small>
+        <span class="valor">{{ n_pedidos }}</span>
+    </div>
+    <div class="pn-tarjeta pn-kpi">
+        <small>Valor de esos pedidos</small>
+        <span class="valor">{{ total|cop }}</span>
+    </div>
+    <div class="pn-tarjeta pn-kpi">
+        <small>Cobrado en habitación</small>
+        <span class="valor">{{ cobrado|cop }}</span>
+    </div>
+    <div class="pn-tarjeta pn-kpi">
+        <small>Cargado a cuentas</small>
+        <span class="valor">{{ cuenta|cop }}</span>
+    </div>
+</div>
+
+<div class="pn-rejilla pn-iguales">
+    <section class="pn-tarjeta">
+        <h2>Productos más pedidos (entregados)</h2>
+        <table class="pn-tabla">
+            <thead>
+                <tr>
+                    <th>Producto</th>
+                    <th class="num">Unidades</th>
+                    <th class="num">Ingresos</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for t in top %}
+                <tr>
+                    <td>{{ t.nombre_producto }}</td>
+                    <td class="num">{{ t.u }}</td>
+                    <td class="num">{{ t.ingresos|cop }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="3" class="pn-vacio">Aún no hay pedidos entregados.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </section>
+
+    <section class="pn-tarjeta">
+        <h2>Pedidos por estado</h2>
+        <ul class="pn-lista">
+            {% for nombre, n in por_estado %}
+            <li>
+                <span>{{ nombre }}</span>
+                <strong>{{ n }}</strong>
+            </li>
+            {% empty %}
+            <li>Sin pedidos en el periodo.</li>
+            {% endfor %}
+        </ul>
+    </section>
+</div>
+{% endblock %}

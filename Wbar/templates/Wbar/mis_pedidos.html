@@ -1,0 +1,51 @@
+{% extends 'Wbar/base_cliente.html' %}{% load wbar_extras %}
+{% block title %}Mis pedidos{% endblock %}
+{% block contenido %}
+<section class="wb-hero">
+    <p class="sobre">W Bar Online</p>
+    <h1>Mis pedidos</h1>
+</section>
+
+<div class="wb-panel">
+    {% if pagina.object_list %}
+    <div class="wb-tabla-wrap">
+        <table class="wb-tabla">
+            <thead>
+                <tr>
+                    <th>Pedido</th>
+                    <th>Habitación</th>
+                    <th>Fecha</th>
+                    <th>Estado</th>
+                    <th class="num">Total</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in pagina %}
+                <tr>
+                    <td>{{ p.numero }}</td>
+                    <td>{{ p.habitacion.numero }}</td>
+                    <td>{{ p.creado|date:"d/m/Y H:i" }}</td>
+                    <td><span class="et et--{{ p.estado|lower }}">{{ p.get_estado_display }}</span></td>
+                    <td class="num">{{ p.total|cop }}</td>
+                    <td><a href="{% url 'wbar:pedido_detalle' p.pk %}">Ver detalle</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% if pagina.has_other_pages %}
+    <p style="display:flex;gap:1rem;justify-content:center;margin-top:1rem">
+        {% if pagina.has_previous %}<a href="?page={{ pagina.previous_page_number }}">← Anterior</a>{% endif %}
+        <span>Página {{ pagina.number }} de {{ pagina.paginator.num_pages }}</span>
+        {% if pagina.has_next %}<a href="?page={{ pagina.next_page_number }}">Siguiente →</a>{% endif %}
+    </p>
+    {% endif %}
+
+    {% else %}
+    <p>Aún no has hecho pedidos.</p>
+    <a class="wb-btn" href="{% url 'wbar:menu' %}">Ver el menú</a>
+    {% endif %}
+</div>
+{% endblock %}

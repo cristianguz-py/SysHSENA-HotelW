@@ -1,0 +1,502 @@
+:root {
+    --fondo-hotel: url("../img/Hotel W 7.webp");
+    --fondo-posicion: center;
+    --overlay: linear-gradient(105deg,
+                rgba(8, 7, 6, 0.90) 0%,
+                rgba(8, 7, 6, 0.66) 55%,
+                rgba(8, 7, 6, 0.82) 100%);
+
+    /* ---------- Paleta de marca: negro + beige ---------- */
+    --negro: #0c0b0a;
+    --beige: #d9c7a8;
+    --beige-claro: #efe4d0;
+    --beige-suave: #a89d8a;
+    --linea: rgba(217, 199, 168, 0.22);
+
+    --serif: "Cormorant Garamond", "Playfair Display", Georgia, serif;
+    --sans: "Jost", "Helvetica Neue", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+/* ---------- Base ---------- */
+*, *::before, *::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    min-height: 100svh;
+    font-family: var(--sans);
+    font-weight: 300;
+    color: var(--beige-claro);
+    background: var(--negro);
+    -webkit-font-smoothing: antialiased;
+}
+
+/* ---------- Fondo a pantalla completa + overlay ---------- */
+.fondo,
+.fondo-overlay {
+    position: fixed;
+    inset: 0;
+}
+
+.fondo {
+    background-color: var(--negro);
+    background-image:
+        var(--fondo-hotel),
+        radial-gradient(ellipse at 20% 15%, #3a3126 0%, #14110d 55%, #0c0b0a 100%);
+    background-size: cover, cover;
+    background-position: var(--fondo-posicion), center;
+    background-repeat: no-repeat;
+    transform-origin: center;
+    animation: respiracion 28s ease-in-out infinite alternate;
+}
+
+.fondo-overlay {
+    background: var(--overlay);
+}
+
+@keyframes respiracion {
+    from { transform: scale(1); }
+    to   { transform: scale(1.06); }
+}
+
+/* ---------- Estructura de la página ---------- */
+.pagina {
+    position: relative;
+    z-index: 1;
+    min-height: 100vh;
+    min-height: 100svh;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    align-items: center;
+    justify-items: center;
+    gap: 2rem;
+    width: 100%;
+    max-width: 1240px;
+    margin: 0 auto;
+    padding: clamp(1.25rem, 4vw, 3rem);
+}
+
+/* ---------- Marca (logo + nombre) ---------- */
+.marca {
+    text-align: center;
+    animation: entrada 1.1s cubic-bezier(.2, .7, .2, 1) both;
+}
+
+.marca__logo {
+    display: inline-flex;
+    width: 76px;
+    height: 76px;
+    padding: 6px;
+    margin-bottom: 1.1rem;
+    background: #fff;
+    border: 1px solid var(--beige);
+    border-radius: 50%;
+    box-shadow: 0 0 0 5px rgba(217, 199, 168, 0.12);
+}
+
+.marca__logo img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    border-radius: 50%;
+}
+
+.marca__nombre {
+    margin: 0;
+    font-family: var(--sans);
+    font-weight: 500;
+    font-size: clamp(2.6rem, 11vw, 6.5rem);
+    line-height: 1;
+    letter-spacing: 0.28em;
+    /* compensa el espacio final del letter-spacing para centrar bien */
+    margin-right: -0.28em;
+    color: var(--beige-claro);
+    text-transform: uppercase;
+}
+
+.marca__regla {
+    display: block;
+    width: 56px;
+    height: 1px;
+    margin: 1.4rem auto 1.1rem;
+    background: var(--beige);
+}
+
+.marca__lema {
+    margin: 0;
+    font-size: 1.05rem;
+    letter-spacing: 0.06em;
+    color: var(--beige);
+}
+
+.marca__lugar {
+    margin: 0.3rem 0 0;
+    font-size: 0.9rem;
+    letter-spacing: 0.04em;
+    color: var(--beige-suave);
+}
+
+/* ---------- Panel del formulario ---------- */
+.panel {
+    width: 100%;
+    max-width: 440px;
+    padding: clamp(1.75rem, 5vw, 2.75rem);
+    background: rgba(12, 11, 10, 0.78);
+    border: 1px solid var(--linea);
+    border-radius: 6px;
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.55);
+    animation: entrada 1.1s 0.25s cubic-bezier(.2, .7, .2, 1) both;
+}
+
+@supports ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+    .panel {
+        background: rgba(12, 11, 10, 0.52);
+        -webkit-backdrop-filter: blur(18px) saturate(120%);
+        backdrop-filter: blur(18px) saturate(120%);
+    }
+}
+
+.panel__titulo {
+    margin: 0 0 0.4rem;
+    font-family: var(--sans);
+    font-weight: 500;
+    font-size: 2.1rem;
+    line-height: 1.1;
+    color: var(--beige-claro);
+}
+
+.panel__texto {
+    margin: 0 0 2rem;
+    font-size: 0.95rem;
+    line-height: 1.55;
+    color: var(--beige-suave);
+}
+
+@keyframes entrada {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ---------- Mensajes de Django ---------- */
+.aviso {
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+    padding: 0.8rem 0.9rem 0.8rem 1rem;
+    font-size: 0.9rem;
+    line-height: 1.45;
+    color: var(--beige-claro);
+    background: rgba(217, 199, 168, 0.08);
+    border-left: 3px solid var(--beige);
+    border-radius: 3px;
+}
+
+.aviso__texto { flex: 1; }
+
+.aviso--error,
+.aviso--danger  { background: rgba(201, 88, 75, 0.14);  border-left-color: #d9695b; color: #f3cfc9; }
+.aviso--success { background: rgba(140, 180, 120, 0.14); border-left-color: #8fb77a; color: #d6e8cb; }
+.aviso--warning { background: rgba(217, 170, 80, 0.14);  border-left-color: #d9aa50; color: #f1dfb8; }
+
+.aviso__cerrar {
+    flex: none;
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    font: inherit;
+    font-size: 1.25rem;
+    line-height: 1;
+    color: inherit;
+    opacity: 0.6;
+    background: transparent;
+    border: 0;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: opacity 0.2s ease, background 0.2s ease;
+}
+
+.aviso__cerrar:hover { opacity: 1; background: rgba(255, 255, 255, 0.1); }
+
+/* ---------- Campos ---------- */
+.campo { margin-bottom: 1.6rem; }
+
+.campo__etiqueta {
+    display: block;
+    margin-bottom: 0.2rem;
+    font-size: 0.85rem;
+    font-weight: 400;
+    letter-spacing: 0.03em;
+    color: var(--beige);
+}
+
+.campo__control {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    border-bottom: 1px solid rgba(217, 199, 168, 0.35);
+    transition: border-color 0.3s ease;
+}
+
+/* línea beige que se dibuja al enfocar el campo */
+.campo__control::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -1px;
+    height: 1px;
+    background: var(--beige);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.45s cubic-bezier(.2, .7, .2, 1);
+}
+
+.campo__control:focus-within::after { transform: scaleX(1); }
+.campo__control:hover { border-bottom-color: rgba(217, 199, 168, 0.6); }
+
+.campo__icono {
+    flex: none;
+    width: 18px;
+    height: 18px;
+    color: var(--beige-suave);
+    transition: color 0.3s ease;
+}
+
+.campo__control:focus-within .campo__icono { color: var(--beige); }
+
+.campo__input {
+    flex: 1;
+    min-width: 0;
+    padding: 0.85rem 0;
+    font: inherit;
+    font-size: 1rem;   /* 16px evita el zoom automático en iPhone */
+    font-weight: 400;
+    color: var(--beige-claro);
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+    outline: none;
+}
+
+/* evita el fondo blanco/azul del autocompletado del navegador */
+.campo__input:-webkit-autofill,
+.campo__input:-webkit-autofill:hover,
+.campo__input:-webkit-autofill:focus {
+    -webkit-text-fill-color: var(--beige-claro);
+    caret-color: var(--beige-claro);
+    -webkit-box-shadow: 0 0 0 1000px #17140f inset;
+    transition: background-color 9999s ease-out 0s;
+}
+
+.campo__ojo {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    color: var(--beige-suave);
+    background: transparent;
+    border: 0;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: color 0.25s ease, background 0.25s ease;
+}
+
+.campo__ojo:hover { color: var(--beige); background: rgba(217, 199, 168, 0.1); }
+.campo__ojo svg { width: 18px; height: 18px; }
+.campo__ojo .ojo-cerrado { display: none; }
+.campo__ojo[aria-pressed="true"] .ojo-abierto { display: none; }
+.campo__ojo[aria-pressed="true"] .ojo-cerrado { display: block; }
+
+/* ---------- Botón ---------- */
+.boton {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    width: 100%;
+    margin-top: 2.2rem;
+    padding: 1rem 1.25rem;
+    overflow: hidden;
+    font: inherit;
+    font-size: 0.95rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    color: #14110d;
+    background: var(--beige);
+    border: 0;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+}
+
+/* destello suave que cruza el botón al pasar el cursor */
+.boton::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -80%;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.45), transparent);
+    transform: skewX(-20deg);
+    transition: left 0.8s ease;
+}
+
+.boton:hover {
+    background: var(--beige-claro);
+    transform: translateY(-2px);
+    box-shadow: 0 14px 34px rgba(217, 199, 168, 0.25);
+}
+
+.boton:hover::before { left: 140%; }
+.boton:active { transform: translateY(0); box-shadow: none; }
+
+.boton__spinner {
+    display: none;
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(20, 17, 13, 0.25);
+    border-top-color: #14110d;
+    border-radius: 50%;
+    animation: giro 0.7s linear infinite;
+}
+
+.boton.is-cargando { cursor: progress; }
+.boton.is-cargando .boton__spinner { display: inline-block; }
+
+@keyframes giro { to { transform: rotate(360deg); } }
+
+/* ---------- Pie ---------- */
+.panel__pie {
+    margin-top: 2rem;
+    padding-top: 1.25rem;
+    text-align: center;
+    font-size: 0.8rem;
+    letter-spacing: 0.04em;
+    color: var(--beige-suave);
+    border-top: 1px solid var(--linea);
+}
+
+/* ---------- Accesibilidad: foco visible con teclado ---------- */
+.boton:focus-visible,
+.campo__ojo:focus-visible,
+.aviso__cerrar:focus-visible {
+    outline: 2px solid var(--beige-claro);
+    outline-offset: 3px;
+}
+
+/* ---------- Responsive ---------- */
+/* Tablet */
+@media (min-width: 768px) {
+    .marca__logo { width: 88px; height: 88px; }
+    .pagina { gap: 2.5rem; }
+}
+
+/* PC: marca a la izquierda, formulario a la derecha */
+@media (min-width: 992px) {
+    .pagina {
+        grid-template-columns: minmax(0, 1fr) minmax(400px, 460px);
+        justify-items: stretch;
+        gap: clamp(3rem, 8vw, 7rem);
+    }
+
+    .marca { text-align: left; }
+    .marca__nombre { margin-right: 0; font-size: clamp(4rem, 8vw, 7.5rem); }
+    .marca__regla { margin-left: 0; margin-right: 0; width: 72px; }
+    .marca__lema { font-size: 1.2rem; }
+
+    .panel { justify-self: end; }
+
+    .fondo-overlay {
+        background: var(--overlay);
+    }
+}
+
+/* Celulares pequeños */
+@media (max-width: 480px) {
+    .pagina { gap: 1.5rem; padding: 1.25rem 1rem 1.5rem; }
+    .marca__logo { width: 68px; height: 68px; margin-bottom: 0.9rem; }
+    .marca__regla { margin: 1.1rem auto 0.9rem; }
+    .marca__lema { font-size: 0.95rem; }
+    .panel__titulo { font-size: 1.85rem; }
+    .panel__texto { margin-bottom: 1.6rem; }
+}
+
+/* Celular en horizontal / pantallas bajas: compacta la marca */
+@media (max-height: 560px) and (orientation: landscape) {
+    .pagina { gap: 1rem; }
+    .marca__lema,
+    .marca__lugar,
+    .marca__regla { display: none; }
+    .marca__logo { width: 56px; height: 56px; margin-bottom: 0.5rem; }
+}
+
+/* Respeta a quien prefiere menos movimiento */
+@media (prefers-reduced-motion: reduce) {
+    .fondo,
+    .marca,
+    .panel,
+    .boton__spinner { animation: none; }
+
+    .boton,
+    .boton::before,
+    .campo__control,
+    .campo__control::after { transition: none; }
+}
+
+.btn-volver-flotante {
+            position: fixed;
+            bottom: 2rem;
+            left: 2rem;
+            z-index: 100;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.65rem 1.25rem;
+            background: rgba(12, 11, 10, 0.85);
+            color: #f4f1ea;
+            border: 1px solid rgba(212, 175, 55, 0.3); /* Toque dorado sutil de hotel de lujo */
+            border-radius: 50px;
+            font-family: 'Jost', sans-serif;
+            font-size: 0.875rem;
+            font-weight: 400;
+            text-decoration: none;
+            backdrop-filter: blur(8px);
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .btn-volver-flotante:hover {
+            background: #1a1816;
+            border-color: rgba(212, 175, 55, 0.8);
+            color: #ffffff;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 24px rgba(212, 175, 55, 0.15);
+        }
+
+        .btn-volver-flotante svg {
+            width: 16px;
+            height: 16px;
+            transition: transform 0.3s ease;
+        }
+
+        .btn-volver-flotante:hover svg {
+            transform: translateX(-3px);
+        }
+
+        @media (max-width: 768px) {
+            .btn-volver-flotante {
+                bottom: 1.25rem;
+                left: 1.25rem;
+                padding: 0.5rem 1rem;
+                font-size: 0.8rem;
+            }
+        }

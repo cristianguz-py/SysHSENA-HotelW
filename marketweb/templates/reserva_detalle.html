@@ -1,0 +1,121 @@
+{% load static %}
+
+{% include 'inc/header.html' %}
+
+<!-- Estilos: dashboard.css (sistema de diseño compartido) + reservas.css (esta pantalla) -->
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+<link rel="stylesheet" href="{% static 'css/reservas.css' %}">
+
+<div class="hw-dash hw-res">
+
+    <!-- 1. ENCABEZADO -->
+    <section class="hw-hero">
+        <div class="hw-hero__bg" aria-hidden="true"></div>
+
+        <div class="hw-wrap hw-hero__inner">
+            <div class="hw-hero__main hw-reveal" style="--d:0">
+                <p class="hw-eyebrow">
+                    <span>Reservas</span>
+                    <span class="hw-eyebrow__linea" aria-hidden="true"></span>
+                    <span>Detalle</span>
+                </p>
+
+                <h1 class="hw-hero__nombre">Reserva #{{ reserva.id }}</h1>
+
+                <p class="hw-hero__texto">
+                    <span class="hw-etiqueta hw-etiqueta--{{ reserva.estado|lower }}">{{ reserva.get_estado_display }}</span>
+                </p>
+            </div>
+
+            <div class="hw-hero__lado hw-reveal" style="--d:2">
+                <a href="{% url 'inicio' %}" class="hw-btn hw-btn--fantasma">
+                    <i class="bi bi-arrow-left"></i>
+                    Volver al Panel
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <div class="hw-wrap">
+
+        {% if nueva %}
+        <div class="hw-alerta hw-alerta--ok hw-reveal" style="--d:1" role="status">
+            <i class="bi bi-check-circle" aria-hidden="true"></i>
+            <div>
+                <p class="hw-alerta__titulo">Reserva creada correctamente.</p>
+                <p class="hw-alerta__datos">
+                    <span>Habitación <b>{{ reserva.habitacion.numero }}</b></span>
+                    <span>Huésped <b>{{ reserva.huesped.nombres }} {{ reserva.huesped.apellidos }}</b></span>
+                    <span>Entrada <b>{{ reserva.fecha_entrada|date:"d/m/Y" }}</b></span>
+                    <span>Salida <b>{{ reserva.fecha_salida|date:"d/m/Y" }}</b></span>
+                    <span>Noches <b>{{ noches }}</b></span>
+                    <span>Total <b>${{ reserva.valor_total|floatformat:"0g" }}</b></span>
+                    <span>Estado <b>{{ reserva.get_estado_display }}</b></span>
+                </p>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- 2. DATOS -->
+        <div class="hw-detalle">
+
+            <section class="hw-panel hw-reveal" style="--d:2" aria-labelledby="t-huesped">
+                <h2 class="hw-resumen__titulo" id="t-huesped">Huésped</h2>
+                <dl class="hw-resumen__lista">
+                    <div class="hw-resumen__fila"><dt>Nombre</dt><dd>{{ reserva.huesped.nombres }} {{ reserva.huesped.apellidos }}</dd></div>
+                    <div class="hw-resumen__fila"><dt>Documento</dt><dd>{{ reserva.huesped.get_tipo_documento_display }} {{ reserva.huesped.numero_documento }}</dd></div>
+                    <div class="hw-resumen__fila"><dt>Teléfono</dt><dd>{{ reserva.huesped.telefono }}</dd></div>
+                    <div class="hw-resumen__fila"><dt>Correo</dt><dd>{{ reserva.huesped.correo }}</dd></div>
+                </dl>
+            </section>
+
+            <section class="hw-panel hw-reveal" style="--d:3" aria-labelledby="t-estancia">
+                <h2 class="hw-resumen__titulo" id="t-estancia">Estancia</h2>
+                <dl class="hw-resumen__lista">
+                    <div class="hw-resumen__fila"><dt>Habitación</dt><dd>{{ reserva.habitacion.numero }} · Piso {{ reserva.habitacion.piso }}</dd></div>
+                    <div class="hw-resumen__fila"><dt>Tipo</dt><dd>{{ reserva.habitacion.tipo.nombre }}</dd></div>
+                    <div class="hw-resumen__fila"><dt>Entrada</dt><dd>{{ reserva.fecha_entrada|date:"d/m/Y" }}</dd></div>
+                    <div class="hw-resumen__fila"><dt>Salida</dt><dd>{{ reserva.fecha_salida|date:"d/m/Y" }}</dd></div>
+                    <div class="hw-resumen__fila"><dt>Noches</dt><dd>{{ noches }}</dd></div>
+                    <div class="hw-resumen__fila"><dt>Huéspedes</dt><dd>{{ reserva.num_huespedes }}</dd></div>
+                    <div class="hw-resumen__fila"><dt>Canal</dt><dd>{{ reserva.get_canal_reserva_display }}</dd></div>
+                </dl>
+            </section>
+
+            <section class="hw-panel hw-detalle__ancho hw-reveal" style="--d:4" aria-labelledby="t-valores">
+                <h2 class="hw-resumen__titulo" id="t-valores">Valores</h2>
+                <dl class="hw-resumen__lista">
+                    <div class="hw-resumen__fila"><dt>Precio por noche (tarifa vigente del tipo)</dt><dd>${{ precio_noche|floatformat:"0g" }}</dd></div>
+                    <div class="hw-resumen__fila"><dt>Alojamiento ({{ noches }} noche{{ noches|pluralize }})</dt><dd>${{ alojamiento|floatformat:"0g" }}</dd></div>
+                </dl>
+                <p class="hw-resumen__total">
+                    <span>Total registrado</span>
+                    <span class="hw-resumen__total-valor">${{ reserva.valor_total|floatformat:"0g" }}</span>
+                </p>
+            </section>
+        </div>
+
+        <!-- 3. ACCIONES -->
+        <div class="hw-acciones hw-reveal" style="--d:5">
+            {% if reserva.estado == 'CONFIRMADA' %}
+                {% if checkin_habilitado %}
+                <a href="{% url 'checkin' reserva.id %}" class="hw-btn hw-btn--primario">
+                    <i class="bi bi-box-arrow-in-right"></i> Hacer Check-in
+                </a>
+                {% else %}
+                <span class="hw-nota"><i class="bi bi-clock"></i> Check-in disponible desde el {{ reserva.fecha_entrada|date:"d/m/Y" }}</span>
+                {% endif %}
+            {% elif reserva.estado == 'CHECKIN' %}
+            <a href="{% url 'checkout' reserva.id %}" class="hw-btn hw-btn--fantasma hw-btn--peligro">
+                <i class="bi bi-box-arrow-right"></i> Hacer Check-out
+            </a>
+            {% endif %}
+            <a href="{% url 'crear_reserva' %}" class="hw-btn hw-btn--fantasma">
+                <i class="bi bi-journal-plus"></i> Nueva Reserva
+            </a>
+        </div>
+
+    </div>
+</div>
+
+{% include 'inc/footer.html' %}

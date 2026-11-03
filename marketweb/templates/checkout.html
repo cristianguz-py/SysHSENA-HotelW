@@ -1,0 +1,155 @@
+{% load static %}
+{% include 'inc/header.html' %}
+
+<!-- Estilos: dashboard.css (sistema de diseño) + frontdesk.css (Check-in y Check-out) -->
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+<link rel="stylesheet" href="{% static 'css/frontdesk.css' %}">
+
+<div class="hw-dash hw-fd hw-fd--out">
+
+    <!-- 1. ENCABEZADO -->
+    <section class="hw-hero">
+        <div class="hw-hero__bg" aria-hidden="true"></div>
+        <div class="hw-wrap hw-hero__inner">
+            <div class="hw-hero__main hw-reveal" style="--d:0">
+                <p class="hw-eyebrow">
+                    <span>Hotel W · Front Desk</span>
+                    <span class="hw-eyebrow__linea" aria-hidden="true"></span>
+                    <span>Riohacha · La Guajira</span>
+                </p>
+                <h1 class="hw-hero__nombre">Check-out</h1>
+                <p class="hw-hero__texto">Cierre de estancia · Reserva #{{ reserva.id }}</p>
+            </div>
+            <div class="hw-hero__lado hw-reveal" style="--d:2">
+                <a href="{% url 'inicio' %}" class="hw-btn hw-btn--fantasma">
+                    <i class="bi bi-arrow-left"></i>
+                    Volver al Panel
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <div class="hw-wrap">
+
+        <!-- Mensajes de Django -->
+        {% if messages %}
+            <ul class="hw-fd-msgs" role="status">
+                {% for message in messages %}
+                    <li class="hw-fd-msg" data-tipo="{{ message.tags }}"><i class="bi bi-dot"></i>{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+
+        <div class="hw-fd-layout">
+
+            <!-- COLUMNA PRINCIPAL -->
+            <div class="hw-fd-main">
+
+                <!-- 1. RESUMEN DE ESTANCIA -->
+                <section class="hw-fd-card hw-reveal" style="--d:2" aria-labelledby="t-estancia">
+                    <header class="hw-fd-card__cab">
+                        <div>
+                            <p class="hw-fd-kicker">Salida</p>
+                            <h2 class="hw-fd-titulo" id="t-estancia">Resumen de estancia</h2>
+                        </div>
+                        <span class="hw-fd-estado" data-estado="{{ reserva.estado }}">
+                            <i></i>{{ reserva.get_estado_display }}
+                        </span>
+                    </header>
+
+                    <div class="hw-fd-estancia">
+                        <p class="hw-fd-estancia__fecha">
+                            <small>Entrada</small>
+                            <strong>{{ reserva.fecha_entrada|date:"d M Y" }}</strong>
+                        </p>
+                        <p class="hw-fd-estancia__linea">
+                            <span>{{ reserva.calcular_noches }} {% if reserva.calcular_noches == 1 %}noche{% else %}noches{% endif %}</span>
+                        </p>
+                        <p class="hw-fd-estancia__fecha">
+                            <small>Salida</small>
+                            <strong>{{ reserva.fecha_salida|date:"d M Y" }}</strong>
+                        </p>
+                    </div>
+
+                    <dl class="hw-fd-datos">
+                        <div class="is-wide is-big">
+                            <dt>Huésped</dt>
+                            <dd>{{ reserva.huesped.nombres }} {{ reserva.huesped.apellidos }}</dd>
+                        </div>
+                        <div>
+                            <dt>Habitación</dt>
+                            <dd>{{ reserva.habitacion.numero }} · {{ reserva.habitacion.tipo.nombre }}</dd>
+                        </div>
+                        <div>
+                            <dt>Número de huéspedes</dt>
+                            <dd>{{ reserva.num_huespedes }}</dd>
+                        </div>
+                    </dl>
+                </section>
+
+                <!-- 2. RESUMEN DE CUENTA -->
+                <section class="hw-fd-card hw-reveal" style="--d:3" aria-labelledby="t-cuenta">
+                    <header class="hw-fd-card__cab">
+                        <div>
+                            <p class="hw-fd-kicker">Cuenta</p>
+                            <h2 class="hw-fd-titulo" id="t-cuenta">Resumen de cuenta</h2>
+                        </div>
+                    </header>
+
+                    <ul class="hw-fd-libro">
+                        <li class="hw-fd-fila"><span>Alojamiento</span><b>${{ total_alojamiento|floatformat:"0g" }}</b></li>
+                        <li class="hw-fd-fila"><span>Servicios</span><b>${{ total_servicios|floatformat:"0g" }}</b></li>
+                        <li class="hw-fd-fila"><span>Cargo por salida tardía</span><b>${{ cargo_tardio|floatformat:"0g" }}</b></li>
+                        <li class="hw-fd-fila hw-fd-fila--total"><span>Total</span><b>${{ total_general|floatformat:"0g" }}</b></li>
+                        <li class="hw-fd-fila"><span>Pagos registrados</span><b>${{ total_pagos|floatformat:"0g" }}</b></li>
+                    </ul>
+                </section>
+
+            </div>
+
+            <!-- COLUMNA LATERAL -->
+            <aside class="hw-fd-side">
+
+                <!-- 3. ESTADO DE CUENTA -->
+                <section class="hw-fd-card hw-fd-total hw-reveal" style="--d:3" aria-label="Estado de cuenta">
+                    <p class="hw-fd-kicker">Total</p>
+                    <p class="hw-fd-total__valor">${{ total_general|floatformat:"0g" }}<small>COP</small></p>
+
+                    {% if saldo_pendiente > 0 %}
+                        <div class="hw-fd-saldo">
+                            <span>Saldo pendiente</span>
+                            <b>${{ saldo_pendiente|floatformat:"0g" }}</b>
+                        </div>
+                    {% else %}
+                        <div class="hw-fd-saldo hw-fd-saldo--ok">
+                            <i class="bi bi-check2-circle"></i>
+                            <span>Cuenta saldada</span>
+                        </div>
+                    {% endif %}
+                </section>
+
+                <!-- 4. CONFIRMACIÓN -->
+                <section class="hw-fd-card hw-fd-accion hw-reveal" style="--d:4" aria-labelledby="t-finalizar">
+                    <p class="hw-fd-kicker">Cierre</p>
+                    <h2 class="hw-fd-titulo" id="t-finalizar">Finalizar estancia</h2>
+                    <p>Al confirmar, la reserva queda completada y la habitación {{ reserva.habitacion.numero }} pasa a aseo.</p>
+
+                    <form method="POST" action="{% url 'checkout' reserva.id %}" id="formCheckout" data-fd-form>
+                        {% csrf_token %}
+                        <button type="submit" class="hw-btn hw-btn--primario hw-fd-submit">
+                            <i class="bi bi-box-arrow-right"></i>
+                            Confirmar Check-out
+                        </button>
+                    </form>
+
+                    <a href="{% url 'inicio' %}" class="hw-fd-volver">Cancelar y volver</a>
+                </section>
+
+            </aside>
+        </div>
+    </div>
+</div>
+
+
+
+{% include 'inc/footer.html' %}

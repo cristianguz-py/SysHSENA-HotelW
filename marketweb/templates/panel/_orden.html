@@ -1,0 +1,1 @@
+<a href="?{% if qs_sin_orden %}{{ qs_sin_orden }}&amp;{% endif %}orden={% if orden == clave %}-{{ clave }}{% else %}{{ clave }}{% endif %}">{{ titulo }}{% if orden == clave %} ▲{% elif orden == '-'|add:clave %} ▼{% endif %}</a>

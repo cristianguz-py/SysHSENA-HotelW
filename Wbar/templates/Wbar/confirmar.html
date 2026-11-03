@@ -1,0 +1,74 @@
+{% extends 'Wbar/base_cliente.html' %}{% load wbar_extras %}
+{% block title %}Confirmar pedido{% endblock %}
+{% block contenido %}
+<section class="wb-hero">
+    <p class="sobre">W Bar Online</p>
+    <h1>Confirmar pedido</h1>
+</section>
+
+<div class="wb-dos">
+    <div class="wb-panel">
+        <h2>Entrega y pago</h2>
+        
+        {% if sin_habitacion %}
+        <p class="wb-aviso">No tienes una habitación con estadía activa. W Bar solo atiende pedidos a la habitación de una reserva tuya con check-in realizado. Si ya llegaste, pide en recepción que verifiquen tu reserva.</p>
+        <a class="wb-btn wb-btn--linea" href="{% url 'mis_reservas' %}">Ver mis reservas</a>
+        {% else %}
+        <form method="post" novalidate>
+            {% csrf_token %}
+            {{ form.token }}
+            
+            {% for e in form.token.errors %}
+            <p class="wb-error">{{ e }}</p>
+            {% endfor %}
+            
+            <div class="wb-campo">
+                <label for="{{ form.reserva.id_for_label }}">{{ form.reserva.label }}</label>
+                {{ form.reserva }}
+                {% for e in form.reserva.errors %}
+                <span class="wb-error">{{ e }}</span>
+                {% endfor %}
+            </div>
+            
+            <div class="wb-campo">
+                <label for="{{ form.notas.id_for_label }}">{{ form.notas.label }}</label>
+                {{ form.notas }}
+                {% for e in form.notas.errors %}
+                <span class="wb-error">{{ e }}</span>
+                {% endfor %}
+            </div>
+            
+            {% if hay_alcohol %}
+            <p class="wb-aviso"><strong>{{ aviso_alcohol }}</strong></p>
+            <div class="wb-campo wb-campo--check">
+                <label for="{{ form.declaracion_mayoria_edad.id_for_label }}">
+                    {{ form.declaracion_mayoria_edad }} {{ form.declaracion_mayoria_edad.label }}
+                </label>
+            </div>
+            {% endif %}
+            
+            <p class="wb-ayuda">Tu pedido se entrega en la puerta de la habitación y lo pagas allí. Recibirás un código de entrega que le mostrarás al personal.</p>
+            
+            <button class="wb-btn" type="submit">Confirmar pedido</button>
+            <a class="wb-btn wb-btn--linea" href="{% url 'wbar:carrito' %}">Volver al pedido</a>
+        </form>
+        {% endif %}
+    </div>
+    
+    <div class="wb-panel">
+        <h2>Resumen</h2>
+        <ul style="list-style:none;padding:0;margin:0">
+            {% for l in lineas %}
+            <li style="display:flex;justify-content:space-between;gap:1rem;padding:.35rem 0;border-bottom:1px solid var(--linea)">
+                <span>{{ l.cantidad }} × {{ l.producto.nombre }}</span>
+                <span>{{ l.subtotal|cop }}</span>
+            </li>
+            {% endfor %}
+        </ul>
+        <div class="wb-total">
+            <span>Total</span>
+            <span>{{ total|cop }}</span>
+        </div>
+    </div>
+</div>
+{% endblock %}

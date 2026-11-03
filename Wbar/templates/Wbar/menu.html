@@ -1,0 +1,68 @@
+{% extends 'Wbar/base_cliente.html' %}{% load static wbar_extras %}
+{% block title %}Menú{% endblock %}
+{% block contenido %}
+<section class="wb-hero">
+    <p class="sobre">Hotel W · Riohacha</p>
+    <h1>W Bar Online</h1>
+    <p>Elige tus bebidas y bocados favoritos. Te los llevamos hasta la puerta de tu habitación y pagas allí, cuando los recibes.</p>
+</section>
+
+<p class="wb-aviso"><strong>{{ aviso_alcohol }}</strong> Venta de alcohol solo a mayores de edad: el personal verificará tu documento al entregar.</p>
+
+{% if not sesion %}
+<p class="wb-aviso">Para hacer un pedido, <a href="{% url 'login' %}">inicia sesión</a> con tu cuenta de huésped. Solo se atienden habitaciones con una estadía activa.</p>
+{% elif not es_cliente %}
+<p class="wb-aviso">Estás viendo el menú con una cuenta del personal. Los pedidos se hacen con cuentas de huésped.</p>
+{% endif %}
+
+{% if secciones %}
+<nav class="wb-cats" aria-label="Categorías">
+    {% for cat, productos in secciones %}
+    <a href="#cat-{{ cat.slug }}">{{ cat.nombre }}</a>
+    {% endfor %}
+</nav>
+
+    {% for cat, productos in secciones %}
+    <section class="wb-seccion" id="cat-{{ cat.slug }}" aria-labelledby="t-{{ cat.slug }}">
+        <h2 id="t-{{ cat.slug }}">{{ cat.nombre }}</h2>
+        {% if cat.descripcion %}<p>{{ cat.descripcion }}</p>{% endif %}
+        <div class="wb-rejilla">
+            {% for p in productos %}
+            <article class="wb-prod">
+                <div class="wb-prod__foto">
+                    {% if p.imagen %}
+                    <img src="{{ p.imagen.url }}" alt="{{ p.nombre }}" loading="lazy">
+                    {% else %}
+                    <span aria-hidden="true">W</span>
+                    {% endif %}
+                </div>
+                <div class="wb-prod__cuerpo">
+                    <span class="cat">{{ cat.nombre }}{% if p.contiene_alcohol %} · <span class="wb-sello">Contiene alcohol</span>{% endif %}</span>
+                    <h3>{{ p.nombre }}</h3>
+                    {% if p.descripcion %}<p class="desc">{{ p.descripcion }}</p>{% endif %}
+                    {% if p.presentacion %}<span class="pres">{{ p.presentacion }}</span>{% endif %}
+                    {% if p.informacion %}<span class="pres">{{ p.informacion }}</span>{% endif %}
+                    <span class="precio">{{ p.precio|cop }}</span>
+                    
+                    {% if p.se_puede_pedir %}
+                        {% if es_cliente %}
+                        <form method="post" action="{% url 'wbar:carrito_agregar' %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="producto" value="{{ p.pk }}">
+                            <input type="number" name="cantidad" value="1" min="1" max="20" aria-label="Cantidad de {{ p.nombre }}">
+                            <button class="wb-btn" type="submit">Agregar al pedido</button>
+                        </form>
+                        {% endif %}
+                    {% else %}
+                    <span class="wb-sello wb-sello--agotado">No disponible</span>
+                    {% endif %}
+                </div>
+            </article>
+            {% endfor %}
+        </div>
+    </section>
+    {% endfor %}
+{% else %}
+<p class="wb-aviso">El menú se está preparando. Vuelve muy pronto.</p>
+{% endif %}
+{% endblock %}

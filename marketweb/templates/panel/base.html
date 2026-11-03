@@ -1,0 +1,62 @@
+{% load static %}<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>{% block title %}Panel de gestión{% endblock %} · Hotel W</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="{% static 'css/panel.css' %}">
+</head>
+<body class="pn">
+<aside class="pn-lateral">
+    <a class="pn-marca" href="{% url 'gestion' %}">
+        <img src="{% static 'img/logohotelw.jpg' %}" alt="Logo Hotel W">
+        <span><strong>HOTEL W</strong><small>Panel de gestión</small></span>
+    </a>
+    <nav class="pn-nav" aria-label="Navegación principal">
+        <a href="{% url 'gestion' %}" class="{% if seccion == 'inicio' %}activo{% endif %}"><i class="bi bi-grid-1x2"></i>Inicio</a>
+        <a href="{% url 'gestion_reservas' %}" class="{% if seccion == 'reservas' %}activo{% endif %}"><i class="bi bi-calendar-check"></i>Reservas</a>
+        <a href="{% url 'gestion_huespedes' %}" class="{% if seccion == 'huespedes' %}activo{% endif %}"><i class="bi bi-people"></i>Perfil de huéspedes</a>
+        <a href="{% url 'gestion_habitaciones' %}" class="{% if seccion == 'habitaciones' %}activo{% endif %}"><i class="bi bi-door-closed"></i>Habitaciones</a>
+        <a href="{% url 'gestion_llegadas' %}" class="{% if seccion == 'llegadas' %}activo{% endif %}"><i class="bi bi-arrow-left-right"></i>Llegadas y salidas</a>
+        <a href="{% url 'gestion_servicios' %}" class="{% if seccion == 'servicios' %}activo{% endif %}"><i class="bi bi-stars"></i>Servicios y limpieza</a>
+        <a href="{% url 'gestion_finanzas' %}" class="{% if seccion == 'finanzas' %}activo{% endif %}"><i class="bi bi-graph-up-arrow"></i>Finanzas e informes</a>
+        <a href="{% url 'gestion_usuarios' %}" class="{% if seccion == 'usuarios' %}activo{% endif %}"><i class="bi bi-shield-lock"></i>Usuarios y accesos</a>
+        <a href="{% url 'wbar:gestion' %}"><i class="bi bi-cup-straw"></i>W Bar · Pedidos</a>
+        <hr>        <a href="{% url 'cuenta' %}"><i class="bi bi-person-gear"></i>Mi cuenta</a>
+        <a href="{% url 'home' %}"><i class="bi bi-globe"></i>Volver al sitio web</a>
+        <form method="post" action="{% url 'logout' %}">{% csrf_token %}
+            <button type="submit"><i class="bi bi-box-arrow-right"></i>Cerrar sesión</button>
+        </form>
+    </nav>
+</aside>
+
+<div class="pn-cuerpo">
+    <header class="pn-barra">
+        <form class="pn-busqueda" method="get" action="{% url 'gestion_buscar' %}" role="search">
+            <input type="search" name="q" value="{{ q_global }}" maxlength="80" placeholder="Buscar reservas, huéspedes o habitaciones…" aria-label="Búsqueda global">
+            <button type="submit" aria-label="Buscar"><i class="bi bi-search"></i></button>
+        </form>
+        <div class="pn-usuario"><strong>{{ usuario_nombre }}</strong><small>{{ usuario_rol_texto }}</small></div>
+        <span class="pn-avatar" aria-hidden="true">{{ usuario_nombre|slice:":1"|upper }}</span>
+    </header>
+
+    <main class="pn-principal">
+        {% if messages %}
+        <ul class="pn-mensajes" role="status">
+            {% for mensaje in messages %}
+            <li class="pn-mensaje pn-mensaje--{{ mensaje.level_tag }}">{{ mensaje }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+        {% block contenido %}{% endblock %}
+    </main>
+
+    <footer class="pn-pie">Hotel W · © {% now "Y" %}</footer>
+</div>
+</body>
+</html>

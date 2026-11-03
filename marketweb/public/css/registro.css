@@ -1,0 +1,89 @@
+/* Hotel W — complementos del registro (se carga DESPUÉS de login.css).
+   Solo define piezas nuevas; no redefine nada de login.css. Sin JavaScript. */
+
+.panel__enlace {
+    margin: 1.4rem 0 0;
+    text-align: center;
+    font-size: 0.92rem;
+    opacity: 0.9;
+}
+
+.panel__enlace a {
+    color: inherit;
+    font-weight: 500;
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+}
+
+.panel__enlace a:hover,
+.panel__enlace a:focus-visible {
+    text-decoration-thickness: 2px;
+}
+
+.campo__ayuda {
+    margin: 0.4rem 0 0;
+    font-size: 0.78rem;
+    line-height: 1.4;
+    opacity: 0.65;
+}
+
+.campo__error {
+    margin: 0.4rem 0 0;
+    font-size: 0.82rem;
+    line-height: 1.4;
+    color: #f0b4a6;
+}
+
+.campo--error .campo__input {
+    border-color: #f0b4a6;
+}
+
+        /* Estilo elegante para el botón flotante de volver */
+        .btn-volver-flotante {
+            position: fixed;
+            bottom: 2rem;
+            left: 2rem;
+            z-index: 100;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.65rem 1.25rem;
+            background: rgba(12, 11, 10, 0.85);
+            color: #f4f1ea;
+            border: 1px solid rgba(212, 175, 55, 0.3); /* Toque dorado sutil de hotel de lujo */
+            border-radius: 50px;
+            font-family: 'Jost', sans-serif;
+            font-size: 0.875rem;
+            font-weight: 400;
+            text-decoration: none;
+            backdrop-filter: blur(8px);
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .btn-volver-flotante:hover {
+            background: #1a1816;
+            border-color: rgba(212, 175, 55, 0.8);
+            color: #ffffff;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 24px rgba(212, 175, 55, 0.15);
+        }
+
+        .btn-volver-flotante svg {
+            width: 16px;
+            height: 16px;
+            transition: transform 0.3s ease;
+        }
+
+        .btn-volver-flotante:hover svg {
+            transform: translateX(-3px);
+        }
+
+        @media (max-width: 768px) {
+            .btn-volver-flotante {
+                bottom: 1.25rem;
+                left: 1.25rem;
+                padding: 0.5rem 1rem;
+                font-size: 0.8rem;
+            }
+        }
