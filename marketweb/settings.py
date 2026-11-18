@@ -1,4 +1,5 @@
 import os
+import dj_database_url
 from pathlib import Path
 from dotenv import load_dotenv
 
@@ -10,11 +11,11 @@ load_dotenv(BASE_DIR / '.env')
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ['DJANGO_SECRET_KEY']
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', os.environ.get('SECRET_KEY', 'fallback-secret-key'))
 
 DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -66,16 +67,15 @@ WSGI_APPLICATION = 'marketweb.wsgi.application'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': os.environ['DB_NAME'],
-        'USER': os.environ['DB_USER'],
-        'PASSWORD': os.environ['DB_PASSWORD'],
-        'HOST': os.environ['DB_HOST'],
-        'PORT': os.environ['DB_PORT'],
-        'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
-    }
+    'default': dj_database_url.config(
+        default=os.getenv('DATABASE_URL'),
+        conn_max_age=600,
+        conn_health_checks_enabled=True,
+    )
 }
+
+# Si DATABASE_URL no está definida localmente y quieres respaldo temporal, puedes manejar un fallback opcional, 
+# pero en Render leerá automáticamente la variable de entorno que le configures.
 
 
 # Password validation
@@ -116,9 +116,9 @@ STATIC_URL = 'static/'
 STATICFILES_DIRS = [
     BASE_DIR / 'marketweb/public',
 ]
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-# Archivos subidos por el administrador (fotos de productos de W Bar). Antes apuntaba a
-# 'marketweb/public/img' (ruta relativa, sin uso); se separa de los estáticos del sitio.
+# Archivos subidos por el administrador (fotos de productos de W Bar).
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
