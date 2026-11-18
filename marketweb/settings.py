@@ -1,25 +1,24 @@
+
 import os
 import dj_database_url
 from pathlib import Path
 from dotenv import load_dotenv
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
+# Build paths
 BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(BASE_DIR / '.env')
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', os.environ.get('SECRET_KEY', 'fallback-secret-key'))
+# Security
+SECRET_KEY = os.environ.get(
+    'DJANGO_SECRET_KEY',
+    os.environ.get('SECRET_KEY', 'fallback-secret-key')
+)
 
 DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'
 
 ALLOWED_HOSTS = ['*']
 
-
 # Application definition
-
 INSTALLED_APPS = [
     'marketweb',
     'Wbar',
@@ -47,7 +46,7 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
-            'marketweb/templates',
+            BASE_DIR / 'marketweb' / 'templates',
         ],
         'APP_DIRS': True,
         'OPTIONS': {
@@ -62,25 +61,25 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'marketweb.wsgi.application'
 
+# Database
+DATABASE_URL = os.environ.get('DATABASE_URL')
+
+if not DATABASE_URL:
+    raise ValueError(
+        'DATABASE_URL no está configurada. '
+        'Configúrala en las variables de entorno de Render.'
+    )
 
 # Database
-# https://docs.djangoproject.com/en/5.2/ref/settings/#databases
-
 DATABASES = {
-    'default': dj_database_url.config(
-        default=os.getenv('DATABASE_URL'),
+    'default': dj_database_url.parse(
+        os.getenv('DATABASE_URL'),
         conn_max_age=600,
-        conn_health_checks_enabled=True,
+        conn_health_checks=True,
     )
 }
 
-# Si DATABASE_URL no está definida localmente y quieres respaldo temporal, puedes manejar un fallback opcional, 
-# pero en Render leerá automáticamente la variable de entorno que le configures.
-
-
 # Password validation
-# https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
-
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -96,33 +95,22 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
-# https://docs.djangoproject.com/en/5.2/topics/i18n/
-
 LANGUAGE_CODE = 'es-co'
-
 TIME_ZONE = 'America/Bogota'
-
 USE_I18N = True
-
 USE_TZ = True
 
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.2/howto/static-files/
-
-STATIC_URL = 'static/'
+# Static files
+STATIC_URL = '/static/'
 STATICFILES_DIRS = [
-    BASE_DIR / 'marketweb/public',
+    BASE_DIR / 'marketweb' / 'public',
 ]
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-# Archivos subidos por el administrador (fotos de productos de W Bar).
+# Media files
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-# Default primary key field type
-# https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
-
+# Default primary key
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
