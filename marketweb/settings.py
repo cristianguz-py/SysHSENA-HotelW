@@ -4,11 +4,11 @@ import dj_database_url
 from pathlib import Path
 from dotenv import load_dotenv
 
-# Build paths
+# Directorio principal del proyecto
 BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(BASE_DIR / '.env')
 
-# Security
+# Seguridad
 SECRET_KEY = os.environ.get(
     'DJANGO_SECRET_KEY',
     os.environ.get('SECRET_KEY', 'fallback-secret-key')
@@ -18,7 +18,7 @@ DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'
 
 ALLOWED_HOSTS = ['*']
 
-# Application definition
+# Aplicaciones
 INSTALLED_APPS = [
     'marketweb',
     'Wbar',
@@ -30,8 +30,10 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 ]
 
+# Middleware
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -42,12 +44,11 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'marketweb.urls'
 
+# Plantillas
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [
-            BASE_DIR / 'marketweb' / 'templates',
-        ],
+        'DIRS': [BASE_DIR / 'marketweb' / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -61,29 +62,27 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'marketweb.wsgi.application'
 
-# Database
+# Base de datos TiDB Cloud (MySQL)
 DATABASE_URL = os.environ.get('DATABASE_URL')
 
 if not DATABASE_URL:
-    raise ValueError(
-        'DATABASE_URL no está configurada. '
-        'Configúrala en las variables de entorno de Render.'
-    )
+    raise ValueError('La variable DATABASE_URL no está configurada en Render.')
 
 DATABASES = {
     'default': dj_database_url.parse(
-        os.environ['DATABASE_URL'],
+        DATABASE_URL,
         conn_max_age=600,
     )
 }
 
+# Certificado SSL de TiDB Cloud
 DATABASES['default']['OPTIONS'] = {
     'ssl': {
         'ca': str(BASE_DIR / 'isrgrootx1.pem')
     }
 }
 
-# Password validation
+# Validación de contraseñas
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -99,22 +98,27 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-# Internationalization
+# Idioma y zona horaria
 LANGUAGE_CODE = 'es-co'
 TIME_ZONE = 'America/Bogota'
 USE_I18N = True
 USE_TZ = True
 
-# Static files
+# Archivos estáticos para Render
 STATIC_URL = '/static/'
+
 STATICFILES_DIRS = [
     BASE_DIR / 'marketweb' / 'public',
 ]
+
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-# Media files
+# Almacenamiento y compresión de archivos estáticos
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+# Archivos multimedia
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-# Default primary key
+# Clave primaria predeterminada
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
