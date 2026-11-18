@@ -72,11 +72,15 @@ if not DATABASE_URL:
 
 DATABASES = {
     'default': dj_database_url.parse(
-        os.getenv('DATABASE_URL'),
+        os.environ['DATABASE_URL'],
         conn_max_age=600,
-        conn_health_checks=True,
-        ssl_require=True,
     )
+}
+
+DATABASES['default']['OPTIONS'] = {
+    'ssl': {
+        'ca': str(BASE_DIR / 'isrgrootx1.pem')
+    }
 }
 
 # Password validation
