@@ -30,7 +30,7 @@ urlpatterns = [
     path('reserva/<int:reserva_id>/', views.reserva_detalle, name='reserva_detalle'),
     path('checkin/<int:reserva_id>/', views.registrar_checkin, name='checkin'),
     path('checkout/<int:reserva_id>/', views.registrar_checkout, name='checkout'),
-    path('habitacion/<int:habitacion_id>/habilitar/', pv.habitaciones_lista, name='habilitar_habitacion'),  
+    path('habitacion/<int:habitacion_id>/habilitar/', pv.habilitar, name='habilitar_habitacion'),  
     path('factura/<int:reserva_id>/', views.generar_factura_dian, name='factura_dian'),
 
     # Panel de gestión (solo ADMIN_GERENTE)

@@ -527,8 +527,8 @@ def generar_factura_dian(request, reserva_id):
 
     # Lógica de IVA
     exento = huesped.es_extranjero
-    subtotal = reserva.valor_total / Decimal('1.19') if not exento else reserva.valor_total
-    iva = reserva.valor_total - subtotal if not exento else Decimal('0.00')
+    subtotal = (reserva.valor_total / Decimal('1.19')).quantize(Decimal('0.01')) if not exento else reserva.valor_total
+    iva = (reserva.valor_total - subtotal).quantize(Decimal('0.01')) if not exento else Decimal('0.00')
 
     num_dian_generado = f"SETT-{reserva.id:06d}"
 

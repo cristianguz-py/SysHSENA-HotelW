@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: syshsena-hotelw
+    runtime: python
+    buildCommand: "./build.sh"
+    startCommand: "gunicorn marketweb.wsgi:application"
+    envVars:
+      - key: DEBUG
+        value: "False"
+      - key: DJANGO_SECRET_KEY
+        generateValue: true
+      - key: DATABASE_URL
+        sync: false

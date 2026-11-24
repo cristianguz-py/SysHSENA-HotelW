@@ -1,4 +1,4 @@
-﻿
+
 import os
 import dj_database_url
 from pathlib import Path
@@ -14,9 +14,19 @@ SECRET_KEY = os.environ.get(
     os.environ.get('SECRET_KEY', 'fallback-secret-key')
 )
 
-DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'
+IS_RENDER = os.environ.get('RENDER') == 'true'
+DEBUG = os.getenv('DEBUG', 'False' if IS_RENDER else 'True').lower() == 'true'
 
-ALLOWED_HOSTS = ['*']
+_raw_hosts = os.environ.get('ALLOWED_HOSTS')
+ALLOWED_HOSTS = [h.strip() for h in _raw_hosts.split(',') if h.strip()] if _raw_hosts else ['*']
+
+if not DEBUG:
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    SECURE_BROWSER_XSS_FILTER = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    X_FRAME_OPTIONS = 'DENY'
+    SESSION_COOKIE_SECURE = os.environ.get('SESSION_COOKIE_SECURE', 'True').lower() == 'true'
+    CSRF_COOKIE_SECURE = os.environ.get('CSRF_COOKIE_SECURE', 'True').lower() == 'true'
 
 # Aplicaciones
 INSTALLED_APPS = [
@@ -62,11 +72,14 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'marketweb.wsgi.application'
 
-# Base de datos TiDB Cloud (MySQL)
+# Base de datos TiDB Cloud (MySQL) o fallback SQLite local
 DATABASE_URL = os.environ.get('DATABASE_URL')
 
 if not DATABASE_URL:
-    raise ValueError('La variable DATABASE_URL no está configurada en Render.')
+    if DEBUG:
+        DATABASE_URL = f"sqlite:///{BASE_DIR / 'db.sqlite3'}"
+    else:
+        raise ValueError('La variable DATABASE_URL no está configurada en Render.')
 
 DATABASES = {
     'default': dj_database_url.parse(
@@ -113,6 +126,7 @@ STATICFILES_DIRS = [
 ]
 
 STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATIC_ROOT.mkdir(parents=True, exist_ok=True)
 
 # Almacenamiento y compresión de archivos estáticos
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'

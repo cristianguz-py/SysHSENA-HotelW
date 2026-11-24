@@ -272,6 +272,7 @@ class EntregaYPagoTests(BaseWbar):
         pago = p.pago_registrado
         self.assertEqual(pago.pago.monto, p.total)
         self.assertEqual(pago.registrado_por, self.recep)
+        self.assertEqual(pago.pago.registrado_por, self.recep)
         cuenta = hotel.calcular_cuenta(Reserva.objects.get(pk=self.res_ana.pk))
         self.assertEqual(cuenta['total_servicios'], p.total)
         self.assertEqual(cuenta['total_pagos'], p.total)

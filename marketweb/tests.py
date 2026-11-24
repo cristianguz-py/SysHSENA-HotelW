@@ -16,7 +16,7 @@ from django.utils import timezone
 from unittest import skipIf
 
 from . import services
-from .models import Habitacion, Hotel, Huesped, Reserva, TipoHabitacion
+from .models import Habitacion, Hotel, Huesped, Reserva, TipoHabitacion, Usuario
 from .services import ReglaDeNegocioError
 
 
@@ -183,6 +183,48 @@ class ReservasVistasTests(BaseReservas, TestCase):
     def test_sin_sesion_redirige_a_login(self):
         r = Client().post(reverse('crear_reserva'), {})
         self.assertRedirects(r, reverse('login'), fetch_redirect_response=False)
+
+    def test_ruta_habilitar_habitacion(self):
+        admin = Usuario.objects.create(
+            nombres='Admin', apellidos='Gerente', correo='admin_hab@test.com',
+            contrasena='hash', rol='ADMIN_GERENTE', activo=True
+        )
+        self.h705.estado = Habitacion.EN_ASEO
+        self.h705.save()
+
+        c = Client()
+        s = c.session
+        s['usuario_id'] = admin.pk
+        s['usuario_rol'] = 'ADMIN_GERENTE'
+        s.save()
+
+        r = c.post(reverse('habilitar_habitacion', args=[self.h705.pk]))
+        self.assertRedirects(r, reverse('gestion_servicios'))
+        self.h705.refresh_from_db()
+        self.assertEqual(self.h705.estado, Habitacion.DISPONIBLE)
+
+    def test_generar_factura_dian_cuantizacion(self):
+        admin = Usuario.objects.create(
+            nombres='Admin', apellidos='Gerente', correo='admin_fac@test.com',
+            contrasena='hash', rol='ADMIN_GERENTE', activo=True
+        )
+        reserva = self.reservar(self.h705, self.d(10), self.d(13), n=1)
+        reserva.valor_total = Decimal('100000.00')
+        reserva.save()
+
+        c = Client()
+        s = c.session
+        s['usuario_id'] = admin.pk
+        s['usuario_rol'] = 'ADMIN_GERENTE'
+        s.save()
+
+        r = c.get(reverse('factura_dian', args=[reserva.pk]))
+        self.assertEqual(r.status_code, 200)
+        from .models import Factura
+        factura = Factura.objects.get(reserva=reserva)
+        self.assertEqual(factura.subtotal, Decimal('84033.61'))
+        self.assertEqual(factura.iva, Decimal('15966.39'))
+        self.assertEqual(factura.total, Decimal('100000.00'))
 
 
 @skipIf(connection.vendor == 'sqlite', 'La concurrencia real requiere MySQL (select_for_update).')
