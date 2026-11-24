@@ -3,6 +3,7 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path
 from marketweb import panel_views as pv, views
+from marketweb.recepcion.despacho import despachar
 
 urlpatterns = [
     path('', views.home_publico, name='home'),
@@ -19,10 +20,11 @@ urlpatterns = [
     path('mis-reservas/<int:reserva_id>/', views.reserva_cliente_detalle, name='reserva_cliente_detalle'),
     path('reservar/', views.reservar, name='reservar'),
 
-    path('panel/', pv.dashboard, name='inicio'),
-    path('huespedes/', pv.huespedes_lista, name='huespedes'),
+    # Rutas históricas: el administrador conserva su vista; el recepcionista va a su propio panel.
+    path('panel/', despachar(pv.dashboard, 'recepcion:inicio'), name='inicio'),
+    path('huespedes/', despachar(pv.huespedes_lista, 'recepcion:huespedes'), name='huespedes'),
 
-    path('disponibilidad/', pv.habitaciones_lista, name='disponibilidad'),
+    path('disponibilidad/', despachar(pv.habitaciones_lista, 'recepcion:disponibilidad'), name='disponibilidad'),
     path('reserva/crear/', views.crear_reserva, name='crear_reserva'),
     path('reserva/crear/<int:habitacion_id>/', views.crear_reserva, name='crear_reserva'),
     path('reserva/<int:reserva_id>/', views.reserva_detalle, name='reserva_detalle'),
@@ -55,6 +57,9 @@ urlpatterns = [
     path('gestion/usuarios/<int:usuario_id>/alternar/', pv.usuario_alternar, name='gestion_usuario_alternar'),
 
     path('admin/', admin.site.urls),
+
+    # Panel de recepción (RECEPCIONISTA y ADMIN_GERENTE)
+    path('recepcion/', include('marketweb.recepcion.urls')),
 
     # W Bar Online (app Wbar)
     path('wbar/', include('Wbar.urls')),

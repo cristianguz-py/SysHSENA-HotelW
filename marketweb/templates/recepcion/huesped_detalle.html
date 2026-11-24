@@ -1,0 +1,32 @@
+{% extends 'recepcion/base.html' %}{% load panel_extras %}
+{% block title %}{{ h.nombres }} {{ h.apellidos }}{% endblock %}
+{% block contenido %}
+<div class="pn-titulo"><div><h1>{{ h.nombres }} {{ h.apellidos }}</h1>
+    <p>{{ h.get_tipo_documento_display }} {{ h.numero_documento }} · {{ reservas|length }} reserva{{ reservas|length|pluralize }} · {{ estadias|length }} estadía{{ estadias|length|pluralize }}</p></div>
+    <a class="pn-btn pn-btn--claro" href="{% url 'recepcion:huespedes' %}">← Volver</a></div>
+<div class="pn-rejilla pn-iguales">
+    <section class="pn-tarjeta"><h2>Datos de contacto</h2>
+        <form method="post">{% csrf_token %}
+            <div class="pn-formulario">{% for campo in form %}{% include 'panel/_campo.html' %}{% endfor %}</div>
+            <p class="pn-ayuda" style="margin-top:.6rem">El documento de identidad no se puede cambiar desde aquí.</p>
+            <button class="pn-btn" type="submit" style="margin-top:.8rem">Guardar datos</button>
+        </form></section>
+    <section class="pn-tarjeta"><h2>Historial de reservas</h2>
+        {% if reservas %}<ul class="pn-lista">{% for r in reservas %}
+            <li><span><a href="{% url 'recepcion:reserva_detalle' r.pk %}"><strong>{{ r.pk|codigo_reserva }}</strong></a> · Hab. {{ r.habitacion.numero }} · {{ r.fecha_entrada|date:"d/m/Y" }} → {{ r.fecha_salida|date:"d/m/Y" }}
+                <span class="pn-ayuda" style="display:block">Cuenta {{ r.total_cuenta|cop }} · pagado {{ r.pagado|cop }}{% if r.estado != 'CANCELADA' and r.saldo > 0 %} · saldo {{ r.saldo|cop }}{% endif %}</span></span>{% include 'panel/_estado_reserva.html' %}</li>
+        {% endfor %}</ul>{% else %}<p class="pn-vacio">Este huésped aún no tiene reservas.</p>{% endif %}
+        <div class="pn-acciones" style="margin-top:.8rem"><a class="pn-btn pn-btn--sm" href="{% url 'recepcion:disponibilidad' %}">Nueva reserva</a></div>
+    </section>
+</div>
+<div class="pn-rejilla pn-iguales">
+    <section class="pn-tarjeta"><h2>Historial de estadías</h2>
+        {% if estadias %}<ul class="pn-lista">{% for r in estadias %}
+            <li><span>Hab. {{ r.habitacion.numero }} · {{ r.checkin_real|date:"d/m/Y H:i" }} → {% if r.checkout_real %}{{ r.checkout_real|date:"d/m/Y H:i" }}{% else %}en casa{% endif %}</span>{% include 'panel/_estado_reserva.html' %}</li>
+        {% endfor %}</ul>{% else %}<p class="pn-vacio">Sin estadías registradas.</p>{% endif %}</section>
+    <section class="pn-tarjeta"><h2>Pagos asociados</h2>
+        {% if pagos %}<ul class="pn-lista">{% for p in pagos %}
+            <li><span>{{ p.fecha_pago|date:"d/m/Y H:i" }} · {{ p.get_metodo_pago_display }} · <a href="{% url 'recepcion:reserva_detalle' p.reserva_id %}">{{ p.reserva_id|codigo_reserva }}</a></span><strong>{{ p.monto|cop }}</strong></li>
+        {% endfor %}</ul>{% else %}<p class="pn-vacio">Sin pagos registrados.</p>{% endif %}</section>
+</div>
+{% endblock %}

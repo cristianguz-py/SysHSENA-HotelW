@@ -1,0 +1,13 @@
+{% extends 'recepcion/base.html' %}{% load panel_extras %}
+{% block title %}Salidas · Check-out{% endblock %}
+{% block contenido %}
+<div class="pn-titulo"><div><h1>Salidas · Check-out</h1><p>Huéspedes en casa con salida programada.</p></div></div>
+<form class="pn-tarjeta pn-filtros" method="get"><div class="pn-campo" style="flex:1;min-width:220px"><label for="q">Buscar (código, huésped, documento, habitación)</label><input type="search" id="q" name="q" value="{{ q }}" maxlength="80"></div>
+    <button class="pn-btn" type="submit"><i class="bi bi-search"></i>Buscar</button><a class="pn-btn pn-btn--claro" href="{% url 'recepcion:salidas' %}">Limpiar</a></form>
+<h2 class="rc-sub">Salen hoy o ya vencidas</h2>
+<div class="pn-tabla-wrap"><table class="pn-tabla"><thead><tr><th>Código</th><th>Huésped</th><th>Hab.</th><th>Entrada</th><th>Salida</th><th>Huéspedes</th><th>Estado</th><th class="num">Saldo</th><th>Acciones</th></tr></thead>
+<tbody>{% include 'recepcion/_filas_reserva.html' with lista=hoy_y_vencidas modo='checkout' vacio='No hay salidas para hoy.' %}</tbody></table></div>
+<h2 class="rc-sub">Próximos 7 días</h2>
+<div class="pn-tabla-wrap"><table class="pn-tabla"><thead><tr><th>Código</th><th>Huésped</th><th>Hab.</th><th>Entrada</th><th>Salida</th><th>Huéspedes</th><th>Estado</th><th class="num">Saldo</th><th>Acciones</th></tr></thead>
+<tbody>{% include 'recepcion/_filas_reserva.html' with lista=proximas modo='checkout' vacio='No hay salidas en los próximos 7 días.' %}</tbody></table></div>
+{% endblock %}

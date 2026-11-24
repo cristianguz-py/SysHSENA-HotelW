@@ -1,0 +1,17 @@
+{% extends 'recepcion/base.html' %}{% load panel_extras %}
+{% block title %}Servicios adicionales{% endblock %}
+{% block contenido %}
+<div class="pn-titulo"><div><h1>Servicios adicionales</h1><p>Consumos cargados a las reservas.</p></div>
+    <a class="pn-btn" href="{% url 'recepcion:servicio_nuevo' %}"><i class="bi bi-plus-lg"></i>Registrar servicio</a></div>
+<form class="pn-tarjeta pn-filtros" method="get"><div class="pn-campo" style="flex:1;min-width:220px"><label for="q">Reserva (código, huésped, documento, habitación)</label><input type="search" id="q" name="q" value="{{ q }}" maxlength="80"></div>
+    <button class="pn-btn" type="submit"><i class="bi bi-search"></i>Buscar</button><a class="pn-btn pn-btn--claro" href="{% url 'recepcion:servicios' %}">Limpiar</a></form>
+<div class="pn-tabla-wrap"><table class="pn-tabla"><thead><tr><th>Reserva</th><th>Huésped</th><th>Hab.</th><th>Servicio</th><th class="num">Cant.</th><th class="num">Precio</th><th class="num">Subtotal</th></tr></thead>
+<tbody>{% for s in pagina %}<tr><td><a href="{% url 'recepcion:reserva_detalle' s.reserva_id %}">{{ s.reserva_id|codigo_reserva }}</a></td>
+    <td>{{ s.reserva.huesped.nombres }} {{ s.reserva.huesped.apellidos }}</td><td>{{ s.reserva.habitacion.numero }}</td><td>{{ s.servicio.nombre }}</td>
+    <td class="num">{{ s.cantidad }}</td><td class="num">{{ s.precio_unitario|cop }}</td><td class="num">{{ s.subtotal|cop }}</td></tr>
+{% empty %}<tr><td colspan="7" class="pn-vacio">No hay servicios cargados.</td></tr>{% endfor %}</tbody></table></div>
+{% include 'panel/_paginas.html' %}
+<section class="pn-tarjeta" style="margin-top:1rem"><h2>Catálogo disponible</h2>
+    {% if catalogo %}<ul class="pn-lista">{% for c in catalogo %}<li><span>{{ c.nombre }} <span class="pn-ayuda">· {{ c.get_categoria_display }}</span></span><strong>{{ c.precio|cop }}</strong></li>{% endfor %}</ul>
+    {% else %}<p class="pn-vacio">El catálogo de servicios está vacío.</p>{% endif %}</section>
+{% endblock %}

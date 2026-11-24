@@ -352,6 +352,10 @@ class Pago(models.Model):
     monto = models.DecimalField(max_digits=10, decimal_places=2)
     metodo_pago = models.CharField(max_length=20, choices=METODOS)
     fecha_pago = models.DateTimeField(auto_now_add=True)
+    # Trazabilidad (recepción). Nulos/vacíos en los pagos anteriores: no se pierde ningún dato.
+    registrado_por = models.ForeignKey(Usuario, null=True, blank=True, on_delete=models.PROTECT,
+                                       related_name='pagos_registrados')
+    referencia = models.CharField(max_length=60, blank=True, default='')
 
     class Meta:
         db_table = 'pago'
@@ -372,3 +376,58 @@ class Factura(models.Model):
 
     def __str__(self):
         return f"Factura DIAN {self.numero_dian} - Reserva #{self.reserva.id}"
+
+# 11. Tabla: operacion_recepcion (historial de operaciones del personal de recepción)
+class OperacionRecepcion(models.Model):
+    """Bitácora de solo lectura: cada operación de recepción deja una fila que no se edita ni se borra."""
+    HUESPED_ALTA = 'HUESPED_ALTA'
+    HUESPED_EDICION = 'HUESPED_EDICION'
+    RESERVA_CREADA = 'RESERVA_CREADA'
+    RESERVA_MODIFICADA = 'RESERVA_MODIFICADA'
+    RESERVA_CONFIRMADA = 'RESERVA_CONFIRMADA'
+    RESERVA_CANCELADA = 'RESERVA_CANCELADA'
+    CHECKIN = 'CHECKIN'
+    CHECKOUT = 'CHECKOUT'
+    SERVICIO = 'SERVICIO'
+    PAGO = 'PAGO'
+    HABITACION_HABILITADA = 'HABITACION_HABILITADA'
+    TIPOS = [
+        (HUESPED_ALTA, 'Huésped registrado'),
+        (HUESPED_EDICION, 'Huésped actualizado'),
+        (RESERVA_CREADA, 'Reserva creada'),
+        (RESERVA_MODIFICADA, 'Reserva modificada'),
+        (RESERVA_CONFIRMADA, 'Reserva confirmada'),
+        (RESERVA_CANCELADA, 'Reserva cancelada'),
+        (CHECKIN, 'Check-in'),
+        (CHECKOUT, 'Check-out'),
+        (SERVICIO, 'Servicio adicional'),
+        (PAGO, 'Pago / abono'),
+        (HABITACION_HABILITADA, 'Habitación habilitada'),
+    ]
+
+    usuario = models.ForeignKey(Usuario, null=True, on_delete=models.PROTECT, related_name='operaciones_recepcion')
+    tipo = models.CharField(max_length=24, choices=TIPOS)
+    fecha = models.DateTimeField(auto_now_add=True)
+    reserva = models.ForeignKey(Reserva, null=True, blank=True, on_delete=models.PROTECT, related_name='operaciones')
+    huesped = models.ForeignKey(Huesped, null=True, blank=True, on_delete=models.PROTECT, related_name='operaciones')
+    monto = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
+    descripcion = models.CharField(max_length=300)
+
+    class Meta:
+        db_table = 'operacion_recepcion'
+        ordering = ['-fecha', '-id']
+        indexes = [
+            models.Index(fields=['fecha'], name='oprec_fecha_idx'),
+            models.Index(fields=['tipo'], name='oprec_tipo_idx'),
+        ]
+
+    def save(self, *args, **kwargs):
+        if not self._state.adding:
+            raise ValidationError('El historial de operaciones no se puede modificar.')
+        super().save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        raise ValidationError('El historial de operaciones no se puede eliminar.')
+
+    def __str__(self):
+        return f"{self.get_tipo_display()} · {self.fecha:%d/%m/%Y %H:%M}"

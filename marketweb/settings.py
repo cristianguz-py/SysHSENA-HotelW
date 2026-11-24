@@ -1,4 +1,4 @@
-
+﻿
 import os
 import dj_database_url
 from pathlib import Path
@@ -75,12 +75,13 @@ DATABASES = {
     )
 }
 
-# Certificado SSL de TiDB Cloud
-DATABASES['default']['OPTIONS'] = {
-    'ssl': {
-        'ca': str(BASE_DIR / 'isrgrootx1.pem')
+# Certificado SSL de TiDB Cloud (solo para MySQL)
+if DATABASES['default']['ENGINE'] == 'django.db.backends.mysql':
+    DATABASES['default']['OPTIONS'] = {
+        'ssl': {
+            'ca': str(BASE_DIR / 'isrgrootx1.pem')
+        }
     }
-}
 
 # Validación de contraseñas
 AUTH_PASSWORD_VALIDATORS = [

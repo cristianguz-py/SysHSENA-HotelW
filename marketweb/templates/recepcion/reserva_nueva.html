@@ -1,0 +1,23 @@
+{% extends 'recepcion/base.html' %}{% load panel_extras %}
+{% block title %}Nueva reserva{% endblock %}
+{% block contenido %}
+<div class="pn-titulo"><div><h1>Nueva reserva</h1>
+    <p>Habitación {{ habitacion.numero }} · {{ habitacion.tipo.nombre }} · capacidad {{ habitacion.tipo.capacidad }} · {{ habitacion.tipo.precio_noche|cop }} por noche</p></div>
+    <a class="pn-btn pn-btn--claro" href="{% url 'recepcion:disponibilidad' %}">← Cambiar habitación</a></div>
+<form method="post" class="pn-tarjeta">{% csrf_token %}
+    <input type="hidden" name="token" value="{{ token }}">
+    {% if form.non_field_errors %}<ul class="pn-mensajes">{% for e in form.non_field_errors %}<li class="pn-mensaje pn-mensaje--error">{{ e }}</li>{% endfor %}</ul>{% endif %}
+    {% for h in form.hidden_fields %}{{ h }}{% for e in h.errors %}<p class="pn-error">{{ e }}</p>{% endfor %}{% endfor %}
+    <h2>Huésped</h2>
+    <p class="pn-ayuda">Si el documento ya está registrado se usa ese huésped (sus datos no se sobrescriben). ¿Es un huésped frecuente? <a href="{% url 'recepcion:huespedes' %}">Búscalo aquí</a> y elige «Reservar».</p>
+    <div class="pn-formulario" style="margin:.8rem 0 1.2rem">
+        {% for campo in form.visible_fields %}{% if campo.name == 'tipo_documento' or campo.name == 'numero_documento' or campo.name == 'nombres' or campo.name == 'apellidos' or campo.name == 'telefono' or campo.name == 'correo' or campo.name == 'nacionalidad' or campo.name == 'es_extranjero' %}{% include 'panel/_campo.html' %}{% endif %}{% endfor %}
+    </div>
+    <h2>Estancia</h2>
+    <div class="pn-formulario" style="margin-top:.8rem">
+        {% for campo in form.visible_fields %}{% if campo.name == 'fecha_entrada' or campo.name == 'fecha_salida' or campo.name == 'num_huespedes' or campo.name == 'canal_reserva' %}{% include 'panel/_campo.html' %}{% endif %}{% endfor %}
+    </div>
+    <p class="pn-nota" style="margin-top:1rem">El valor (noches × tarifa de la habitación) lo calcula el servidor y la disponibilidad se vuelve a comprobar al guardar.</p>
+    <div class="pn-acciones" style="margin-top:1rem"><button class="pn-btn" type="submit">Crear reserva</button><a class="pn-btn pn-btn--claro" href="{% url 'recepcion:reservas' %}">Cancelar</a></div>
+</form>
+{% endblock %}

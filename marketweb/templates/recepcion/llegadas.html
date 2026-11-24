@@ -1,0 +1,13 @@
+{% extends 'recepcion/base.html' %}{% load panel_extras %}
+{% block title %}Llegadas · Check-in{% endblock %}
+{% block contenido %}
+<div class="pn-titulo"><div><h1>Llegadas · Check-in</h1><p>Reservas cuya estancia ya comenzó y aún no tienen check-in.</p></div></div>
+<form class="pn-tarjeta pn-filtros" method="get"><div class="pn-campo" style="flex:1;min-width:220px"><label for="q">Buscar reserva (código, huésped, documento, habitación)</label><input type="search" id="q" name="q" value="{{ q }}" maxlength="80"></div>
+    <button class="pn-btn" type="submit"><i class="bi bi-search"></i>Buscar</button><a class="pn-btn pn-btn--claro" href="{% url 'recepcion:llegadas' %}">Limpiar</a></form>
+<h2 class="rc-sub">Por recibir ahora</h2>
+<div class="pn-tabla-wrap"><table class="pn-tabla"><thead><tr><th>Código</th><th>Huésped</th><th>Hab.</th><th>Entrada</th><th>Salida</th><th>Huéspedes</th><th>Estado</th><th class="num">Saldo</th><th>Acciones</th></tr></thead>
+<tbody>{% include 'recepcion/_filas_reserva.html' with lista=pendientes modo='checkin' vacio='No hay llegadas pendientes.' %}</tbody></table></div>
+<h2 class="rc-sub">Próximos 7 días</h2>
+<div class="pn-tabla-wrap"><table class="pn-tabla"><thead><tr><th>Código</th><th>Huésped</th><th>Hab.</th><th>Entrada</th><th>Salida</th><th>Huéspedes</th><th>Estado</th><th class="num">Saldo</th><th>Acciones</th></tr></thead>
+<tbody>{% include 'recepcion/_filas_reserva.html' with lista=proximas modo='checkin' vacio='No hay llegadas en los próximos 7 días.' %}</tbody></table></div>
+{% endblock %}

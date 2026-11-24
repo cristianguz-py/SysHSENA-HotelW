@@ -1,0 +1,30 @@
+{% extends 'recepcion/base.html' %}{% load panel_extras %}
+{% block title %}Reservas{% endblock %}
+{% block contenido %}
+<div class="pn-titulo"><div><h1>Reservas</h1><p>{{ pagina.paginator.count }} reserva{{ pagina.paginator.count|pluralize }} con los filtros actuales.</p></div>
+    <a class="pn-btn" href="{% url 'recepcion:disponibilidad' %}"><i class="bi bi-plus-lg"></i>Nueva reserva</a></div>
+<form class="pn-tarjeta pn-filtros" method="get" action="{% url 'recepcion:reservas' %}">
+    <div class="pn-campo" style="flex:1;min-width:200px"><label for="q">Código, nombre o documento del huésped</label><input type="search" id="q" name="q" value="{{ q }}" maxlength="80" placeholder="RW-000012, Pérez, 1082…"></div>
+    <div class="pn-campo"><label for="estado">Estado</label><select id="estado" name="estado"><option value="">Todos</option>{% for v, t in estados %}<option value="{{ v }}" {% if estado == v %}selected{% endif %}>{{ t }}</option>{% endfor %}</select></div>
+    <div class="pn-campo"><label for="habitacion">Habitación</label><input type="text" id="habitacion" name="habitacion" value="{{ habitacion }}" maxlength="10" size="6"></div>
+    <div class="pn-campo"><label for="desde">Entrada desde</label><input type="date" id="desde" name="desde" value="{{ desde }}"></div>
+    <div class="pn-campo"><label for="hasta">Entrada hasta</label><input type="date" id="hasta" name="hasta" value="{{ hasta }}"></div>
+    <button class="pn-btn" type="submit"><i class="bi bi-search"></i>Filtrar</button>
+    <a class="pn-btn pn-btn--claro" href="{% url 'recepcion:reservas' %}">Limpiar</a>
+</form>
+<div class="pn-tabla-wrap"><table class="pn-tabla">
+    <thead><tr><th>Código</th><th>Huésped</th><th>Hab.</th><th>Entrada</th><th>Salida</th><th>Estado</th><th class="num">Cuenta</th><th class="num">Saldo</th><th>Acciones</th></tr></thead>
+    <tbody>{% for r in pagina %}<tr>
+        <td><a href="{% url 'recepcion:reserva_detalle' r.pk %}"><strong>{{ r.pk|codigo_reserva }}</strong></a></td>
+        <td><a href="{% url 'recepcion:huesped_detalle' r.huesped_id %}">{{ r.huesped.nombres }} {{ r.huesped.apellidos }}</a></td>
+        <td>{{ r.habitacion.numero }}</td><td>{{ r.fecha_entrada|date:"d/m/Y" }}</td><td>{{ r.fecha_salida|date:"d/m/Y" }}</td>
+        <td>{% include 'panel/_estado_reserva.html' %}</td>
+        <td class="num">{{ r.total_cuenta|cop }}</td>
+        <td class="num">{% if r.estado == 'CANCELADA' %}—{% elif r.saldo > 0 %}<strong>{{ r.saldo|cop }}</strong>{% else %}<span class="et et--libre">Pagada</span>{% endif %}</td>
+        <td><div class="pn-acciones"><a class="pn-btn pn-btn--claro pn-btn--sm" href="{% url 'recepcion:reserva_detalle' r.pk %}">Ver</a>
+            {% if r.estado == 'PENDIENTE' %}<a class="pn-btn pn-btn--ok pn-btn--sm" href="{% url 'recepcion:reserva_confirmar' r.pk %}">Confirmar</a>{% endif %}
+            {% if r.estado == 'PENDIENTE' or r.estado == 'CONFIRMADA' %}<a class="pn-btn pn-btn--claro pn-btn--sm" href="{% url 'recepcion:reserva_editar' r.pk %}">Editar</a>{% endif %}</div></td></tr>
+    {% empty %}<tr><td colspan="9" class="pn-vacio">No hay reservas con estos filtros.</td></tr>{% endfor %}</tbody>
+</table></div>
+{% include 'panel/_paginas.html' %}
+{% endblock %}

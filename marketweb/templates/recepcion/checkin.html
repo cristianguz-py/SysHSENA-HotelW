@@ -1,0 +1,30 @@
+{% extends 'recepcion/base.html' %}{% load panel_extras %}
+{% block title %}Check-in {{ r.pk|codigo_reserva }}{% endblock %}
+{% block contenido %}
+<div class="pn-titulo"><div><h1>Check-in · {{ r.pk|codigo_reserva }}</h1><p>Verifica los datos del huésped antes de confirmar la llegada.</p></div>
+    <a class="pn-btn pn-btn--claro" href="{% url 'recepcion:llegadas' %}">← Volver</a></div>
+<div class="pn-rejilla pn-iguales">
+    <section class="pn-tarjeta"><h2>Huésped</h2><dl class="pn-datos">
+        <div><dt>Nombre</dt><dd>{{ r.huesped.nombres }} {{ r.huesped.apellidos }}</dd></div>
+        <div><dt>{{ r.huesped.get_tipo_documento_display }}</dt><dd>{{ r.huesped.numero_documento }}</dd></div>
+        <div><dt>Teléfono</dt><dd>{{ r.huesped.telefono }}</dd></div><div><dt>Correo</dt><dd>{{ r.huesped.correo }}</dd></div>
+        <div><dt>Nacionalidad</dt><dd>{{ r.huesped.nacionalidad }}</dd></div></dl></section>
+    <section class="pn-tarjeta"><h2>Reserva</h2><dl class="pn-datos">
+        <div><dt>Estado</dt><dd>{% include 'panel/_estado_reserva.html' %}</dd></div>
+        <div><dt>Habitación</dt><dd>{{ r.habitacion.numero }} · {{ r.habitacion.tipo.nombre }} ({{ r.habitacion.get_estado_display }})</dd></div>
+        <div><dt>Fechas</dt><dd>{{ r.fecha_entrada|date:"d/m/Y" }} → {{ r.fecha_salida|date:"d/m/Y" }} ({{ noches }} noche{{ noches|pluralize }})</dd></div>
+        <div><dt>Huéspedes</dt><dd>{{ r.num_huespedes }}</dd></div>
+        <div><dt>Cuenta / pagado / saldo</dt><dd>{{ cuenta.total_general|cop }} / {{ cuenta.total_pagos|cop }} / {{ cuenta.saldo_pendiente|cop }}</dd></div></dl></section>
+</div>
+<section class="pn-tarjeta">
+    {% if habilitada %}
+    <form method="post">{% csrf_token %}
+        <div class="pn-formulario">{% for campo in form %}{% include 'panel/_campo.html' with ancho=True %}{% endfor %}</div>
+        <p class="pn-ayuda" style="margin-top:.6rem">Se registrará la fecha y hora reales del check-in y la habitación pasará a OCUPADA.</p>
+        <div class="pn-acciones" style="margin-top:1rem"><button class="pn-btn pn-btn--ok" type="submit">Confirmar llegada (check-in)</button><a class="pn-btn pn-btn--claro" href="{% url 'recepcion:llegadas' %}">Cancelar</a></div>
+    </form>
+    {% else %}
+    <p class="pn-nota">No se puede hacer check-in ahora: la reserva debe estar <strong>confirmada</strong> y la estancia debe haber comenzado y no haber terminado. Estado actual: {{ r.get_estado_display }}.</p>
+    {% endif %}
+</section>
+{% endblock %}

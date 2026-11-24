@@ -1,0 +1,26 @@
+{% extends 'recepcion/base.html' %}{% load panel_extras %}
+{% block title %}Disponibilidad{% endblock %}
+{% block contenido %}
+<div class="pn-titulo"><div><h1>Disponibilidad</h1><p>Habitaciones realmente libres: sin reservas confirmadas o con huésped que se crucen con las fechas.</p></div></div>
+<form class="pn-tarjeta pn-filtros" method="get" action="{% url 'recepcion:disponibilidad' %}">
+    <div class="pn-campo"><label for="entrada">Fecha de entrada</label><input type="date" id="entrada" name="entrada" value="{{ entrada|date:'Y-m-d' }}" min="{{ hoy|date:'Y-m-d' }}" required></div>
+    <div class="pn-campo"><label for="salida">Fecha de salida</label><input type="date" id="salida" name="salida" value="{{ salida|date:'Y-m-d' }}" required></div>
+    <div class="pn-campo"><label for="huespedes">Huéspedes</label><input type="number" id="huespedes" name="huespedes" min="1" max="20" value="{{ huespedes }}" required></div>
+    <div class="pn-campo"><label for="tipo">Tipo de habitación</label><select id="tipo" name="tipo"><option value="">Todos</option>{% for t in tipos %}<option value="{{ t.pk }}" {% if tipo == t.pk|stringformat:"d" %}selected{% endif %}>{{ t.nombre }}</option>{% endfor %}</select></div>
+    <button class="pn-btn" type="submit"><i class="bi bi-search"></i>Consultar</button>
+</form>
+{% if consultado %}
+<section class="pn-tarjeta"><h2>{{ habitaciones|length }} habitación{{ habitaciones|length|pluralize:"es" }} disponible{{ habitaciones|length|pluralize }}</h2>
+    <p class="pn-ayuda">{{ entrada|date:"d/m/Y" }} → {{ salida|date:"d/m/Y" }} · {{ noches }} noche{{ noches|pluralize }} · {{ huespedes }} huésped{{ huespedes|pluralize:"es" }}</p>
+    <div class="pn-tabla-wrap"><table class="pn-tabla">
+        <thead><tr><th>Habitación</th><th>Tipo</th><th>Piso</th><th>Capacidad</th><th>Estado operativo</th><th class="num">Precio por noche</th><th class="num">Total estancia</th><th></th></tr></thead>
+        <tbody>{% for h in habitaciones %}<tr>
+            <td><strong>{{ h.numero }}</strong></td><td>{{ h.tipo.nombre }}</td><td>{{ h.piso }}</td><td>{{ h.tipo.capacidad }}</td>
+            <td><span class="et et--{% if h.estado == 'DISPONIBLE' %}libre{% else %}aseo{% endif %}">{{ h.get_estado_display }}</span></td>
+            <td class="num">{{ h.tipo.precio_noche|cop }}</td><td class="num">{{ h.total_estancia|cop }}</td>
+            <td><a class="pn-btn pn-btn--sm" href="{% url 'recepcion:reserva_nueva' %}{{ h.enlace }}">Reservar</a></td></tr>
+        {% empty %}<tr><td colspan="8" class="pn-vacio">No hay habitaciones disponibles para esos criterios.</td></tr>{% endfor %}</tbody>
+    </table></div>
+</section>
+{% endif %}
+{% endblock %}

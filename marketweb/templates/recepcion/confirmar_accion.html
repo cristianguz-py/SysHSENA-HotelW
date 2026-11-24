@@ -1,0 +1,21 @@
+{% extends 'recepcion/base.html' %}{% load panel_extras %}
+{% block title %}{{ titulo }}{% endblock %}
+{% block contenido %}
+<section class="pn-tarjeta pn-confirmar">
+    <h1 style="font-size:1.9rem">{{ titulo }}</h1>
+    <dl class="pn-datos" style="margin:1rem 0">
+        <div><dt>Reserva</dt><dd>{{ r.pk|codigo_reserva }}</dd></div>
+        <div><dt>Huésped</dt><dd>{{ r.huesped.nombres }} {{ r.huesped.apellidos }}</dd></div>
+        <div><dt>Habitación</dt><dd>{{ r.habitacion.numero }} · {{ r.habitacion.tipo.nombre }}</dd></div>
+        <div><dt>Fechas</dt><dd>{{ r.fecha_entrada|date:"d/m/Y" }} → {{ r.fecha_salida|date:"d/m/Y" }}</dd></div>
+        <div><dt>Estado actual</dt><dd>{% include 'panel/_estado_reserva.html' %}</dd></div>
+        <div><dt>Valor</dt><dd>{{ r.valor_total|cop }}</dd></div>
+    </dl>
+    <p>{{ texto }}</p>
+    {% if aviso_pagos %}<p class="pn-nota">Esta reserva tiene {{ aviso_pagos|cop }} en pagos registrados. Las devoluciones no se gestionan en el sistema.</p>{% endif %}
+    <form method="post" class="pn-acciones" style="margin-top:1rem">{% csrf_token %}
+        <button type="submit" class="pn-btn {% if peligro %}pn-btn--peligro{% else %}pn-btn--ok{% endif %}">{{ boton }}</button>
+        <a class="pn-btn pn-btn--claro" href="{% url 'recepcion:reserva_detalle' r.pk %}">Volver sin cambios</a>
+    </form>
+</section>
+{% endblock %}

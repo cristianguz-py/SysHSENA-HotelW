@@ -1,0 +1,16 @@
+{% extends 'recepcion/base.html' %}{% load panel_extras %}
+{% block title %}{{ titulo }}{% endblock %}
+{% block contenido %}
+<div class="pn-titulo"><div><h1>{{ titulo }}</h1>{% if subtitulo %}<p>{{ subtitulo }}</p>{% endif %}</div></div>
+{% if reserva %}{% include 'recepcion/_resumen_reserva.html' %}{% endif %}
+<form method="post" class="pn-tarjeta">{% csrf_token %}
+    {% if token %}<input type="hidden" name="token" value="{{ token }}">{% endif %}
+    {% if form.non_field_errors %}<ul class="pn-mensajes">{% for e in form.non_field_errors %}<li class="pn-mensaje pn-mensaje--error">{{ e }}</li>{% endfor %}</ul>{% endif %}
+    <div class="pn-formulario">{% for campo in form %}{% include 'panel/_campo.html' %}{% endfor %}</div>
+    {% if nota %}<p class="pn-nota" style="margin-top:1rem">{{ nota }}</p>{% endif %}
+    <div class="pn-acciones" style="margin-top:1rem">
+        <button class="pn-btn" type="submit">{{ boton }}</button>
+        <a class="pn-btn pn-btn--claro" href="{% if volver_args %}{% url volver volver_args.0 %}{% else %}{% url volver %}{% endif %}">Cancelar</a>
+    </div>
+</form>
+{% endblock %}

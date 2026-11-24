@@ -478,17 +478,30 @@ def registrar_checkout(request, reserva_id):
         Reserva.objects.select_related('huesped', 'habitacion__tipo'), pk=reserva_id
     )
 
+    es_recepcion = request.session.get('usuario_rol') == 'RECEPCIONISTA'
+    if es_recepcion and request.method != 'POST':
+        # El recepcionista usa el flujo con pago final y control de saldo del panel de recepción.
+        return redirect('recepcion:checkout', reserva_id=reserva_id)
+
     if request.method == 'POST':
         try:
-            reserva = services.registrar_checkout(reserva_id)
+            if es_recepcion:
+                # Ruta antigua: para RECEPCIONISTA solo cierra con el flujo seguro (check-in previo,
+                # saldo exactamente en cero y registro en el historial). El administrador conserva
+                # el comportamiento anterior.
+                from .recepcion import operaciones as op_recepcion
+                usuario = Usuario.objects.filter(pk=request.session['usuario_id']).first()
+                reserva = op_recepcion.hacer_checkout(usuario=usuario, reserva_id=reserva_id)
+            else:
+                reserva = services.registrar_checkout(reserva_id)
         except ReglaDeNegocioError as e:
             messages.error(request, str(e))
-            return redirect('checkout', reserva_id=reserva_id)
+            return redirect('recepcion:checkout' if es_recepcion else 'checkout', reserva_id=reserva_id)
         messages.success(
             request,
             f"Check-out completado. Habitación {reserva.habitacion.numero} pasó a estado EN ASEO."
         )
-        return redirect('inicio')
+        return redirect('recepcion:reserva_detalle', reserva_id=reserva_id) if es_recepcion else redirect('inicio')
 
     if reserva.estado != 'CHECKIN':
         messages.warning(request, "Esta reserva no tiene un check-in activo; no se puede hacer check-out.")

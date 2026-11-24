@@ -1,0 +1,52 @@
+{% extends 'recepcion/base.html' %}{% load panel_extras %}
+{% block title %}Reserva {{ r.pk|codigo_reserva }}{% endblock %}
+{% block contenido %}
+<div class="pn-titulo"><div><h1>Reserva {{ r.pk|codigo_reserva }} {% include 'panel/_estado_reserva.html' %}</h1>
+    <p>Creada el {{ r.fecha_creacion|date:"d/m/Y H:i" }} · Origen: {{ r.get_canal_reserva_display }}</p></div>
+    <div class="pn-acciones"><a class="pn-btn pn-btn--claro" href="{% url 'recepcion:reservas' %}">← Volver</a>
+        {% if puede_confirmar %}<a class="pn-btn pn-btn--ok" href="{% url 'recepcion:reserva_confirmar' r.pk %}">Confirmar</a>{% endif %}
+        {% if puede_checkin %}<a class="pn-btn" href="{% url 'recepcion:checkin' r.pk %}">Check-in</a>{% endif %}
+        {% if puede_pagar %}<a class="pn-btn" href="{% url 'recepcion:pago_nuevo' %}?reserva={{ r.pk }}">Registrar pago</a>{% endif %}
+        {% if puede_servicio %}<a class="pn-btn pn-btn--claro" href="{% url 'recepcion:servicio_nuevo' %}?reserva={{ r.pk }}">Cargar servicio</a>{% endif %}
+        {% if puede_checkout %}<a class="pn-btn" href="{% url 'recepcion:checkout' r.pk %}">Check-out</a>{% endif %}
+        {% if editable %}<a class="pn-btn pn-btn--claro" href="{% url 'recepcion:reserva_editar' r.pk %}">Editar</a>{% endif %}
+        {% if puede_cancelar %}<a class="pn-btn pn-btn--peligro" href="{% url 'recepcion:reserva_cancelar' r.pk %}">Cancelar</a>{% endif %}
+        {% if r.estado == 'CHECKOUT' %}<a class="pn-btn" href="{% url 'factura_dian' r.pk %}">Factura</a>{% endif %}</div></div>
+{% if cancelar_bloqueado %}<p class="pn-nota">Esta reserva tiene pagos registrados: solo un administrador puede cancelarla.</p>{% endif %}
+<div class="pn-rejilla pn-iguales">
+    <section class="pn-tarjeta"><h2>Estancia</h2><dl class="pn-datos">
+        <div><dt>Habitación</dt><dd>{{ r.habitacion.numero }} · {{ r.habitacion.tipo.nombre }}</dd></div>
+        <div><dt>Huéspedes / capacidad</dt><dd>{{ r.num_huespedes }} de {{ r.habitacion.tipo.capacidad }}</dd></div>
+        <div><dt>Entrada</dt><dd>{{ r.fecha_entrada|date:"d/m/Y" }}</dd></div><div><dt>Salida</dt><dd>{{ r.fecha_salida|date:"d/m/Y" }}</dd></div>
+        <div><dt>Noches</dt><dd>{{ noches }}</dd></div>
+        {% if r.checkin_real %}<div><dt>Check-in real</dt><dd>{{ r.checkin_real|date:"d/m/Y H:i" }}</dd></div>{% endif %}
+        {% if r.checkout_real %}<div><dt>Check-out real</dt><dd>{{ r.checkout_real|date:"d/m/Y H:i" }}</dd></div>{% endif %}</dl></section>
+    <section class="pn-tarjeta"><h2>Huésped</h2><dl class="pn-datos">
+        <div><dt>Nombre</dt><dd><a href="{% url 'recepcion:huesped_detalle' r.huesped_id %}">{{ r.huesped.nombres }} {{ r.huesped.apellidos }}</a></dd></div>
+        <div><dt>{{ r.huesped.get_tipo_documento_display }}</dt><dd>{{ r.huesped.numero_documento }}</dd></div>
+        <div><dt>Teléfono</dt><dd>{{ r.huesped.telefono }}</dd></div><div><dt>Correo</dt><dd>{{ r.huesped.correo }}</dd></div></dl></section>
+</div>
+<div class="pn-rejilla pn-iguales">
+    <section class="pn-tarjeta"><h2>Cuenta</h2><ul class="pn-lista">
+        <li><span>Alojamiento ({{ noches }} noche{{ noches|pluralize }})</span><strong>{{ cuenta.total_alojamiento|cop }}</strong></li>
+        <li><span>Servicios adicionales</span><strong>{{ cuenta.total_servicios|cop }}</strong></li>
+        {% if cuenta.cargo_tardio %}<li><span>Cargo por salida tardía</span><strong>{{ cuenta.cargo_tardio|cop }}</strong></li>{% endif %}
+        <li><span>Total de la cuenta</span><strong>{{ cuenta.total_general|cop }}</strong></li>
+        <li><span>Pagado</span><strong>{{ cuenta.total_pagos|cop }}</strong></li>
+        <li><span>Saldo pendiente</span><strong>{% if r.estado == 'CANCELADA' %}—{% else %}{{ cuenta.saldo_pendiente|cop }}{% endif %}</strong></li></ul>
+        {% if r.estado != 'CANCELADA' and cuenta.saldo_pendiente <= 0 %}<p class="pn-nota">Cuenta completamente pagada.</p>
+        {% elif r.estado != 'CANCELADA' and cuenta.total_pagos > 0 %}<p class="pn-nota">Cuenta parcialmente pagada.</p>{% endif %}
+        <p class="pn-ayuda">El cargo por salida tardía solo se calcula en el check-out.</p></section>
+    <section class="pn-tarjeta"><h2>Pagos registrados</h2>
+        {% if pagos %}<ul class="pn-lista">{% for p in pagos %}<li><span>{{ p.fecha_pago|date:"d/m/Y H:i" }} · {{ p.get_metodo_pago_display }}{% if p.referencia %} · ref. {{ p.referencia }}{% endif %}<span class="pn-ayuda" style="display:block">{% if p.registrado_por %}por {{ p.registrado_por.nombres }} {{ p.registrado_por.apellidos }}{% else %}registro anterior sin usuario{% endif %}</span></span><strong>{{ p.monto|cop }}</strong></li>{% endfor %}</ul>
+        {% else %}<p class="pn-vacio">No hay pagos registrados.</p>{% endif %}</section>
+</div>
+<div class="pn-rejilla pn-iguales">
+    <section class="pn-tarjeta"><h2>Servicios adicionales</h2>
+        {% if servicios %}<ul class="pn-lista">{% for s in servicios %}<li><span>{{ s.cantidad }} × {{ s.servicio.nombre }}</span><strong>{{ s.subtotal|cop }}</strong></li>{% endfor %}</ul>
+        {% else %}<p class="pn-vacio">Sin servicios cargados.</p>{% endif %}</section>
+    <section class="pn-tarjeta"><h2>Historial de la reserva</h2>
+        {% if operaciones %}<ul class="pn-lista">{% for o in operaciones %}<li><span>{{ o.descripcion }}<span class="pn-ayuda" style="display:block">{{ o.fecha|date:"d/m/Y H:i" }}{% if o.usuario %} · {{ o.usuario.nombres }} {{ o.usuario.apellidos }}{% endif %}</span></span></li>{% endfor %}</ul>
+        {% else %}<p class="pn-vacio">Sin operaciones registradas por recepción.</p>{% endif %}</section>
+</div>
+{% endblock %}
