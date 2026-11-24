@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Habitacion, Hotel, Huesped, Reserva, TipoHabitacion, Usuario
+from .models import Habitacion, Hotel, Huesped, OperacionRecepcion, Reserva, TipoHabitacion, Usuario
 
 
 @admin.register(Hotel)
@@ -49,3 +49,20 @@ class UsuarioAdmin(admin.ModelAdmin):
     list_filter = ('rol', 'activo')
     search_fields = ('correo', 'nombres', 'apellidos')
     exclude = ('contrasena',)
+
+@admin.register(OperacionRecepcion)
+class OperacionRecepcionAdmin(admin.ModelAdmin):
+    """Historial de recepción: solo consulta. Nadie lo agrega, edita ni borra desde el admin."""
+    list_display = ('fecha', 'usuario', 'tipo', 'reserva', 'huesped', 'monto', 'descripcion')
+    list_filter = ('tipo', 'fecha')
+    search_fields = ('descripcion', 'huesped__numero_documento', 'huesped__nombres', 'huesped__apellidos')
+    list_select_related = ('usuario', 'reserva', 'huesped')
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False

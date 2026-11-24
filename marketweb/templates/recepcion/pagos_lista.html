@@ -1,0 +1,18 @@
+{% extends 'recepcion/base.html' %}{% load panel_extras %}
+{% block title %}Pagos y abonos{% endblock %}
+{% block contenido %}
+<div class="pn-titulo"><div><h1>Pagos y abonos</h1><p>{{ pagina.paginator.count }} pago{{ pagina.paginator.count|pluralize }} · total filtrado {{ total|cop }} · hoy {{ hoy_total|cop }}</p></div>
+    <a class="pn-btn" href="{% url 'recepcion:pago_nuevo' %}"><i class="bi bi-plus-lg"></i>Registrar pago</a></div>
+<form class="pn-tarjeta pn-filtros" method="get" action="{% url 'recepcion:pagos' %}">
+    <div class="pn-campo" style="flex:1;min-width:200px"><label for="q">Reserva, huésped o documento</label><input type="search" id="q" name="q" value="{{ q }}" maxlength="80"></div>
+    <div class="pn-campo"><label for="metodo">Método</label><select id="metodo" name="metodo"><option value="">Todos</option>{% for v, t in metodos %}<option value="{{ v }}" {% if metodo == v %}selected{% endif %}>{{ t }}</option>{% endfor %}</select></div>
+    <div class="pn-campo"><label for="desde">Desde</label><input type="date" id="desde" name="desde" value="{{ desde }}"></div>
+    <div class="pn-campo"><label for="hasta">Hasta</label><input type="date" id="hasta" name="hasta" value="{{ hasta }}"></div>
+    <button class="pn-btn" type="submit"><i class="bi bi-search"></i>Filtrar</button><a class="pn-btn pn-btn--claro" href="{% url 'recepcion:pagos' %}">Limpiar</a></form>
+<div class="pn-tabla-wrap"><table class="pn-tabla"><thead><tr><th>Fecha y hora</th><th>Reserva</th><th>Huésped</th><th>Método</th><th>Referencia</th><th>Registrado por</th><th class="num">Valor</th></tr></thead>
+<tbody>{% for p in pagina %}<tr><td>{{ p.fecha_pago|date:"d/m/Y H:i" }}</td><td><a href="{% url 'recepcion:reserva_detalle' p.reserva_id %}">{{ p.reserva_id|codigo_reserva }}</a></td>
+    <td>{{ p.reserva.huesped.nombres }} {{ p.reserva.huesped.apellidos }}</td><td>{{ p.get_metodo_pago_display }}</td><td>{{ p.referencia|default:"—" }}</td>
+    <td>{% if p.registrado_por %}{{ p.registrado_por.nombres }} {{ p.registrado_por.apellidos }}{% else %}<span class="pn-ayuda">Anterior / W Bar</span>{% endif %}</td><td class="num">{{ p.monto|cop }}</td></tr>
+{% empty %}<tr><td colspan="7" class="pn-vacio">No hay pagos con estos filtros.</td></tr>{% endfor %}</tbody></table></div>
+{% include 'panel/_paginas.html' %}
+{% endblock %}

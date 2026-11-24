@@ -1,0 +1,62 @@
+{% load static %}<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>{% block title %}Recepción{% endblock %} · Hotel W</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="{% static 'css/panel.css' %}">
+    <link rel="stylesheet" href="{% static 'css/recepcion.css' %}">
+</head>
+<body class="pn">
+<aside class="pn-lateral">
+    <a class="pn-marca" href="{% url 'recepcion:inicio' %}">
+        <img src="{% static 'img/logohotelw.jpg' %}" alt="Logo Hotel W">
+        <span><strong>HOTEL W</strong><small>Recepción</small></span>
+    </a>
+    <nav class="pn-nav" aria-label="Navegación de recepción">
+        <a href="{% url 'recepcion:inicio' %}" class="{% if seccion == 'inicio' %}activo{% endif %}"><i class="bi bi-grid-1x2"></i>Inicio</a>
+        <a href="{% url 'recepcion:disponibilidad' %}" class="{% if seccion == 'disponibilidad' %}activo{% endif %}"><i class="bi bi-calendar2-week"></i>Disponibilidad</a>
+        <a href="{% url 'recepcion:reservas' %}" class="{% if seccion == 'reservas' %}activo{% endif %}"><i class="bi bi-calendar-check"></i>Reservas</a>
+        <a href="{% url 'recepcion:huespedes' %}" class="{% if seccion == 'huespedes' %}activo{% endif %}"><i class="bi bi-people"></i>Huéspedes</a>
+        <a href="{% url 'recepcion:llegadas' %}" class="{% if seccion == 'llegadas' %}activo{% endif %}"><i class="bi bi-box-arrow-in-right"></i>Llegadas · Check-in</a>
+        <a href="{% url 'recepcion:alojados' %}" class="{% if seccion == 'alojados' %}activo{% endif %}"><i class="bi bi-person-check"></i>Huéspedes alojados</a>
+        <a href="{% url 'recepcion:salidas' %}" class="{% if seccion == 'salidas' %}activo{% endif %}"><i class="bi bi-box-arrow-right"></i>Salidas · Check-out</a>
+        <a href="{% url 'recepcion:servicios' %}" class="{% if seccion == 'servicios' %}activo{% endif %}"><i class="bi bi-stars"></i>Servicios adicionales</a>
+        <a href="{% url 'recepcion:pagos' %}" class="{% if seccion == 'pagos' %}activo{% endif %}"><i class="bi bi-cash-coin"></i>Pagos y abonos</a>
+        <a href="{% url 'recepcion:habitaciones' %}" class="{% if seccion == 'habitaciones' %}activo{% endif %}"><i class="bi bi-door-closed"></i>Habitaciones</a>
+        <a href="{% url 'recepcion:historial' %}" class="{% if seccion == 'historial' %}activo{% endif %}"><i class="bi bi-clock-history"></i>Historial</a>
+        <a href="{% url 'wbar:gestion' %}"><i class="bi bi-cup-straw"></i>W Bar · Pedidos</a>
+        <hr>
+        <a href="{% url 'cuenta' %}"><i class="bi bi-person-gear"></i>Mi cuenta</a>
+        <a href="{% url 'home' %}"><i class="bi bi-globe"></i>Volver al sitio web</a>
+        <form method="post" action="{% url 'logout' %}">{% csrf_token %}
+            <button type="submit"><i class="bi bi-box-arrow-right"></i>Cerrar sesión</button>
+        </form>
+    </nav>
+</aside>
+<div class="pn-cuerpo">
+    <header class="pn-barra">
+        <form class="pn-busqueda" method="get" action="{% url 'recepcion:huespedes' %}" role="search">
+            <input type="search" name="q" maxlength="80" placeholder="Buscar huésped por nombre, documento, correo o teléfono…" aria-label="Búsqueda rápida de huéspedes">
+            <button type="submit" aria-label="Buscar"><i class="bi bi-search"></i></button>
+        </form>
+        <div class="pn-usuario"><strong>{{ usuario_nombre }}</strong><small>{{ usuario_rol_texto }}</small></div>
+        <span class="pn-avatar" aria-hidden="true">{{ usuario_nombre|slice:":1"|upper }}</span>
+    </header>
+    <main class="pn-principal">
+        {% if messages %}
+        <ul class="pn-mensajes" role="status">
+            {% for mensaje in messages %}<li class="pn-mensaje pn-mensaje--{{ mensaje.level_tag }}">{{ mensaje }}</li>{% endfor %}
+        </ul>
+        {% endif %}
+        {% block contenido %}{% endblock %}
+    </main>
+    <footer class="pn-pie">Hotel W · Recepción · © {% now "Y" %}</footer>
+</div>
+</body>
+</html>

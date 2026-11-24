@@ -1,0 +1,19 @@
+{% extends 'recepcion/base.html' %}{% load panel_extras %}
+{% block title %}Historial{% endblock %}
+{% block contenido %}
+<div class="pn-titulo"><div><h1>Historial de operaciones</h1><p>Registro de solo lectura: no se edita ni se elimina. {{ pagina.paginator.count }} operación{{ pagina.paginator.count|pluralize:"es" }}.</p></div></div>
+<form class="pn-tarjeta pn-filtros" method="get" action="{% url 'recepcion:historial' %}">
+    <div class="pn-campo" style="flex:1;min-width:200px"><label for="q">Reserva, huésped o documento</label><input type="search" id="q" name="q" value="{{ q }}" maxlength="80"></div>
+    <div class="pn-campo"><label for="tipo">Operación</label><select id="tipo" name="tipo"><option value="">Todas</option>{% for v, t in tipos %}<option value="{{ v }}" {% if tipo == v %}selected{% endif %}>{{ t }}</option>{% endfor %}</select></div>
+    <div class="pn-campo"><label for="desde">Desde</label><input type="date" id="desde" name="desde" value="{{ desde }}"></div>
+    <div class="pn-campo"><label for="hasta">Hasta</label><input type="date" id="hasta" name="hasta" value="{{ hasta }}"></div>
+    <div class="pn-campo"><label class="pn-check"><input type="checkbox" name="mias" value="1" {% if mias %}checked{% endif %}> Solo las mías</label></div>
+    <button class="pn-btn" type="submit"><i class="bi bi-search"></i>Filtrar</button><a class="pn-btn pn-btn--claro" href="{% url 'recepcion:historial' %}">Limpiar</a></form>
+<div class="pn-tabla-wrap"><table class="pn-tabla"><thead><tr><th>Fecha y hora</th><th>Usuario</th><th>Operación</th><th>Reserva</th><th>Huésped</th><th class="num">Valor</th><th>Descripción</th></tr></thead>
+<tbody>{% for o in pagina %}<tr><td>{{ o.fecha|date:"d/m/Y H:i" }}</td><td>{% if o.usuario %}{{ o.usuario.nombres }} {{ o.usuario.apellidos }}{% else %}—{% endif %}</td><td>{{ o.get_tipo_display }}</td>
+    <td>{% if o.reserva_id %}<a href="{% url 'recepcion:reserva_detalle' o.reserva_id %}">{{ o.reserva_id|codigo_reserva }}</a>{% else %}—{% endif %}</td>
+    <td>{% if o.huesped %}<a href="{% url 'recepcion:huesped_detalle' o.huesped_id %}">{{ o.huesped.nombres }} {{ o.huesped.apellidos }}</a>{% else %}—{% endif %}</td>
+    <td class="num">{% if o.monto is not None %}{{ o.monto|cop }}{% else %}—{% endif %}</td><td>{{ o.descripcion }}</td></tr>
+{% empty %}<tr><td colspan="7" class="pn-vacio">No hay operaciones con estos filtros.</td></tr>{% endfor %}</tbody></table></div>
+{% include 'panel/_paginas.html' %}
+{% endblock %}

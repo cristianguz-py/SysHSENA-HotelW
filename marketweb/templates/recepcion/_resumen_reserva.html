@@ -1,0 +1,14 @@
+{% load panel_extras %}
+<section class="pn-tarjeta rc-resumen">
+    <dl class="pn-datos">
+        <div><dt>Reserva</dt><dd><a href="{% url 'recepcion:reserva_detalle' reserva.pk %}">{{ reserva.pk|codigo_reserva }}</a> {% with r=reserva %}{% include 'panel/_estado_reserva.html' %}{% endwith %}</dd></div>
+        <div><dt>Huésped</dt><dd>{{ reserva.huesped.nombres }} {{ reserva.huesped.apellidos }}</dd></div>
+        <div><dt>Habitación</dt><dd>{{ reserva.habitacion.numero }}</dd></div>
+        <div><dt>Fechas</dt><dd>{{ reserva.fecha_entrada|date:"d/m/Y" }} → {{ reserva.fecha_salida|date:"d/m/Y" }}</dd></div>
+        {% if cuenta %}
+        <div><dt>Total de la cuenta</dt><dd>{{ cuenta.total_general|cop }}</dd></div>
+        <div><dt>Pagado</dt><dd>{{ cuenta.total_pagos|cop }}</dd></div>
+        <div><dt>Saldo pendiente</dt><dd><strong>{{ cuenta.saldo_pendiente|cop }}</strong></dd></div>
+        {% endif %}
+    </dl>
+</section>

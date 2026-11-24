@@ -1,0 +1,11 @@
+{% load panel_extras %}{% for r in lista %}<tr>
+    <td><a href="{% url 'recepcion:reserva_detalle' r.pk %}"><strong>{{ r.pk|codigo_reserva }}</strong></a></td>
+    <td>{{ r.huesped.nombres }} {{ r.huesped.apellidos }}<span class="pn-ayuda" style="display:block">{{ r.huesped.numero_documento }}</span></td>
+    <td>{{ r.habitacion.numero }}</td><td>{{ r.fecha_entrada|date:"d/m/Y" }}</td><td>{{ r.fecha_salida|date:"d/m/Y" }}</td><td>{{ r.num_huespedes }}</td>
+    <td>{% include 'panel/_estado_reserva.html' %}</td>
+    <td class="num">{% if r.saldo > 0 %}<strong>{{ r.saldo|cop }}</strong>{% else %}<span class="et et--libre">Pagada</span>{% endif %}</td>
+    <td><div class="pn-acciones">
+        {% if modo == 'checkin' %}{% if r.estado == 'CONFIRMADA' and r.fecha_entrada <= hoy %}<a class="pn-btn pn-btn--sm" href="{% url 'recepcion:checkin' r.pk %}">Check-in</a>{% elif r.estado == 'PENDIENTE' %}<a class="pn-btn pn-btn--ok pn-btn--sm" href="{% url 'recepcion:reserva_confirmar' r.pk %}">Confirmar</a>{% endif %}{% endif %}
+        {% if modo == 'checkout' %}<a class="pn-btn pn-btn--sm" href="{% url 'recepcion:checkout' r.pk %}">Check-out</a><a class="pn-btn pn-btn--claro pn-btn--sm" href="{% url 'recepcion:pago_nuevo' %}?reserva={{ r.pk }}">Pago</a>{% endif %}
+        <a class="pn-btn pn-btn--claro pn-btn--sm" href="{% url 'recepcion:reserva_detalle' r.pk %}">Ver</a></div></td></tr>
+{% empty %}<tr><td colspan="9" class="pn-vacio">{{ vacio }}</td></tr>{% endfor %}

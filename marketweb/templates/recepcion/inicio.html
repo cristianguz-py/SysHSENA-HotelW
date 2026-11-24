@@ -1,0 +1,58 @@
+{% extends 'recepcion/base.html' %}{% load panel_extras %}
+{% block title %}Inicio{% endblock %}
+{% block contenido %}
+<div class="pn-titulo"><div><h1>Recepción</h1><p>{{ d.hoy|date:"l j \d\e F \d\e Y" }} · datos en tiempo real</p></div></div>
+
+<nav class="rc-accesos" aria-label="Accesos rápidos">
+    <a class="pn-btn" href="{% url 'recepcion:huesped_nuevo' %}"><i class="bi bi-person-plus"></i>Registrar huésped</a>
+    <a class="pn-btn" href="{% url 'recepcion:disponibilidad' %}"><i class="bi bi-plus-lg"></i>Crear reserva</a>
+    <a class="pn-btn" href="{% url 'recepcion:disponibilidad' %}"><i class="bi bi-calendar2-week"></i>Consultar disponibilidad</a>
+    <a class="pn-btn" href="{% url 'recepcion:llegadas' %}"><i class="bi bi-box-arrow-in-right"></i>Check-in</a>
+    <a class="pn-btn" href="{% url 'recepcion:pago_nuevo' %}"><i class="bi bi-cash-coin"></i>Registrar pago</a>
+    <a class="pn-btn" href="{% url 'recepcion:servicio_nuevo' %}"><i class="bi bi-stars"></i>Registrar servicio</a>
+    <a class="pn-btn" href="{% url 'recepcion:salidas' %}"><i class="bi bi-box-arrow-right"></i>Check-out</a>
+</nav>
+
+<section class="pn-rejilla pn-kpis" aria-label="Indicadores">
+    <article class="pn-tarjeta pn-kpi"><small>Reservas para hoy</small><span class="valor">{{ d.reservas_hoy }}</span><span class="sub">con entrada hoy (sin canceladas)</span></article>
+    <article class="pn-tarjeta pn-kpi"><small>Llegadas pendientes</small><span class="valor">{{ d.llegadas_pendientes }}</span><span class="sub">pendientes o confirmadas con entrada hoy</span></article>
+    <article class="pn-tarjeta pn-kpi"><small>Salidas de hoy</small><span class="valor">{{ d.salidas_hoy }}</span><span class="sub">huéspedes que salen hoy</span></article>
+    <article class="pn-tarjeta pn-kpi"><small>Huéspedes alojados</small><span class="valor">{{ d.alojados }}</span><span class="sub">reservas con check-in activo</span></article>
+    <article class="pn-tarjeta pn-kpi"><small>Habitaciones disponibles</small><span class="valor">{{ d.estados.disponibles }}</span><span class="sub">de {{ d.estados.total_habitaciones }} · {{ d.estados.reservadas }} reservada{{ d.estados.reservadas|pluralize }}</span></article>
+    <article class="pn-tarjeta pn-kpi"><small>Habitaciones ocupadas</small><span class="valor">{{ d.estados.ocupadas }}</span><span class="sub">con huésped en casa</span></article>
+    <article class="pn-tarjeta pn-kpi"><small>En aseo / mantenimiento</small><span class="valor">{{ d.estados.en_aseo }} / {{ d.estados.no_operativas }}</span><span class="sub">aseo / mantenimiento o fuera de servicio</span></article>
+    <article class="pn-tarjeta pn-kpi"><small>Pendientes de confirmación</small><span class="valor">{{ d.pendientes_confirmar }}</span><span class="sub"><a href="{% url 'recepcion:reservas' %}?estado=PENDIENTE">ver reservas pendientes</a></span></article>
+    <article class="pn-tarjeta pn-kpi"><small>Pagos pendientes</small><span class="valor">{{ d.reservas_con_saldo }}</span><span class="sub">reservas confirmadas o alojadas con saldo</span></article>
+    <article class="pn-tarjeta pn-kpi"><small>Saldos por cobrar</small><span class="valor rc-valor-md">{{ d.saldo_por_cobrar|cop }}</span><span class="sub">sin cargo por salida tardía</span></article>
+    <article class="pn-tarjeta pn-kpi"><small>Pagos registrados hoy</small><span class="valor rc-valor-md">{{ d.pagos_hoy_total|cop }}</span><span class="sub">{{ d.pagos_hoy_n }} pago{{ d.pagos_hoy_n|pluralize }}</span></article>
+</section>
+
+<div class="pn-rejilla pn-iguales">
+    <section class="pn-tarjeta">
+        <h2>Próximas llegadas</h2>
+        {% if d.proximas_llegadas %}<ul class="pn-lista">{% for r in d.proximas_llegadas %}
+            <li><span><a href="{% url 'recepcion:reserva_detalle' r.pk %}"><strong>{{ r.pk|codigo_reserva }}</strong></a> · {{ r.huesped.nombres }} {{ r.huesped.apellidos }}<span class="pn-ayuda" style="display:block">Hab. {{ r.habitacion.numero }} · llega {{ r.fecha_entrada|date:"d/m" }} · {{ r.num_huespedes }} huésped{{ r.num_huespedes|pluralize:"es" }}</span></span>
+            <span class="pn-acciones">{% include 'panel/_estado_reserva.html' %}{% if r.estado == 'CONFIRMADA' and r.fecha_entrada <= d.hoy %}<a class="pn-btn pn-btn--sm" href="{% url 'recepcion:checkin' r.pk %}">Check-in</a>{% endif %}</span></li>
+        {% endfor %}</ul>{% else %}<p class="pn-vacio">No hay llegadas próximas.</p>{% endif %}
+    </section>
+    <section class="pn-tarjeta">
+        <h2>Próximas salidas</h2>
+        {% if d.proximas_salidas %}<ul class="pn-lista">{% for r in d.proximas_salidas %}
+            <li><span><a href="{% url 'recepcion:reserva_detalle' r.pk %}"><strong>{{ r.pk|codigo_reserva }}</strong></a> · {{ r.huesped.nombres }} {{ r.huesped.apellidos }}<span class="pn-ayuda" style="display:block">Hab. {{ r.habitacion.numero }} · sale {{ r.fecha_salida|date:"d/m" }}{% if r.fecha_salida < d.hoy %} (vencida){% endif %}</span></span>
+            <span class="pn-acciones"><a class="pn-btn pn-btn--sm" href="{% url 'recepcion:checkout' r.pk %}">Check-out</a></span></li>
+        {% endfor %}</ul>{% else %}<p class="pn-vacio">No hay huéspedes alojados.</p>{% endif %}
+    </section>
+</div>
+<section class="pn-tarjeta">
+    <h2>Reservas recientes</h2>
+    <div class="pn-tabla-wrap"><table class="pn-tabla">
+        <thead><tr><th>Código</th><th>Huésped</th><th>Hab.</th><th>Entrada</th><th>Salida</th><th>Estado</th><th class="num">Valor</th></tr></thead>
+        <tbody>{% for r in d.recientes %}<tr>
+            <td><a href="{% url 'recepcion:reserva_detalle' r.pk %}"><strong>{{ r.pk|codigo_reserva }}</strong></a></td>
+            <td>{{ r.huesped.nombres }} {{ r.huesped.apellidos }}</td><td>{{ r.habitacion.numero }}</td>
+            <td>{{ r.fecha_entrada|date:"d/m/Y" }}</td><td>{{ r.fecha_salida|date:"d/m/Y" }}</td>
+            <td>{% include 'panel/_estado_reserva.html' %}</td><td class="num">{{ r.valor_total|cop }}</td></tr>
+        {% empty %}<tr><td colspan="7" class="pn-vacio">Aún no hay reservas.</td></tr>{% endfor %}</tbody>
+    </table></div>
+</section>
+{% endblock %}

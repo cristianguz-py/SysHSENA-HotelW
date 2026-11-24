@@ -1,0 +1,17 @@
+{% extends 'recepcion/base.html' %}{% load panel_extras %}
+{% block title %}Habitaciones{% endblock %}
+{% block contenido %}
+<div class="pn-titulo"><div><h1>Habitaciones</h1><p>Estado operativo actual (consulta; las tarifas y la configuración las gestiona administración).</p></div></div>
+<form class="pn-tarjeta pn-filtros" method="get">
+    <div class="pn-campo"><label for="q">Número</label><input type="search" id="q" name="q" value="{{ q }}" maxlength="20" size="8"></div>
+    <div class="pn-campo"><label for="tipo">Tipo</label><select id="tipo" name="tipo"><option value="">Todos</option>{% for t in tipos %}<option value="{{ t.pk }}" {% if tipo == t.pk|stringformat:"d" %}selected{% endif %}>{{ t.nombre }}</option>{% endfor %}</select></div>
+    <div class="pn-campo"><label for="situacion">Situación</label><select id="situacion" name="situacion"><option value="">Todas</option>{% for v, t in situaciones %}<option value="{{ v }}" {% if situacion == v %}selected{% endif %}>{{ t }}</option>{% endfor %}</select></div>
+    <button class="pn-btn" type="submit"><i class="bi bi-funnel"></i>Filtrar</button><a class="pn-btn pn-btn--claro" href="{% url 'recepcion:habitaciones' %}">Limpiar</a></form>
+<div class="pn-tabla-wrap"><table class="pn-tabla"><thead><tr><th>Hab.</th><th>Piso</th><th>Tipo</th><th>Capacidad</th><th class="num">Precio/noche</th><th>Situación</th><th>Reserva</th><th>Acciones</th></tr></thead>
+<tbody>{% for h in pagina %}<tr><td><strong>{{ h.numero }}</strong></td><td>{{ h.piso }}</td><td>{{ h.tipo.nombre }}</td><td>{{ h.tipo.capacidad }}</td><td class="num">{{ h.tipo.precio_noche|cop }}</td>
+    <td><span class="et et--{{ h.estado_clase }}">{{ h.estado_visual_display }}</span></td>
+    <td>{% if h.reserva_activa %}<a href="{% url 'recepcion:reserva_detalle' h.reserva_activa.pk %}">{{ h.reserva_activa.pk|codigo_reserva }}</a> · {{ h.reserva_activa.huesped.nombres }}{% else %}—{% endif %}</td>
+    <td>{% if h.estado == 'EN_ASEO' and h.activa %}<form method="post" action="{% url 'recepcion:habitacion_habilitar' h.pk %}" style="margin:0">{% csrf_token %}<button class="pn-btn pn-btn--ok pn-btn--sm" type="submit">Habilitar</button></form>{% endif %}</td></tr>
+{% empty %}<tr><td colspan="8" class="pn-vacio">No hay habitaciones con esos filtros.</td></tr>{% endfor %}</tbody></table></div>
+{% include 'panel/_paginas.html' %}
+{% endblock %}

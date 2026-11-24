@@ -1,0 +1,34 @@
+{% extends 'recepcion/base.html' %}{% load panel_extras %}
+{% block title %}Check-out {{ r.pk|codigo_reserva }}{% endblock %}
+{% block contenido %}
+<div class="pn-titulo"><div><h1>Check-out · {{ r.pk|codigo_reserva }}</h1><p>{{ r.huesped.nombres }} {{ r.huesped.apellidos }} · Hab. {{ r.habitacion.numero }}</p></div>
+    <a class="pn-btn pn-btn--claro" href="{% url 'recepcion:reserva_detalle' r.pk %}">← Volver</a></div>
+<div class="pn-rejilla pn-iguales">
+    <section class="pn-tarjeta"><h2>Estancia</h2><dl class="pn-datos">
+        <div><dt>Entrada real</dt><dd>{{ r.checkin_real|date:"d/m/Y H:i"|default:"—" }}</dd></div>
+        <div><dt>Salida prevista</dt><dd>{{ r.fecha_salida|date:"d/m/Y" }}</dd></div>
+        <div><dt>Noches</dt><dd>{{ noches }}</dd></div><div><dt>Huéspedes</dt><dd>{{ r.num_huespedes }}</dd></div></dl>
+        {% if servicios %}<h2 style="margin-top:1rem">Servicios</h2><ul class="pn-lista">{% for s in servicios %}<li><span>{{ s.cantidad }} × {{ s.servicio.nombre }}</span><strong>{{ s.subtotal|cop }}</strong></li>{% endfor %}</ul>{% endif %}
+        {% if pagos %}<h2 style="margin-top:1rem">Pagos realizados</h2><ul class="pn-lista">{% for p in pagos %}<li><span>{{ p.fecha_pago|date:"d/m/Y H:i" }} · {{ p.get_metodo_pago_display }}</span><strong>{{ p.monto|cop }}</strong></li>{% endfor %}</ul>{% endif %}</section>
+    <section class="pn-tarjeta"><h2>Cuenta final</h2><ul class="pn-lista">
+        <li><span>Alojamiento</span><strong>{{ cuenta.total_alojamiento|cop }}</strong></li>
+        <li><span>Servicios adicionales</span><strong>{{ cuenta.total_servicios|cop }}</strong></li>
+        <li><span>Cargo por salida tardía (a esta hora)</span><strong>{{ cuenta.cargo_tardio|cop }}</strong></li>
+        <li><span>Valor final</span><strong>{{ cuenta.total_general|cop }}</strong></li>
+        <li><span>Pagado</span><strong>{{ cuenta.total_pagos|cop }}</strong></li>
+        <li><span>Saldo pendiente</span><strong>{{ cuenta.saldo_pendiente|cop }}</strong></li></ul></section>
+</div>
+{% if r.estado == 'CHECKIN' %}
+<form method="post" class="pn-tarjeta">{% csrf_token %}
+    <input type="hidden" name="token" value="{{ token }}">
+    {% if form.non_field_errors %}<ul class="pn-mensajes">{% for e in form.non_field_errors %}<li class="pn-mensaje pn-mensaje--error">{{ e }}</li>{% endfor %}</ul>{% endif %}
+    {% if cuenta.saldo_pendiente > 0 %}<p class="pn-nota">Hay un saldo de {{ cuenta.saldo_pendiente|cop }}: registra el pago final para poder cerrar la cuenta.</p>
+    <div class="pn-formulario">{% for campo in form %}{% include 'panel/_campo.html' %}{% endfor %}</div>
+    {% elif cuenta.saldo_pendiente < 0 %}<p class="pn-nota">Saldo a favor de {{ cuenta.saldo_pendiente|cop }}: debe revisarlo un administrador antes del check-out.</p>
+    {% else %}<p class="pn-nota">La cuenta está en cero. Puedes confirmar el check-out.</p>{% endif %}
+    <p class="pn-ayuda" style="margin-top:.6rem">Al confirmar se registra la fecha y hora reales de salida y la habitación pasa a EN ASEO.</p>
+    <div class="pn-acciones" style="margin-top:1rem"><button class="pn-btn pn-btn--ok" type="submit">{% if cuenta.saldo_pendiente > 0 %}Registrar pago y confirmar check-out{% else %}Confirmar check-out{% endif %}</button>
+        <a class="pn-btn pn-btn--claro" href="{% url 'recepcion:salidas' %}">Cancelar</a></div>
+</form>
+{% endif %}
+{% endblock %}

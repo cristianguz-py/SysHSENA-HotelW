@@ -1,0 +1,12 @@
+/* Hotel W · Recepción — complementos de panel.css (solo CSS, sin JavaScript). */
+.rc-accesos { display: flex; flex-wrap: wrap; gap: .6rem; margin-bottom: 1.1rem; }
+.rc-accesos .pn-btn { flex: 1 1 170px; justify-content: center; text-align: center; }
+.rc-valor-md { font-size: 1.7rem !important; }
+.rc-sub { font-size: 1.05rem; margin: 1.2rem 0 .6rem; }
+.rc-resumen { margin-bottom: 1rem; }
+.pn input[type="number"], .pn input[type="date"], .pn textarea { font: inherit; }
+.pn-tabla td, .pn-tabla th { vertical-align: middle; }
+@media (max-width: 860px) {
+    .rc-accesos .pn-btn { flex: 1 1 45%; }
+    .pn-tabla-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+}
