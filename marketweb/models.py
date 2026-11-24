@@ -353,8 +353,8 @@ class Pago(models.Model):
     metodo_pago = models.CharField(max_length=20, choices=METODOS)
     fecha_pago = models.DateTimeField(auto_now_add=True)
     # Trazabilidad (recepción). Nulos/vacíos en los pagos anteriores: no se pierde ningún dato.
-    registrado_por = models.ForeignKey(Usuario, null=True, blank=True, on_delete=models.PROTECT,
-                                       related_name='pagos_registrados')
+    registrado_por = models.ForeignKey(Usuario, null=True, blank=True, db_constraint=False, on_delete=models.PROTECT,
+    related_name='pagos_registrados')
     referencia = models.CharField(max_length=60, blank=True, default='')
 
     class Meta:
