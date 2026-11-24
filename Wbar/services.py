@@ -254,10 +254,13 @@ def confirmar_entrega(pedido_id, personal, *, codigo, edad_verificada=False, doc
                     reserva=reserva, servicio=servicio, cantidad=d.cantidad, precio_unitario=d.precio_unitario)
                 d.save(update_fields=['servicio_reserva'])
             if forma_cobro == Pedido.PAGO_COBRADO:
-                pago = Pago.objects.create(reserva=reserva, monto=pedido.total, metodo_pago=metodo_pago)
+                ref_limpia = (referencia or '').strip()
+                pago = Pago.objects.create(
+                    reserva=reserva, monto=pedido.total, metodo_pago=metodo_pago,
+                    registrado_por=personal, referencia=ref_limpia[:60])
                 PagoPedido.objects.create(
                     pedido=pedido, pago=pago, metodo=metodo_pago, monto=pedido.total,
-                    referencia=(referencia or '').strip()[:40], registrado_por=personal)
+                    referencia=ref_limpia[:40], registrado_por=personal)
 
             ahora = timezone.now()
             anterior = pedido.estado
