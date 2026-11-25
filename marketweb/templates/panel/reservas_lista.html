@@ -2,7 +2,7 @@
 {% block title %}Reservas{% endblock %}
 {% block contenido %}
 <div class="pn-titulo"><div><h1>Gestión de reservas</h1><p>{{ pagina.paginator.count }} reserva{{ pagina.paginator.count|pluralize }} con los filtros actuales.</p></div>
-    <a class="pn-btn" href="{% url 'crear_reserva' %}"><i class="bi bi-plus-lg"></i>Nueva reserva</a></div>
+    </div>
 
 <form class="pn-tarjeta pn-filtros" method="get" action="{% url 'gestion_reservas' %}">
     <div class="pn-campo" style="flex:1;min-width:200px"><label for="q">Código, huésped o habitación</label><input type="search" id="q" name="q" value="{{ q }}" maxlength="80" placeholder="RW-000012, Pérez, 204…"></div>
