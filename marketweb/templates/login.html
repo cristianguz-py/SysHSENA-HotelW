@@ -45,7 +45,7 @@
         <!-- Formulario -->
         <section class="panel" aria-labelledby="titulo-login">
             <h2 class="panel__titulo" id="titulo-login">Bienvenido</h2>
-            <p class="panel__texto">Ingresa con tu nombre o correo electrónico para continuar.</p>
+            <p class="panel__texto">Ingresa con tu correo electrónico para continuar.</p>
 
             <!-- Mensajes de Notificación -->
             {% if messages %}
@@ -71,7 +71,7 @@
                 {% csrf_token %}
 
                 <div class="campo">
-                    <label for="identificador" class="campo__etiqueta">Nombre o correo electrónico</label>
+                    <label for="identificador" class="campo__etiqueta">Correo electrónico</label>
                     <div class="campo__control">
                         <svg class="campo__icono" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                             <circle cx="12" cy="8" r="4"/>
